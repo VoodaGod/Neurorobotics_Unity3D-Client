@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using GzBridgeLib;
+using SimpleJSON;
 
 /// <summary>
 /// Roboymanager has different tasks:
@@ -19,8 +20,6 @@ using GzBridgeLib;
 /// </summary>
 public class GzBridgeManager : Singleton<GzBridgeManager>
 {
-
-
     #region PUBLIC_MEMBER_VARIABLES
 
     /// <summary>
@@ -36,11 +35,6 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     /// ROSBridge websocket
     /// </summary>
     private GzBridgeWebSocketConnection m_GzBridge = null;
-
-    /// <summary>
-    /// Pose message of roboy in our build in class
-    /// </summary>
-    private RoboyPoseMsg m_RoboyPoseMessage;
 
     /// <summary>
     /// Variable to check if the ROS connection is working!
@@ -64,7 +58,8 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
         // DOES NOT WORK! m_Ros is never null if you call the Constructor, WAIT TILL SIMON IMPLEMENTS UDP BROADCAST WITH ROS CONFIGURATION, GET THE IP ADDRESS FROM THE BROADCAST
         if (m_GzBridge != null)
         {
-            m_GzBridge.AddSubscriber(typeof(GzResponseSubscriber));
+            //m_GzBridge.AddSubscriber(typeof(GzResponseSubscriber));
+            m_GzBridge.AddSubscriber(typeof(GzSceneTopicSubscriber));
             m_GzBridge.Connect();
             m_Initialized = true;
 
@@ -83,7 +78,7 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     {
         if (m_Initialized)
         {
-
+            m_GzBridge.Render();
         }
     }
 
@@ -103,10 +98,10 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     /// Main function to receive messages from ROSBridge. Adjusts the roboy pose and the motors values (future).
     /// </summary>
     /// <param name="msg">JSON msg containing roboy pose.</param>
-    public void ReceiveMessage(RoboyPoseMsg msg)
+    public void ReceiveMessage(GzSceneMsg msg)
     {
-        Debug.Log("Received message");
-        //adjustPose(msg);
+        //Debug.Log("Received GzSceneMsg");
+        BuildScene(msg.MsgJSON);
 
         //Use additional data to adjust motor values
 
@@ -115,6 +110,30 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     #endregion //PUBLIC_METHODS
 
     #region PRIVATE_METHODS
+
+    private static bool BuildScene(JSONNode sceneMsg)
+    {
+        Debug.Log("GzBridgeManager.BuildScene()");
+
+        // clear scene before building new one if necessary
+        GameObject gazebo_scene = GameObject.Find("gazebo_scene");
+        if (gazebo_scene != null)
+        {
+            GameObject.Destroy(gazebo_scene);
+        }
+        gazebo_scene = new GameObject("gazebo_scene");
+
+        JSONClass ambient = sceneMsg["ambient"].AsObject;
+        if (ambient != null)
+        {
+            Color color_ambient = new Color(ambient["r"].AsFloat, ambient["g"].AsFloat, ambient["b"].AsFloat, ambient["a"].AsFloat);
+            Debug.Log(color_ambient);
+        }
+
+        JSONArray joints = sceneMsg["joint"].AsArray;
+
+        return true;
+    }
 
     #endregion //PRIVATE_METHODS
 }
