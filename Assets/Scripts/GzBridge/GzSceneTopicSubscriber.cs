@@ -28,15 +28,13 @@ public class GzSceneTopicSubscriber : ROSBridgeSubscriber
 
     public new static ROSBridgeMsg ParseMessage(JSONNode msg)
     {
-        Debug.Log("GzSceneTopicSubscriber.ParseMessage()");
+        //Debug.Log("GzSceneTopicSubscriber.ParseMessage()");
         return new GzSceneMsg(msg);
     }
 
     public new static void CallBack(ROSBridgeMsg msg)
     {
-        Debug.Log("GzSceneTopicSubscriber.CallBack()");
-        //GzSceneMsg scene_msg = (GzSceneMsg)msg;
-        
+        //Debug.Log("GzSceneTopicSubscriber.CallBack()");
         GzBridgeManager.Instance.ReceiveMessage((GzSceneMsg)msg);
     }
 
