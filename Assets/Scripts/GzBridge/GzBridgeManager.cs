@@ -27,6 +27,8 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     /// </summary>
     public string GZBRIDGE_URL = "192.168.0.17:8080/gzbridge";
 
+    public GameObject GazeboScene = null;
+
     #endregion //PUBLIC_MEMBER_VARIABLES
 
     #region PRIVATE_MEMBER_VARIABLES
@@ -51,6 +53,9 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     void Awake()
     {
         if (string.IsNullOrEmpty(GZBRIDGE_URL))
+            return;
+
+        if (GazeboScene == null || GazeboScene.GetComponent<GazeboSceneManager>() == null)
             return;
 
         m_GzBridge = new GzBridgeWebSocketConnection("ws://" + GZBRIDGE_URL);
@@ -101,7 +106,7 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     public void ReceiveMessage(GzSceneMsg msg)
     {
         //Debug.Log("Received GzSceneMsg");
-        BuildScene(msg.MsgJSON);
+        GazeboScene.GetComponent<GazeboSceneManager>().BuildScene(msg.MsgJSON);
 
         //Use additional data to adjust motor values
 
@@ -110,30 +115,6 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     #endregion //PUBLIC_METHODS
 
     #region PRIVATE_METHODS
-
-    private static bool BuildScene(JSONNode sceneMsg)
-    {
-        Debug.Log("GzBridgeManager.BuildScene()");
-
-        // clear scene before building new one if necessary
-        GameObject gazebo_scene = GameObject.Find("gazebo_scene");
-        if (gazebo_scene != null)
-        {
-            GameObject.Destroy(gazebo_scene);
-        }
-        gazebo_scene = new GameObject("gazebo_scene");
-
-        JSONClass ambient = sceneMsg["ambient"].AsObject;
-        if (ambient != null)
-        {
-            Color color_ambient = new Color(ambient["r"].AsFloat, ambient["g"].AsFloat, ambient["b"].AsFloat, ambient["a"].AsFloat);
-            Debug.Log(color_ambient);
-        }
-
-        JSONArray joints = sceneMsg["joint"].AsArray;
-
-        return true;
-    }
 
     #endregion //PRIVATE_METHODS
 }
