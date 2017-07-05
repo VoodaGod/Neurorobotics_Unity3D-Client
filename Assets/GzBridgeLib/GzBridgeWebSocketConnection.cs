@@ -223,11 +223,11 @@ namespace GzBridgeLib
                 //Debug.Log ("Parsed it");
 
                 /*** deubgging ***/
-                string dbg_topic = node["topic"];
+                /*string dbg_topic = node["topic"];
                 if (!dbg_topic.Equals("~/pose/info"))
                 {
                     Debug.Log(s);
-                }
+                }*/
                 /*** deubgging ***/
 
                 string op = node["op"];
