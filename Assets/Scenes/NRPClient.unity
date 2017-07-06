@@ -370,7 +370,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1779908246}
   - component: {fileID: 1779908247}
-  - component: {fileID: 1779908248}
   m_Layer: 0
   m_Name: ros_bridge_manager
   m_TagString: Untagged
@@ -402,19 +401,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a0e465220d4db84abca24103d94cee4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  VM_IP: 3139322e3136382e302e313533
+  VM_IP: 192.168.0.153
   VM_PORT: 9090
-  m_ROSInitialized: 0
---- !u!114 &1779908248
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1779908245}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fea7f1c17b5b0194aa100acc3f7d400f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ROSCoreIP: 
-  Port: 9090
