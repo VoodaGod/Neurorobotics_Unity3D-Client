@@ -185,12 +185,12 @@ public class GazeboSceneManager : MonoBehaviour {
         JSONArray links = json_model["link"].AsArray;
         foreach (JSONNode link in links)
         {
-            float model_scale = json_model["scale"].AsFloat;
-            this.CreateLinkFromJSON(link, links_parent.transform, model_scale);
+            JSONNode json_model_scale = json_model["scale"];
+            this.CreateLinkFromJSON(link, links_parent.transform, json_model_scale);
         }
     }
 
-    private void CreateLinkFromJSON(JSONNode json_link, Transform parent_transform, float model_scale)
+    private void CreateLinkFromJSON(JSONNode json_link, Transform parent_transform, JSONNode json_model_scale)
     {
         string link_name = json_link["name"];
         GameObject link_gameobject = new GameObject(link_name);
@@ -210,7 +210,7 @@ public class GazeboSceneManager : MonoBehaviour {
         JSONArray visuals = json_link["visual"].AsArray;
         foreach (JSONNode visual in visuals)
         {
-            this.CreateVisualFromJSON(visual, visuals_parent.transform, model_scale);
+            this.CreateVisualFromJSON(visual, visuals_parent.transform, json_model_scale);
         }
 
         // collisions
@@ -220,7 +220,7 @@ public class GazeboSceneManager : MonoBehaviour {
         JSONArray collisions = json_link["collision"].AsArray;
         foreach (JSONNode collision in collisions)
         {
-            this.CreateVisualFromJSON(collision, collisions_parent.transform, model_scale);
+            this.CreateVisualFromJSON(collision, collisions_parent.transform, json_model_scale);
         }
 
         // sensors
@@ -234,7 +234,7 @@ public class GazeboSceneManager : MonoBehaviour {
         }
     }
 
-    private void CreateVisualFromJSON(JSONNode json_visual, Transform parent_transform, float model_scale)
+    private void CreateVisualFromJSON(JSONNode json_visual, Transform parent_transform, JSONNode json_model_scale)
     {
         JSONNode json_geometry = json_visual["geometry"];
         if (json_geometry != null)
@@ -252,7 +252,7 @@ public class GazeboSceneManager : MonoBehaviour {
 
             // geometry
             JSONNode json_material = json_visual["material"];
-            this.CreateGeometryFromJSON(json_geometry, json_material, visual_gameobject.transform, model_scale);
+            this.CreateGeometryFromJSON(json_geometry, json_material, visual_gameobject.transform, json_model_scale);
 
             // cast shadows
             bool json_cast_shadows = json_visual["cast_shadows"].AsBool;
@@ -265,7 +265,7 @@ public class GazeboSceneManager : MonoBehaviour {
         }
     }
 
-    private void CreateGeometryFromJSON(JSONNode json_geometry, JSONNode json_material, Transform parent_transform, float model_scale)
+    private void CreateGeometryFromJSON(JSONNode json_geometry, JSONNode json_material, Transform parent_transform, JSONNode json_model_scale)
     {
         if (json_geometry["box"] != null)
         {
@@ -273,24 +273,32 @@ public class GazeboSceneManager : MonoBehaviour {
             geometry_gameobject.transform.SetParent(parent_transform, false);
 
             JSONNode json_size = json_geometry["box"].AsObject["size"];
-            Vector3 local_scale = new Vector3(json_size["x"].AsFloat, json_size["y"].AsFloat, json_size["z"].AsFloat) / model_scale;
-            //geometry_gameobject.transform.localScale = local_scale;
-            //TODO: fix
+            Vector3 local_scale = new Vector3(json_size["x"].AsFloat / json_model_scale["x"].AsFloat,
+                json_size["y"].AsFloat / json_model_scale["y"].AsFloat,
+                json_size["z"].AsFloat / json_model_scale["z"].AsFloat);
+            Debug.Log(local_scale);
+            geometry_gameobject.transform.localScale = local_scale;
         }
         else if (json_geometry["cylinder"] != null)
         {
             GameObject geometry_gameobject = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             geometry_gameobject.transform.SetParent(parent_transform, false);
+
+            //TODO: fix scale
         }
         else if (json_geometry["sphere"] != null)
         {
             GameObject geometry_gameobject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             geometry_gameobject.transform.SetParent(parent_transform, false);
+
+            //TODO: fix scale
         }
         else if (json_geometry["plane"] != null)
         {
             GameObject geometry_gameobject = GameObject.CreatePrimitive(PrimitiveType.Plane);
             geometry_gameobject.transform.SetParent(parent_transform, false);
+
+            //TODO: fix scale
         }
         else if (json_geometry["mesh"] != null)
         {
