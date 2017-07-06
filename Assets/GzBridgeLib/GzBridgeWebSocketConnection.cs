@@ -7,6 +7,7 @@ using WebSocketSharp.Net;
 using WebSocketSharp.Server;
 using SimpleJSON;
 using UnityEngine;
+using ROSBridgeLib;
 
 /**
  * This class handles the connection with the external ROS world, deserializing

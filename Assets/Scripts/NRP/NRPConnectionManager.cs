@@ -7,7 +7,6 @@ public class NRPConnectionManager : MonoBehaviour {
     public string NRPBackendIP = "192.168.0.153";
 
     private GzBridgeManager gzBridgeManager;
-    private ROSBridgeManager rosBridgeManager;
 
 	// Use this for initialization
 	void Start () {

@@ -29,14 +29,12 @@ public class GzResponseSubscriber : ROSBridgeSubscriber
     public new static ROSBridgeMsg ParseMessage(JSONNode msg)
     {
         Debug.Log("ParseMessage:\n" + msg);
-        return new RoboyPoseMsg(msg);
+        return new ROSBridgeMsg();
     }
 
     public new static void CallBack(ROSBridgeMsg msg)
     {
         Debug.Log("CallBack:\n" + msg);
-        RoboyPoseMsg pose = (RoboyPoseMsg)msg;
-        //RoboyManager.Instance.ReceiveMessage(pose);
     }
 
     #endregion //PUBLIC_METHODS

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using SimpleJSON;
 using UnityEngine;
+using ROSBridgeLib;
 
 public class GzSceneMsg : ROSBridgeMsg
 {
