@@ -17,9 +17,9 @@ public class GazeboSceneManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        Camera.main.transform.position = new Vector3(4, 4, 2);
-        Camera.main.transform.LookAt(new Vector3(), new Vector3(0, 0, 1));
-	}
+        Camera.main.transform.position = new Vector3(6, 3, 6);
+        Camera.main.transform.LookAt(new Vector3());
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -92,11 +92,11 @@ public class GazeboSceneManager : MonoBehaviour {
             // position
             JSONNode json_position = json_pose["position"];
             Vector3 position = new Vector3(json_position["x"].AsFloat, json_position["y"].AsFloat, json_position["z"].AsFloat);
-            light_gameobject.transform.position = position;
+            light_gameobject.transform.position = Gz2UnityVec3(position);
             // rotation
             JSONNode json_rotation = json_pose["orientation"];
             Quaternion rotation = new Quaternion(json_rotation["x"].AsFloat, json_rotation["y"].AsFloat, json_rotation["z"].AsFloat, json_rotation["w"].AsFloat);
-            light_gameobject.transform.rotation = rotation;
+            light_gameobject.transform.rotation = Gz2UnityQuaternion(rotation);
         }
 
         // color
@@ -125,7 +125,7 @@ public class GazeboSceneManager : MonoBehaviour {
 
                 JSONNode json_direction = json_light["direction"];
                 Vector3 direction = new Vector3(json_direction["x"].AsFloat, json_direction["y"].AsFloat, json_direction["z"].AsFloat);
-                light_gameobject.transform.LookAt(light_gameobject.transform.position + direction);
+                light_gameobject.transform.LookAt(light_gameobject.transform.position + Gz2UnityVec3(direction));
             }
             else if (light_type.AsInt == (int)GZ_LIGHT_TYPE.DIRECTIONAL)
             {
@@ -133,7 +133,7 @@ public class GazeboSceneManager : MonoBehaviour {
 
                 JSONNode json_direction = json_light["direction"];
                 Vector3 direction = new Vector3(json_direction["x"].AsFloat, json_direction["y"].AsFloat, json_direction["z"].AsFloat);
-                light_gameobject.transform.LookAt(light_gameobject.transform.position + direction);
+                light_gameobject.transform.LookAt(light_gameobject.transform.position + Gz2UnityVec3(direction));
             }
         }
 
@@ -172,4 +172,60 @@ public class GazeboSceneManager : MonoBehaviour {
     {
 
     }
+
+    #region Convert function from gazebo to unity and vice versa.
+    /// <summary>
+    /// Converts a quaternion in gazebo coordinate frame to unity coordinate frame.
+    /// </summary>
+    /// <param name="gazeboRot">Quaternion in gazebo coordinate frame.</param>
+    /// <returns>Quaternion in unity coordinate frame.</returns>
+    Quaternion Gz2UnityQuaternion(Quaternion gazeboRot)
+    {
+        Quaternion rotX = Quaternion.AngleAxis(180f, Vector3.right);
+        Quaternion rotZ = Quaternion.AngleAxis(180f, Vector3.forward);
+
+        Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
+
+        Quaternion finalRot = tempRot * rotZ * rotX;
+
+        return finalRot;
+    }
+
+    /// <summary>
+    /// Converts a vector in gazebo coordinate frame to unity coordinate frame.
+    /// </summary>
+    /// <param name="gazeboPos">Vector in gazebo coordinate frame.</param>
+    /// <returns>Vector in unity coordinate frame.</returns>
+    Vector3 Gz2UnityVec3(Vector3 gazeboPos)
+    {
+        return new Vector3(gazeboPos.x, gazeboPos.z, gazeboPos.y);
+    }
+
+    /// <summary>
+    /// Converts a vector in unity coordinate frame to gazebo coordinate frame.
+    /// </summary>
+    /// <param name="unityPos">Vector in unity coordinate frame.</param>
+    /// <returns>Vector in gazebo coordinate frame.</returns>
+    Vector3 Unity2GzVec3(Vector3 unityPos)
+    {
+        return new Vector3(unityPos.x, unityPos.z, unityPos.y);
+    }
+
+    /// <summary>
+    /// Converts a quaternion in unity coordinate frame to gazebo coordinate frame.
+    /// </summary>
+    /// <param name="unityRot">Quaternion in unity coordinate frame.</param>
+    /// <returns>Quaternion in gazebo coordinate frame.</returns>
+    Quaternion Unity2GzQuaternion(Quaternion unityRot)
+    {
+        Quaternion rotX = Quaternion.AngleAxis(180f, Vector3.right);
+        Quaternion rotZ = Quaternion.AngleAxis(180f, Vector3.forward);
+
+        Quaternion tempRot = unityRot * rotX * rotZ;
+
+        Quaternion finalRot = new Quaternion(-tempRot.x, -tempRot.z, -tempRot.y, tempRot.w);
+
+        return finalRot;
+    }
+    #endregion
 }
