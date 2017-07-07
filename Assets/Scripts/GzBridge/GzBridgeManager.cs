@@ -25,7 +25,7 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     /// <summary>
     /// The IP address of the VM or the machine where the simulation is running
     /// </summary>
-    public string GZBRIDGE_URL = "192.168.0.17:8080/gzbridge";
+    public string URL = "192.168.0.17:8080/gzbridge";
 
     public GameObject GazeboScene = null;
 
@@ -52,28 +52,7 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     /// </summary>
     void Awake()
     {
-        if (string.IsNullOrEmpty(GZBRIDGE_URL))
-            return;
-
-        if (GazeboScene == null || GazeboScene.GetComponent<GazeboSceneManager>() == null)
-            return;
-
-        m_GzBridge = new GzBridgeWebSocketConnection("ws://" + GZBRIDGE_URL);
-
-        // DOES NOT WORK! m_Ros is never null if you call the Constructor, WAIT TILL SIMON IMPLEMENTS UDP BROADCAST WITH ROS CONFIGURATION, GET THE IP ADDRESS FROM THE BROADCAST
-        if (m_GzBridge != null)
-        {
-            //m_GzBridge.AddSubscriber(typeof(GzResponseSubscriber));
-            m_GzBridge.AddSubscriber(typeof(GzSceneTopicSubscriber));
-            m_GzBridge.Connect();
-            m_Initialized = true;
-
-            Debug.Log("GzBridge successfully initialized!");
-        }
-        else
-        {
-            Debug.LogWarning("GzBridge could not be initialized!");
-        }
+        //this.ConnectToGzBridge();
     }
 
     /// <summary>
@@ -110,6 +89,32 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
 
         //Use additional data to adjust motor values
 
+    }
+
+    public void ConnectToGzBridge()
+    {
+        if (string.IsNullOrEmpty(URL))
+            return;
+
+        if (GazeboScene == null || GazeboScene.GetComponent<GazeboSceneManager>() == null)
+            return;
+
+        m_GzBridge = new GzBridgeWebSocketConnection("ws://" + URL);
+
+        // DOES NOT WORK! m_Ros is never null if you call the Constructor, WAIT TILL SIMON IMPLEMENTS UDP BROADCAST WITH ROS CONFIGURATION, GET THE IP ADDRESS FROM THE BROADCAST
+        if (m_GzBridge != null)
+        {
+            //m_GzBridge.AddSubscriber(typeof(GzResponseSubscriber));
+            m_GzBridge.AddSubscriber(typeof(GzSceneTopicSubscriber));
+            m_GzBridge.Connect();
+            m_Initialized = true;
+
+            Debug.Log("GzBridge successfully initialized!");
+        }
+        else
+        {
+            Debug.LogWarning("GzBridge could not be initialized!");
+        }
     }
 
     #endregion //PUBLIC_METHODS
