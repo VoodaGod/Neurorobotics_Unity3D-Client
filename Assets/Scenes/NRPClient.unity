@@ -135,6 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abc05aa9dfe720741bd04781f1c3e791, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ModelBasePath: Assets/Models/NRPModelDatabase
   CollisionMaterial: {fileID: 2100000, guid: a381b5141639a7346b5fd1a945a71379, type: 2}
 --- !u!4 &139956227
 Transform:
