@@ -115,7 +115,7 @@ public class GazeboSceneManager : MonoBehaviour {
     {
         string light_name = json_light["name"];
         GameObject light_gameobject = new GameObject(light_name);
-        light_gameobject.transform.parent = parent_transform;
+        light_gameobject.transform.SetParent(parent_transform, false);
         Light light_component = light_gameobject.AddComponent<Light>();
 
         // pose
@@ -193,7 +193,7 @@ public class GazeboSceneManager : MonoBehaviour {
     {
         string model_name = json_model["name"];
         GameObject model_gameobject = new GameObject(model_name);
-        model_gameobject.transform.SetParent(parent_transform, false);
+        model_gameobject.transform.SetParent(parent_transform, true);
 
         // pose
         JSONNode json_pose = json_model["pose"];
@@ -426,17 +426,40 @@ public class GazeboSceneManager : MonoBehaviour {
 
     private void SetPoseFromJSON(JSONNode json_pose, GameObject gameobject)
     {
-        // position
-        JSONNode json_position = json_pose["position"];
-        Vector3 position = new Vector3(json_position["x"].AsFloat, json_position["y"].AsFloat, json_position["z"].AsFloat);
-        gameobject.transform.localPosition = Gz2UnityVec3(position);
         // rotation
         JSONNode json_rotation = json_pose["orientation"];
-        Quaternion rotation = new Quaternion(json_rotation["x"].AsFloat, json_rotation["y"].AsFloat, json_rotation["z"].AsFloat, json_rotation["w"].AsFloat);
-        gameobject.transform.localRotation = Gz2UnityQuaternion(rotation);
+        Quaternion rotation = Gz2UnityQuaternion(new Quaternion(json_rotation["x"].AsFloat, json_rotation["y"].AsFloat, json_rotation["z"].AsFloat, json_rotation["w"].AsFloat));
+        //gameobject.transform.rotation = Gz2UnityQuaternion(rotation);
+        // position
+        JSONNode json_position = json_pose["position"];
+        Vector3 position = Gz2UnityVec3(new Vector3(json_position["x"].AsFloat, json_position["y"].AsFloat, json_position["z"].AsFloat));
+        //gameobject.transform.localPosition = Gz2UnityVec3(position);
+        
+        if (gameobject.transform.parent.parent == this.gameObject.transform)
+        {
+            //TODO: "root" objects, this is not really nice - and there are still objects misplaced (e.g. eye vision camera of husky)
+            gameobject.transform.rotation = rotation * Quaternion.AngleAxis(180f, Vector3.up);
+            gameobject.transform.position = position;
+        }
+        else
+        {
+            gameobject.transform.localRotation = rotation;
+            gameobject.transform.localPosition = position;
+        }
     }
 
     #region Convert function from gazebo to unity and vice versa.
+    
+    /// <summary>
+    /// Converts a vector in gazebo coordinate frame to unity coordinate frame.
+    /// </summary>
+    /// <param name="gazeboPos">Vector in gazebo coordinate frame.</param>
+    /// <returns>Vector in unity coordinate frame.</returns>
+    private Vector3 Gz2UnityVec3(Vector3 gazeboPos)
+    {
+        return new Vector3(gazeboPos.x, gazeboPos.z, gazeboPos.y);
+    }
+
     /// <summary>
     /// Converts a quaternion in gazebo coordinate frame to unity coordinate frame.
     /// </summary>
@@ -446,22 +469,15 @@ public class GazeboSceneManager : MonoBehaviour {
     {
         Quaternion rotX = Quaternion.AngleAxis(180f, Vector3.right);
         Quaternion rotZ = Quaternion.AngleAxis(180f, Vector3.forward);
+        Quaternion rotY = Quaternion.AngleAxis(180f, Vector3.up);
 
+        //Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
         Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
 
+        //Quaternion finalRot = tempRot * rotZ * rotX;
         Quaternion finalRot = tempRot * rotZ * rotX;
 
         return finalRot;
-    }
-
-    /// <summary>
-    /// Converts a vector in gazebo coordinate frame to unity coordinate frame.
-    /// </summary>
-    /// <param name="gazeboPos">Vector in gazebo coordinate frame.</param>
-    /// <returns>Vector in unity coordinate frame.</returns>
-    private Vector3 Gz2UnityVec3(Vector3 gazeboPos)
-    {
-        return new Vector3(-gazeboPos.x, gazeboPos.z, -gazeboPos.y);
     }
 
     /// <summary>
