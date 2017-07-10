@@ -3,7 +3,7 @@ using ROSBridgeLib;
 using SimpleJSON;
 using UnityEngine;
 
-public class GzResponseSubscriber : ROSBridgeSubscriber
+public class GzPoseInfoSubscriber : ROSBridgeSubscriber
 {
     #region PUBLIC_MEMBER_VARIABLES
     #endregion //PUBLIC_MEMBER_VARIABLES
@@ -18,27 +18,29 @@ public class GzResponseSubscriber : ROSBridgeSubscriber
 
     public new static string GetMessageTopic()
     {
-        return "~/response";
+        return "~/pose/info";
     }
 
     public new static string GetMessageType()
     {
-        return "gazebo/msgs/response";
+        return "gazebo.msgs.Pose";
     }
 
     public new static ROSBridgeMsg ParseMessage(JSONNode msg)
     {
-        Debug.Log("ParseMessage:\n" + msg);
-        return new ROSBridgeMsg();
+        //Debug.Log("GzSceneTopicSubscriber.ParseMessage()");
+        return new GzPoseInfoMsg(msg);
     }
 
     public new static void CallBack(ROSBridgeMsg msg)
     {
-        Debug.Log("CallBack:\n" + msg);
+        //Debug.Log("GzSceneTopicSubscriber.CallBack()");
+        GzBridgeManager.Instance.ReceiveMessage((GzPoseInfoMsg)msg);
     }
 
     #endregion //PUBLIC_METHODS
 
     #region PRIVATE_METHODS
+
     #endregion //PRIVATE_METHODS
 }

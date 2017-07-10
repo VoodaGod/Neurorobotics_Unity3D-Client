@@ -3,7 +3,7 @@ using ROSBridgeLib;
 using SimpleJSON;
 using UnityEngine;
 
-public class GzSceneTopicSubscriber : ROSBridgeSubscriber
+public class GzSceneMsgSubscriber : ROSBridgeSubscriber
 {
     #region PUBLIC_MEMBER_VARIABLES
     #endregion //PUBLIC_MEMBER_VARIABLES

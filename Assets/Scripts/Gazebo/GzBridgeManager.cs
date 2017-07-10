@@ -79,16 +79,21 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     #region PUBLIC_METHODS
 
     /// <summary>
-    /// Main function to receive messages from ROSBridge. Adjusts the roboy pose and the motors values (future).
+    /// Main function to receive messages from GzBridge.
     /// </summary>
-    /// <param name="msg">JSON msg containing roboy pose.</param>
+    /// <param name="msg">JSON msg containing scene message.</param>
     public void ReceiveMessage(GzSceneMsg msg)
     {
-        //Debug.Log("Received GzSceneMsg");
-        GazeboScene.GetComponent<GazeboSceneManager>().BuildScene(msg.MsgJSON);
+        GazeboScene.GetComponent<GazeboSceneManager>().OnSceneMsg(msg.MsgJSON);
+    }
 
-        //Use additional data to adjust motor values
-
+    /// <summary>
+    /// Main function to receive messages from GzBridge.
+    /// </summary>
+    /// <param name="msg">JSON msg containing pose info message.</param>
+    public void ReceiveMessage(GzPoseInfoMsg msg)
+    {
+        GazeboScene.GetComponent<GazeboSceneManager>().OnPoseInfoMsg(msg.MsgJSON);
     }
 
     public void ConnectToGzBridge()
@@ -105,7 +110,8 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
         if (m_GzBridge != null)
         {
             //m_GzBridge.AddSubscriber(typeof(GzResponseSubscriber));
-            m_GzBridge.AddSubscriber(typeof(GzSceneTopicSubscriber));
+            m_GzBridge.AddSubscriber(typeof(GzSceneMsgSubscriber));
+            m_GzBridge.AddSubscriber(typeof(GzPoseInfoSubscriber));
             m_GzBridge.Connect();
             m_Initialized = true;
 

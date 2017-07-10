@@ -30,7 +30,9 @@ public class GazeboSceneManager : MonoBehaviour {
 		
 	}
 
-    public bool BuildScene(JSONNode sceneMsg)
+    #region ON_MESSAGE_FUNCTIONS
+
+    public bool OnSceneMsg(JSONNode json_scene)
     {
         // clear scene before building new one
         List<GameObject> children = new List<GameObject>();
@@ -39,11 +41,11 @@ public class GazeboSceneManager : MonoBehaviour {
         children.ForEach(child => Destroy(child));
 
         // name
-        if (sceneMsg["name"] != null)
-            scene_name_ = sceneMsg["name"];
+        if (json_scene["name"] != null)
+            scene_name_ = json_scene["name"];
 
         // ambient color
-        JSONClass ambient = sceneMsg["ambient"].AsObject;
+        JSONClass ambient = json_scene["ambient"].AsObject;
         if (ambient != null)
         {
             Color color_ambient = new Color(ambient["r"].AsFloat, ambient["g"].AsFloat, ambient["b"].AsFloat, ambient["a"].AsFloat);
@@ -51,7 +53,7 @@ public class GazeboSceneManager : MonoBehaviour {
         }
 
         // background color
-        JSONClass background = sceneMsg["background"].AsObject;
+        JSONClass background = json_scene["background"].AsObject;
         if (ambient != null)
         {
             Color color_background = new Color(background["r"].AsFloat, background["g"].AsFloat, background["b"].AsFloat, background["a"].AsFloat);
@@ -62,8 +64,8 @@ public class GazeboSceneManager : MonoBehaviour {
         GameObject lights_parent = new GameObject("lights");
         lights_parent.transform.parent = this.gameObject.transform;
 
-        JSONArray lights = sceneMsg["light"].AsArray;
-        foreach(JSONNode light in lights)
+        JSONArray lights = json_scene["light"].AsArray;
+        foreach (JSONNode light in lights)
         {
             this.CreateLightFromJSON(light, lights_parent.transform);
         }
@@ -72,7 +74,7 @@ public class GazeboSceneManager : MonoBehaviour {
         GameObject models_parent = new GameObject("models");
         models_parent.transform.parent = this.gameObject.transform;
 
-        JSONArray models = sceneMsg["model"].AsArray;
+        JSONArray models = json_scene["model"].AsArray;
         foreach (JSONNode model in models)
         {
             this.CreateModelFromJSON(model, models_parent.transform);
@@ -82,7 +84,7 @@ public class GazeboSceneManager : MonoBehaviour {
         GameObject joints_parent = new GameObject("joints");
         joints_parent.transform.parent = this.gameObject.transform;
 
-        JSONArray joints = sceneMsg["joint"].AsArray;
+        JSONArray joints = json_scene["joint"].AsArray;
         foreach (JSONNode joint in joints)
         {
             this.CreateJointFromJSON(joint, joints_parent.transform);
@@ -90,6 +92,22 @@ public class GazeboSceneManager : MonoBehaviour {
 
         return true;
     }
+
+    public bool OnPoseInfoMsg(JSONNode json_pose_info)
+    {
+        string name = json_pose_info["name"];
+        GameObject gameobject = GameObject.Find(name);
+        if (gameobject != null)
+        {
+            this.SetPoseFromJSON(json_pose_info, gameobject);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    #endregion //ON_MESSAGE_FUNCTIONS
 
     #region CREATE_SCENE_ELEMENTS
 
@@ -355,7 +373,10 @@ public class GazeboSceneManager : MonoBehaviour {
         mesh_prefab = (GameObject)AssetDatabase.LoadAssetAtPath(mesh_uri, typeof(Object));
         //StartCoroutine(importModelCoroutine(path, (result) => { meshPrefab = result; }));
         if (mesh_prefab == null)
+        {
             Debug.Log("Could not import model! (" + mesh_uri + ")");
+            Debug.Log("json mesh uri: " + json_mesh_uri);
+        }
 
         if (mesh_prefab != null)
         {
@@ -394,6 +415,12 @@ public class GazeboSceneManager : MonoBehaviour {
     }
 
     #endregion //CREATE_SCENE_ELEMENTS
+
+    #region UPDATE_SCENE_ELEMENTS
+
+
+
+    #endregion //UPDATE_SCENE_ELEMENTS
 
     #region HELPER_FUNCTIONS
 
