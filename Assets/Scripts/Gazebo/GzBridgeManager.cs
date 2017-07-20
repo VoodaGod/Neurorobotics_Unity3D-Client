@@ -58,7 +58,7 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     /// <summary>
     /// Run ROSBridge
     /// </summary>
-    void Update()
+    void FixedUpdate()
     {
         if (m_Initialized)
         {
@@ -79,7 +79,7 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     #region PUBLIC_METHODS
 
     /// <summary>
-    /// Main function to receive messages from GzBridge.
+    /// Main function to receive scene messages from GzBridge.
     /// </summary>
     /// <param name="msg">JSON msg containing scene message.</param>
     public void ReceiveMessage(GzSceneMsg msg)
@@ -88,12 +88,21 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     }
 
     /// <summary>
-    /// Main function to receive messages from GzBridge.
+    /// Main function to receive pose info messages from GzBridge.
     /// </summary>
     /// <param name="msg">JSON msg containing pose info message.</param>
     public void ReceiveMessage(GzPoseInfoMsg msg)
     {
         GazeboScene.GetComponent<GazeboSceneManager>().OnPoseInfoMsg(msg.MsgJSON);
+    }
+
+    /// <summary>
+    /// Main function to receive material messages from GzBridge.
+    /// </summary>
+    /// <param name="msg">JSON msg containing material message.</param>
+    public void ReceiveMessage(GzMaterialMsg msg)
+    {
+        GazeboScene.GetComponent<GazeboSceneManager>().OnMaterialMsg(msg.MsgJSON);
     }
 
     public void ConnectToGzBridge()
@@ -112,6 +121,7 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
             //m_GzBridge.AddSubscriber(typeof(GzResponseSubscriber));
             m_GzBridge.AddSubscriber(typeof(GzSceneMsgSubscriber));
             m_GzBridge.AddSubscriber(typeof(GzPoseInfoSubscriber));
+            m_GzBridge.AddSubscriber(typeof(GzMaterialSubscriber));
             m_GzBridge.Connect();
             m_Initialized = true;
 

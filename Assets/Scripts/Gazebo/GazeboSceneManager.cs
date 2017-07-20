@@ -4,6 +4,11 @@ using UnityEngine;
 using SimpleJSON;
 using UnityEditor;
 
+using System;
+using System.Text;
+using System.IO;
+using System.Runtime.InteropServices;
+
 public class GazeboSceneManager : MonoBehaviour {
 
     public enum GZ_LIGHT_TYPE
@@ -14,19 +19,25 @@ public class GazeboSceneManager : MonoBehaviour {
         UNKNOWN = 4
     }
 
-    public string ModelBasePath = "Assets/Models/NRPModelDatabase";
-    public Material CollisionMaterial = null;
-
     private string scene_name_ = null;
 
+    public string NRPModelsSubpath = "Models/nrp_models";
+    private Dictionary<string, string> nrp_models_subpaths = new Dictionary<string, string>();
+
+    public Material CollisionMaterial = null;
+
 	// Use this for initialization
-	void Start () {
+	void Start ()
+    {
         Camera.main.transform.position = new Vector3(6, 3, 6);
         Camera.main.transform.LookAt(new Vector3());
+
+        this.InitModelSubpaths();
     }
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
 		
 	}
 
@@ -105,6 +116,13 @@ public class GazeboSceneManager : MonoBehaviour {
         }
 
         return false;
+    }
+
+    public bool OnMaterialMsg(JSONNode json_material)
+    {
+        Debug.Log(json_material);
+
+        return true;
     }
 
     #endregion //ON_MESSAGE_FUNCTIONS
@@ -303,6 +321,7 @@ public class GazeboSceneManager : MonoBehaviour {
 
     private GameObject CreateGeometryFromJSON(JSONNode json_geometry, JSONNode json_material, Transform parent_transform, JSONNode json_model_scale)
     {
+        // geometry
         GameObject geometry_gameobject = null;
         if (json_geometry["box"] != null)
         {
@@ -348,34 +367,32 @@ public class GazeboSceneManager : MonoBehaviour {
             Destroy(geometry_gameobject.GetComponent<Collider>());
         }
 
+        // material
+        Debug.Log("material: " + json_material.ToString());
+
         return geometry_gameobject;
     }
 
     private void LoadMeshFromJSON(JSONNode json_mesh, Transform parent_transform, JSONNode json_model_scale)
     {
         string json_mesh_uri = json_mesh["filename"];
-        //Debug.Log("json mesh uri: " + json_mesh_uri);
-
         string mesh_uri_type = json_mesh_uri.Substring(0, json_mesh_uri.IndexOf("://"));
-        //Debug.Log("json mesh uri type: " + mesh_uri_type);
-
         // need "file" or "model" to load
         if (mesh_uri_type != "file" && mesh_uri_type != "model")
             return;
 
-        string mesh_subpath = json_mesh_uri.Substring(json_mesh_uri.IndexOf("://") + 3);
-        string mesh_uri = this.ModelBasePath + "/" + mesh_subpath;
-        //Debug.Log("mesh uri: " + mesh_uri);
+        string json_uri_path = json_mesh_uri.Substring(json_mesh_uri.IndexOf("://") + 3);
+        string model_name = json_uri_path.Split('/')[0];
+        string model_subpath = this.nrp_models_subpaths[model_name] + json_uri_path.Substring(model_name.Length);
+        string mesh_uri = "Assets/" + this.NRPModelsSubpath + "/" + model_subpath;
 
-
-        GameObject mesh_prefab = null;
         // import Mesh
-        mesh_prefab = (GameObject)AssetDatabase.LoadAssetAtPath(mesh_uri, typeof(Object));
-        //StartCoroutine(importModelCoroutine(path, (result) => { meshPrefab = result; }));
+        GameObject mesh_prefab = null;
+        mesh_prefab = (GameObject)AssetDatabase.LoadAssetAtPath(mesh_uri, typeof(UnityEngine.Object));
+        //mesh_prefab = (GameObject) Resources.Load(mesh_uri, typeof(UnityEngine.Object));
         if (mesh_prefab == null)
         {
             Debug.Log("Could not import model! (" + mesh_uri + ")");
-            Debug.Log("json mesh uri: " + json_mesh_uri);
         }
 
         if (mesh_prefab != null)
@@ -417,13 +434,7 @@ public class GazeboSceneManager : MonoBehaviour {
     #endregion //CREATE_SCENE_ELEMENTS
 
     #region UPDATE_SCENE_ELEMENTS
-
-
-
-    #endregion //UPDATE_SCENE_ELEMENTS
-
-    #region HELPER_FUNCTIONS
-
+    
     private void SetPoseFromJSON(JSONNode json_pose, GameObject gameobject)
     {
         // rotation
@@ -434,7 +445,7 @@ public class GazeboSceneManager : MonoBehaviour {
         JSONNode json_position = json_pose["position"];
         Vector3 position = Gz2UnityVec3(new Vector3(json_position["x"].AsFloat, json_position["y"].AsFloat, json_position["z"].AsFloat));
         //gameobject.transform.localPosition = Gz2UnityVec3(position);
-        
+
         if (gameobject.transform.parent.parent == this.gameObject.transform)
         {
             //TODO: "root" objects, this is not really nice - and there are still objects misplaced (e.g. eye vision camera of husky)
@@ -446,6 +457,71 @@ public class GazeboSceneManager : MonoBehaviour {
             gameobject.transform.localRotation = rotation;
             gameobject.transform.localPosition = position;
         }
+    }
+
+    #endregion //UPDATE_SCENE_ELEMENTS
+
+    #region HELPER_FUNCTIONS
+
+    /// <summary>
+    /// Saves model names and their relative paths in the NRP models repository into a dictionary.
+    /// This is done to avoid having to flatten the model folder hierarchy (usually done by Gazebo) so the models can be found at their actual location inside the repository folder structure.
+    /// </summary>
+    private bool InitModelSubpaths()
+    {
+        // load model list file
+        string model_list_file_path = Application.dataPath + "/" + this.NRPModelsSubpath + "/_rpmbuild/models.txt";
+        StreamReader stream_reader = new StreamReader(model_list_file_path, Encoding.Default);
+        using (stream_reader)
+        {
+            try
+            {
+                string line = stream_reader.ReadLine();
+                if (line != null)
+                {
+                    do
+                    {
+                        string[] model_subpath_directories = line.Split('/');
+                        string model_name = model_subpath_directories[model_subpath_directories.Length - 1];
+                        this.nrp_models_subpaths.Add(model_name, line);
+
+                        line = stream_reader.ReadLine();
+                    }
+                    while (line != null);
+                }
+                stream_reader.Close();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+                return false;
+            }
+        }
+    }
+
+    private Material ParseMaterial(JSONNode json_material)
+    {
+        Material material = new Material(Shader.Find("Standard"));
+
+        string texture_uri = "";
+
+        // script
+        JSONNode json_script = json_material["script"];
+        if (json_script != null)
+        {
+            Debug.Log("material script: " + json_script.ToString());
+        }
+
+        // normal map
+        JSONNode json_normal_map = json_material["normal_map"];
+        if (json_normal_map != null)
+        {
+
+        }
+
+        return material;
     }
 
     #region Convert function from gazebo to unity and vice versa.
