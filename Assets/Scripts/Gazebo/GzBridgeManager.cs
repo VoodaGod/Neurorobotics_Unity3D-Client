@@ -58,7 +58,7 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     /// <summary>
     /// Run ROSBridge
     /// </summary>
-    void FixedUpdate()
+    void Update()
     {
         if (m_Initialized)
         {

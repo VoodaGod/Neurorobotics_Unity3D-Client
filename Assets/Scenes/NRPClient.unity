@@ -135,7 +135,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abc05aa9dfe720741bd04781f1c3e791, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NRPModelsSubpath: Models/nrp_models
+  NRPModelsSubpath: Models/NRP
   CollisionMaterial: {fileID: 2100000, guid: a381b5141639a7346b5fd1a945a71379, type: 2}
 --- !u!4 &139956227
 Transform:
@@ -266,7 +266,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41060aea552a4d94bbcd37eaf3961364, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NRPBackendIP: 192.168.0.18
+  NRPBackendIP: 192.168.0.194
   GzBridgePort: 8080
   ROSBridgePort: 9090
   GazeboScene: {fileID: 139956225}

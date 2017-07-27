@@ -248,7 +248,8 @@ namespace GzBridgeLib
                             RenderTask newTask = new RenderTask(p, topic, msg);
                             lock (_queueLock)
                             {
-                                bool found = false;
+                                // this is problematic since e.g. pose updates on topic /pose_info will overwrite each other even if they belong to different models
+                                /*bool found = false;
                                 for (int i = 0; i < _taskQ.Count; i++)
                                 {
                                     if (_taskQ[i].getTopic().Equals(topic))
@@ -260,7 +261,8 @@ namespace GzBridgeLib
                                     }
                                 }
                                 if (!found)
-                                    _taskQ.Add(newTask);
+                                    _taskQ.Add(newTask);*/
+                                _taskQ.Add(newTask);
                             }
 
                         }
@@ -281,17 +283,21 @@ namespace GzBridgeLib
 
         public void Render()
         {
-            RenderTask newTask = null;
-            lock (_queueLock)
+            //TODO: add max update count per cycle to avoid deadlock
+            while (_taskQ.Count > 0)
             {
-                if (_taskQ.Count > 0)
+                RenderTask newTask = null;
+                lock (_queueLock)
                 {
                     newTask = _taskQ[0];
                     _taskQ.RemoveAt(0);
                 }
+                if (newTask != null)
+                {
+                    Debug.Log("GzBridgeWebSocket.Render() - new task");
+                    Update(newTask.getSubscriber(), newTask.getMsg());
+                }
             }
-            if (newTask != null)
-                Update(newTask.getSubscriber(), newTask.getMsg());
 
             if (_serviceName != null)
             {

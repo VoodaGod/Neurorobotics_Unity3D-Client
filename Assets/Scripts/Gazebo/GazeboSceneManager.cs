@@ -61,7 +61,10 @@ public class GazeboSceneManager : MonoBehaviour {
         {
             Color color_ambient = new Color(ambient["r"].AsFloat, ambient["g"].AsFloat, ambient["b"].AsFloat, ambient["a"].AsFloat);
             RenderSettings.ambientLight = color_ambient;
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
         }
+
+        // shadow settingssync
 
         // background color
         JSONClass background = json_scene["background"].AsObject;
@@ -107,6 +110,7 @@ public class GazeboSceneManager : MonoBehaviour {
     public bool OnPoseInfoMsg(JSONNode json_pose_info)
     {
         string name = json_pose_info["name"];
+        Debug.Log("OnPoseInfoMsg: " + name);
         GameObject gameobject = GameObject.Find(name);
         if (gameobject != null)
         {
@@ -399,6 +403,22 @@ public class GazeboSceneManager : MonoBehaviour {
         {
             GameObject mesh_gameobject = Instantiate(mesh_prefab);
             mesh_gameobject.transform.SetParent(parent_transform, false);
+
+            // adjust materials
+            /*MeshRenderer[] mesh_renderers = mesh_gameobject.GetComponentsInChildren<MeshRenderer>();
+            foreach (MeshRenderer mesh_renderer in mesh_renderers)
+            {
+                if (mesh_renderer.materials != null)
+                {
+                    foreach (Material material in mesh_renderer.materials)
+                    {
+                        if (material.name.Contains("PBR"))
+                        {
+                            this.AdjustMaterialPBR(material, mesh_uri);
+                        }
+                    }
+                }
+            }*/
         }
     }
 
@@ -511,7 +531,7 @@ public class GazeboSceneManager : MonoBehaviour {
         JSONNode json_script = json_material["script"];
         if (json_script != null)
         {
-            Debug.Log("material script: " + json_script.ToString());
+            //Debug.Log("material script: " + json_script.ToString());
         }
 
         // normal map
@@ -522,6 +542,46 @@ public class GazeboSceneManager : MonoBehaviour {
         }
 
         return material;
+    }
+
+    private void AdjustMaterialPBR(Material material, string mesh_uri)
+    {
+        string mesh_directory = mesh_uri.Substring(0, mesh_uri.LastIndexOf('/') + 1);
+
+        // check for PBR textures
+        if (material.name.LastIndexOf("Base_Color") > 0)
+        {
+            string material_base_name = material.name.Substring(0, material.name.LastIndexOf("Base_Color"));
+            string material_uri = mesh_directory + material_base_name;
+
+            // normal map
+            string normal_map_name = material_base_name + "Normal";
+            Texture normal_map = (Texture)AssetDatabase.LoadAssetAtPath(material_uri + normal_map_name + ".jpg", typeof(UnityEngine.Texture));
+            if (normal_map == null) normal_map = (Texture)AssetDatabase.LoadAssetAtPath(material_uri + normal_map_name + ".png", typeof(UnityEngine.Texture));
+            if (normal_map != null)
+            {
+                material.SetTexture("_NORMALMAP", normal_map);
+            }
+            else
+            {
+                Debug.Log("AdjustMaterialPBR() - could not load normal_mal: " + mesh_directory + normal_map_name);
+            }
+
+            // metallic
+            string metallic_name = material_base_name + "Metallic";
+            Texture metallic = (Texture)AssetDatabase.LoadAssetAtPath(material_uri + metallic_name + ".jpg", typeof(UnityEngine.Texture));
+            if (metallic == null) metallic = (Texture)AssetDatabase.LoadAssetAtPath(material_uri + metallic_name + ".png", typeof(UnityEngine.Texture));
+            if (metallic != null)
+            {
+                material.SetTexture("_METALLICGLOSSMAP", metallic);
+            }
+            else
+            {
+                Debug.Log("AdjustMaterialPBR() - could not load metallic: " + mesh_directory + metallic_name);
+            }
+        }
+
+        //Debug.Log("AdjustMaterialPBR() - mat: " + material.name + ", mesh_directory: " + mesh_directory);
     }
 
     #region Convert function from gazebo to unity and vice versa.
