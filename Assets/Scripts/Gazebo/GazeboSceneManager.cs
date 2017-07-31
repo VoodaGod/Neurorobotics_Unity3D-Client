@@ -110,7 +110,6 @@ public class GazeboSceneManager : MonoBehaviour {
     public bool OnPoseInfoMsg(JSONNode json_pose_info)
     {
         string name = json_pose_info["name"];
-        Debug.Log("OnPoseInfoMsg: " + name);
         GameObject gameobject = GameObject.Find(name);
         if (gameobject != null)
         {
@@ -372,7 +371,7 @@ public class GazeboSceneManager : MonoBehaviour {
         }
 
         // material
-        Debug.Log("material: " + json_material.ToString());
+        //Debug.Log("material: " + json_material.ToString());
 
         return geometry_gameobject;
     }
@@ -405,20 +404,35 @@ public class GazeboSceneManager : MonoBehaviour {
             mesh_gameobject.transform.SetParent(parent_transform, false);
 
             // adjust materials
-            /*MeshRenderer[] mesh_renderers = mesh_gameobject.GetComponentsInChildren<MeshRenderer>();
+            MeshRenderer[] mesh_renderers = mesh_gameobject.GetComponentsInChildren<MeshRenderer>();
             foreach (MeshRenderer mesh_renderer in mesh_renderers)
             {
                 if (mesh_renderer.materials != null)
                 {
-                    foreach (Material material in mesh_renderer.materials)
+                    for (int i = 0; i < mesh_renderer.materials.Length; i = i+1)
                     {
+                        Material material = mesh_renderer.materials[i];
                         if (material.name.Contains("PBR"))
                         {
-                            this.AdjustMaterialPBR(material, mesh_uri);
+                            string material_uri = "Assets/Materials/NRP/" + this.nrp_models_subpaths[model_name] + "/" + material.name;
+                            if (material_uri.Contains(" (Instance)"))
+                            {
+                                material_uri = material_uri.Remove(material_uri.IndexOf(" (Instance)"));
+                            }
+                            material_uri = material_uri + ".mat";
+                            Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
+                            if (material_preset != null)
+                            {
+                                mesh_renderer.material = material_preset;
+                            }
+                            else
+                            {
+                                Debug.LogWarning("Could not load " + material_uri);
+                            }
                         }
                     }
                 }
-            }*/
+            }
         }
     }
 

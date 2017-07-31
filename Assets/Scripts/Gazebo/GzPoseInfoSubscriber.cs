@@ -28,13 +28,11 @@ public class GzPoseInfoSubscriber : ROSBridgeSubscriber
 
     public new static ROSBridgeMsg ParseMessage(JSONNode msg)
     {
-        //Debug.Log("GzSceneTopicSubscriber.ParseMessage()");
         return new GzPoseInfoMsg(msg);
     }
 
     public new static void CallBack(ROSBridgeMsg msg)
     {
-        //Debug.Log("GzSceneTopicSubscriber.CallBack()");
         GzBridgeManager.Instance.ReceiveMessage((GzPoseInfoMsg)msg);
     }
 

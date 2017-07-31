@@ -294,7 +294,6 @@ namespace GzBridgeLib
                 }
                 if (newTask != null)
                 {
-                    Debug.Log("GzBridgeWebSocket.Render() - new task");
                     Update(newTask.getSubscriber(), newTask.getMsg());
                 }
             }
