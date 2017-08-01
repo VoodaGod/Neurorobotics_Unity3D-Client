@@ -558,46 +558,6 @@ public class GazeboSceneManager : MonoBehaviour {
         return material;
     }
 
-    private void AdjustMaterialPBR(Material material, string mesh_uri)
-    {
-        string mesh_directory = mesh_uri.Substring(0, mesh_uri.LastIndexOf('/') + 1);
-
-        // check for PBR textures
-        if (material.name.LastIndexOf("Base_Color") > 0)
-        {
-            string material_base_name = material.name.Substring(0, material.name.LastIndexOf("Base_Color"));
-            string material_uri = mesh_directory + material_base_name;
-
-            // normal map
-            string normal_map_name = material_base_name + "Normal";
-            Texture normal_map = (Texture)AssetDatabase.LoadAssetAtPath(material_uri + normal_map_name + ".jpg", typeof(UnityEngine.Texture));
-            if (normal_map == null) normal_map = (Texture)AssetDatabase.LoadAssetAtPath(material_uri + normal_map_name + ".png", typeof(UnityEngine.Texture));
-            if (normal_map != null)
-            {
-                material.SetTexture("_NORMALMAP", normal_map);
-            }
-            else
-            {
-                Debug.Log("AdjustMaterialPBR() - could not load normal_mal: " + mesh_directory + normal_map_name);
-            }
-
-            // metallic
-            string metallic_name = material_base_name + "Metallic";
-            Texture metallic = (Texture)AssetDatabase.LoadAssetAtPath(material_uri + metallic_name + ".jpg", typeof(UnityEngine.Texture));
-            if (metallic == null) metallic = (Texture)AssetDatabase.LoadAssetAtPath(material_uri + metallic_name + ".png", typeof(UnityEngine.Texture));
-            if (metallic != null)
-            {
-                material.SetTexture("_METALLICGLOSSMAP", metallic);
-            }
-            else
-            {
-                Debug.Log("AdjustMaterialPBR() - could not load metallic: " + mesh_directory + metallic_name);
-            }
-        }
-
-        //Debug.Log("AdjustMaterialPBR() - mat: " + material.name + ", mesh_directory: " + mesh_directory);
-    }
-
     #region Convert function from gazebo to unity and vice versa.
     
     /// <summary>
@@ -617,15 +577,16 @@ public class GazeboSceneManager : MonoBehaviour {
     /// <returns>Quaternion in unity coordinate frame.</returns>
     private Quaternion Gz2UnityQuaternion(Quaternion gazeboRot)
     {
-        Quaternion rotX = Quaternion.AngleAxis(180f, Vector3.right);
-        Quaternion rotZ = Quaternion.AngleAxis(180f, Vector3.forward);
-        Quaternion rotY = Quaternion.AngleAxis(180f, Vector3.up);
+        //Quaternion rotX = Quaternion.AngleAxis(180f, Vector3.right);
+        //Quaternion rotZ = Quaternion.AngleAxis(180f, Vector3.forward);
+        //Quaternion rotY = Quaternion.AngleAxis(180f, Vector3.up);
 
         //Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
         Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
 
         //Quaternion finalRot = tempRot * rotZ * rotX;
-        Quaternion finalRot = tempRot * rotZ * rotX;
+        //Quaternion finalRot = tempRot * rotZ * rotX;
+        Quaternion finalRot = tempRot;
 
         return finalRot;
     }
