@@ -3,7 +3,7 @@ using ROSBridgeLib;
 using SimpleJSON;
 using UnityEngine;
 
-public class GzMaterialSubscriber : ROSBridgeSubscriber
+public class GzModelInfoSubscriber : ROSBridgeSubscriber
 {
     #region PUBLIC_MEMBER_VARIABLES
     #endregion //PUBLIC_MEMBER_VARIABLES
@@ -18,22 +18,22 @@ public class GzMaterialSubscriber : ROSBridgeSubscriber
 
     public new static string GetMessageTopic()
     {
-        return "~/material";
+        return "~/model/info";
     }
 
     public new static string GetMessageType()
     {
-        return "gazebo.msgs.Material";
+        return "gazebo.msgs.Model";
     }
 
     public new static ROSBridgeMsg ParseMessage(JSONNode msg)
     {
-        return new GzMaterialMsg(msg);
+        return new GzModelInfoMsg(msg);
     }
 
     public new static void CallBack(ROSBridgeMsg msg)
     {
-        GzBridgeManager.Instance.ReceiveMessage((GzMaterialMsg)msg);
+        GzBridgeManager.Instance.ReceiveMessage((GzModelInfoMsg)msg);
     }
 
     #endregion //PUBLIC_METHODS

@@ -97,6 +97,15 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
     }
 
     /// <summary>
+    /// Main function to receive model info messages from GzBridge.
+    /// </summary>
+    /// <param name="msg">JSON msg containing model info message.</param>
+    public void ReceiveMessage(GzModelInfoMsg msg)
+    {
+        GazeboScene.GetComponent<GazeboSceneManager>().OnModelInfoMsg(msg.MsgJSON);
+    }
+
+    /// <summary>
     /// Main function to receive material messages from GzBridge.
     /// </summary>
     /// <param name="msg">JSON msg containing material message.</param>
@@ -121,6 +130,7 @@ public class GzBridgeManager : Singleton<GzBridgeManager>
             //m_GzBridge.AddSubscriber(typeof(GzResponseSubscriber));
             m_GzBridge.AddSubscriber(typeof(GzSceneMsgSubscriber));
             m_GzBridge.AddSubscriber(typeof(GzPoseInfoSubscriber));
+            m_GzBridge.AddSubscriber(typeof(GzModelInfoSubscriber));
             m_GzBridge.AddSubscriber(typeof(GzMaterialSubscriber));
             m_GzBridge.Connect();
             m_Initialized = true;

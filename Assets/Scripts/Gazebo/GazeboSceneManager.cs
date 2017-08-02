@@ -76,7 +76,7 @@ public class GazeboSceneManager : MonoBehaviour {
 
         // lights
         GameObject lights_parent = new GameObject("lights");
-        lights_parent.transform.parent = this.gameObject.transform;
+        lights_parent.transform.SetParent(this.gameObject.transform, false);
 
         JSONArray lights = json_scene["light"].AsArray;
         foreach (JSONNode light in lights)
@@ -86,7 +86,7 @@ public class GazeboSceneManager : MonoBehaviour {
 
         // models
         GameObject models_parent = new GameObject("models");
-        models_parent.transform.parent = this.gameObject.transform;
+        models_parent.transform.SetParent(this.gameObject.transform, false);
 
         JSONArray models = json_scene["model"].AsArray;
         foreach (JSONNode model in models)
@@ -96,7 +96,7 @@ public class GazeboSceneManager : MonoBehaviour {
 
         // joints
         GameObject joints_parent = new GameObject("joints");
-        joints_parent.transform.parent = this.gameObject.transform;
+        joints_parent.transform.SetParent(this.gameObject.transform, false);
 
         JSONArray joints = json_scene["joint"].AsArray;
         foreach (JSONNode joint in joints)
@@ -121,9 +121,16 @@ public class GazeboSceneManager : MonoBehaviour {
         return false;
     }
 
+    public bool OnModelInfoMsg(JSONNode json_model_info)
+    {
+        Debug.Log("model info: " + json_model_info.ToString());
+
+        return false;
+    }
+
     public bool OnMaterialMsg(JSONNode json_material)
     {
-        Debug.Log(json_material);
+        Debug.Log("material msg: " + json_material.ToString());
 
         return true;
     }
@@ -214,13 +221,14 @@ public class GazeboSceneManager : MonoBehaviour {
     {
         string model_name = json_model["name"];
         GameObject model_gameobject = new GameObject(model_name);
-        model_gameobject.transform.SetParent(parent_transform, true);
+        model_gameobject.transform.SetParent(parent_transform, false);
 
         // pose
         JSONNode json_pose = json_model["pose"];
         if (json_pose != null)
         {
             this.SetPoseFromJSON(json_pose, model_gameobject);
+            model_gameobject.transform.localRotation *= Quaternion.AngleAxis(180f, Vector3.up);
         }
 
         // scale
@@ -360,7 +368,7 @@ public class GazeboSceneManager : MonoBehaviour {
         }
         else if (json_geometry["mesh"] != null)
         {
-            this.LoadMeshFromJSON(json_geometry["mesh"], parent_transform, json_model_scale);
+            this.CreateMeshFromJSON(json_geometry["mesh"], parent_transform, json_model_scale);
         }
 
         if (geometry_gameobject != null)
@@ -372,11 +380,12 @@ public class GazeboSceneManager : MonoBehaviour {
 
         // material
         //Debug.Log("material: " + json_material.ToString());
+        this.SetMaterialFromJSON(json_material, geometry_gameobject);
 
         return geometry_gameobject;
     }
 
-    private void LoadMeshFromJSON(JSONNode json_mesh, Transform parent_transform, JSONNode json_model_scale)
+    private void CreateMeshFromJSON(JSONNode json_mesh, Transform parent_transform, JSONNode json_model_scale)
     {
         string json_mesh_uri = json_mesh["filename"];
         string mesh_uri_type = json_mesh_uri.Substring(0, json_mesh_uri.IndexOf("://"));
@@ -474,23 +483,47 @@ public class GazeboSceneManager : MonoBehaviour {
         // rotation
         JSONNode json_rotation = json_pose["orientation"];
         Quaternion rotation = Gz2UnityQuaternion(new Quaternion(json_rotation["x"].AsFloat, json_rotation["y"].AsFloat, json_rotation["z"].AsFloat, json_rotation["w"].AsFloat));
-        //gameobject.transform.rotation = Gz2UnityQuaternion(rotation);
         // position
         JSONNode json_position = json_pose["position"];
         Vector3 position = Gz2UnityVec3(new Vector3(json_position["x"].AsFloat, json_position["y"].AsFloat, json_position["z"].AsFloat));
-        //gameobject.transform.localPosition = Gz2UnityVec3(position);
+        
+        gameobject.transform.localRotation = rotation * Quaternion.AngleAxis(180f, Vector3.up);
+        gameobject.transform.localPosition = position;
+    }
 
-        if (gameobject.transform.parent.parent == this.gameObject.transform)
+    private void SetMaterialFromJSON(JSONNode json_material, GameObject gameobject)
+    {
+        JSONNode json_material_script = json_material["script"];
+        if (json_material_script != null)
         {
-            //TODO: "root" objects, this is not really nice - and there are still objects misplaced (e.g. eye vision camera of husky)
-            gameobject.transform.rotation = rotation * Quaternion.AngleAxis(180f, Vector3.up);
-            gameobject.transform.position = position;
+            string material_subpath = json_material_script["name"];
+            string material_uri = "Assets/Materials/" + material_subpath + ".mat";
+            Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
+            if (material_preset != null)
+            {
+                gameobject.GetComponent<Renderer>().material = material_preset;
+            }
+            else
+            {
+                Debug.LogWarning("Could not load " + material_uri);
+            }
+        }
+
+        /*string material_uri = "Assets/Materials/NRP/" + this.nrp_models_subpaths[model_name] + "/" + material.name;
+        if (material_uri.Contains(" (Instance)"))
+        {
+            material_uri = material_uri.Remove(material_uri.IndexOf(" (Instance)"));
+        }
+        material_uri = material_uri + ".mat";
+        Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
+        if (material_preset != null)
+        {
+            mesh_renderer.material = material_preset;
         }
         else
         {
-            gameobject.transform.localRotation = rotation;
-            gameobject.transform.localPosition = position;
-        }
+            Debug.LogWarning("Could not load " + material_uri);
+        }*/
     }
 
     #endregion //UPDATE_SCENE_ELEMENTS
@@ -535,29 +568,6 @@ public class GazeboSceneManager : MonoBehaviour {
         }
     }
 
-    private Material ParseMaterial(JSONNode json_material)
-    {
-        Material material = new Material(Shader.Find("Standard"));
-
-        string texture_uri = "";
-
-        // script
-        JSONNode json_script = json_material["script"];
-        if (json_script != null)
-        {
-            //Debug.Log("material script: " + json_script.ToString());
-        }
-
-        // normal map
-        JSONNode json_normal_map = json_material["normal_map"];
-        if (json_normal_map != null)
-        {
-
-        }
-
-        return material;
-    }
-
     #region Convert function from gazebo to unity and vice versa.
     
     /// <summary>
@@ -577,16 +587,17 @@ public class GazeboSceneManager : MonoBehaviour {
     /// <returns>Quaternion in unity coordinate frame.</returns>
     private Quaternion Gz2UnityQuaternion(Quaternion gazeboRot)
     {
-        //Quaternion rotX = Quaternion.AngleAxis(180f, Vector3.right);
-        //Quaternion rotZ = Quaternion.AngleAxis(180f, Vector3.forward);
-        //Quaternion rotY = Quaternion.AngleAxis(180f, Vector3.up);
+        Quaternion rotX = Quaternion.AngleAxis(180f, Vector3.right);
+        Quaternion rotZ = Quaternion.AngleAxis(180f, Vector3.forward);
+        Quaternion rotY = Quaternion.AngleAxis(180f, Vector3.up);
 
         //Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
         Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
+        //Quaternion tempRot = new Quaternion(-gazeboRot.z, gazeboRot.w, -gazeboRot.x, gazeboRot.y);
 
         //Quaternion finalRot = tempRot * rotZ * rotX;
         //Quaternion finalRot = tempRot * rotZ * rotX;
-        Quaternion finalRot = tempRot;
+        Quaternion finalRot = tempRot * rotY;
 
         return finalRot;
     }
