@@ -103,7 +103,7 @@ public class GazeboSceneManager : MonoBehaviour {
         JSONArray json_joints = json_scene["joint"].AsArray;
         foreach (JSONNode json_joint in json_joints)
         {
-            this.CreateJointFromJSON(json_joint, joints_parent.transform);
+            this.SetJointFromJSON(json_joint, joints_parent.transform);
         }
 
         return true;
@@ -125,7 +125,7 @@ public class GazeboSceneManager : MonoBehaviour {
 
     public bool OnModelInfoMsg(JSONNode json_model_info)
     {
-        Debug.Log("model info: " + json_model_info.ToString());
+        //Debug.Log("model info: " + json_model_info.ToString());
         this.SetModelFromJSON(json_model_info, this.models_parent.transform);
 
         return true;
@@ -280,16 +280,6 @@ public class GazeboSceneManager : MonoBehaviour {
         }
     }
 
-    private void CreateSensorFromJSON(JSONNode json_sensor, Transform parent_transform)
-    {
-
-    }
-
-    private void CreateJointFromJSON(JSONNode json_joint, Transform parent_transform)
-    {
-
-    }
-
     #endregion //CREATE_SCENE_ELEMENTS
 
     #region SET_SCENE_ELEMENTS
@@ -387,7 +377,7 @@ public class GazeboSceneManager : MonoBehaviour {
             
             foreach (JSONNode json_sensor in json_sensors)
             {
-                this.CreateSensorFromJSON(json_sensors, sensors_parent.transform);
+                this.SetSensorFromJSON(json_sensor, sensors_parent.transform);
             }
         }
     }
@@ -522,28 +512,17 @@ public class GazeboSceneManager : MonoBehaviour {
         }
     }
 
-    private void SetPoseFromJSON(JSONNode json_pose, GameObject gameobject)
-    {
-        // rotation
-        JSONNode json_rotation = json_pose["orientation"];
-        Quaternion rotation = Gz2UnityQuaternion(new Quaternion(json_rotation["x"].AsFloat, json_rotation["y"].AsFloat, json_rotation["z"].AsFloat, json_rotation["w"].AsFloat));
-        // position
-        JSONNode json_position = json_pose["position"];
-        Vector3 position = Gz2UnityVec3(new Vector3(json_position["x"].AsFloat, json_position["y"].AsFloat, json_position["z"].AsFloat));
-        
-        gameobject.transform.localRotation = rotation * Quaternion.AngleAxis(180f, Vector3.up);
-        gameobject.transform.localPosition = position;
-    }
-
     private void SetMaterialFromJSON(JSONNode json_material, GameObject gameobject)
     {
+        if (gameobject == null) return;
+
         JSONNode json_material_script = json_material["script"];
         if (json_material_script != null)
         {
             string material_subpath = json_material_script["name"];
             string material_uri = "Assets/Materials/" + material_subpath + ".mat";
             Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
-            if (material_preset != null)
+            if (material_preset != null && gameobject.GetComponent<Renderer>() != null)
             {
                 gameobject.GetComponent<Renderer>().material = material_preset;
             }
@@ -552,6 +531,48 @@ public class GazeboSceneManager : MonoBehaviour {
                 Debug.LogWarning("Could not load " + material_uri);
             }
         }
+    }
+
+    private void SetSensorFromJSON(JSONNode json_sensor, Transform parent_transform)
+    {
+        string sensor_name = json_sensor["name"];
+
+        Transform sensor_transform = parent_transform.Find(sensor_name);
+        GameObject sensor_gameobject = sensor_transform == null ? new GameObject(sensor_name) : sensor_transform.gameObject;
+        sensor_gameobject.transform.SetParent(parent_transform, false);
+
+        // pose
+        JSONNode json_pose = json_sensor["pose"];
+        if (json_pose != null)
+        {
+            this.SetPoseFromJSON(json_pose, sensor_gameobject);
+        }
+
+        string type = json_sensor["type"];
+        if (type == "camera")
+        {
+            sensor_gameobject.transform.rotation *= Quaternion.AngleAxis(90, Vector3.up); // gazebo camera sensor faces towards +x, unity's towards +z
+            sensor_gameobject.AddComponent<Camera>();
+            sensor_gameobject.GetComponent<Camera>().enabled = false;
+        }
+    }
+
+    private void SetJointFromJSON(JSONNode json_joint, Transform parent_transform)
+    {
+        //Debug.Log("json joint: " + json_joint.ToString());
+    }
+
+    private void SetPoseFromJSON(JSONNode json_pose, GameObject gameobject)
+    {
+        // rotation
+        JSONNode json_rotation = json_pose["orientation"];
+        Quaternion rotation = Gz2UnityQuaternion(new Quaternion(json_rotation["x"].AsFloat, json_rotation["y"].AsFloat, json_rotation["z"].AsFloat, json_rotation["w"].AsFloat));
+        // position
+        JSONNode json_position = json_pose["position"];
+        Vector3 position = Gz2UnityVec3(new Vector3(json_position["x"].AsFloat, json_position["y"].AsFloat, json_position["z"].AsFloat));
+
+        gameobject.transform.localRotation = rotation * Quaternion.AngleAxis(180f, Vector3.up);
+        gameobject.transform.localPosition = position;
     }
 
     #endregion //SET_SCENE_ELEMENTS
