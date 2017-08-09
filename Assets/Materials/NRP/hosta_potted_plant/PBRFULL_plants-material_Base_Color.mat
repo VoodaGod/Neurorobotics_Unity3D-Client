@@ -19,7 +19,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BumpMap:
-        m_Texture: {fileID: 2800000, guid: 75507d394acdead4f9dc821772fee846, type: 3}
+        m_Texture: {fileID: 2800000, guid: 501df452367a0b847ba6f62f391276a8, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -27,7 +27,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailMask:
-        m_Texture: {fileID: 2800000, guid: 4011a9154e14e6d45852afb810e94789, type: 3}
+        m_Texture: {fileID: 2800000, guid: 4edf773eedbd1cd43982342857363709, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
@@ -39,19 +39,19 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 236e5306b25adab438457f9ee00514bd, type: 3}
+        m_Texture: {fileID: 2800000, guid: 87dc54ee5b92ca1419494faf9bbb5657, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
-        m_Texture: {fileID: 2800000, guid: 37435489d04f5fb4aa513a819bb0cc7d, type: 3}
+        m_Texture: {fileID: 2800000, guid: b4618cf069160424f9bd5132e114db9d, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
-        m_Texture: {fileID: 2800000, guid: 9547c7f97d87ec444ad2129a5dc7b018, type: 3}
+        m_Texture: {fileID: 2800000, guid: 16de6499e31c1bf499640cd92395528f, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
-        m_Texture: {fileID: 2800000, guid: fc05c9cb4fedbd24d826c7701418020c, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1dd29b46b33134942a91812116910541, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
@@ -72,5 +72,5 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
