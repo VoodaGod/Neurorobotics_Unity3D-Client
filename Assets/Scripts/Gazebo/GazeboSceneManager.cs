@@ -113,6 +113,7 @@ public class GazeboSceneManager : MonoBehaviour {
     {
         string name = json_pose_info["name"];
         GameObject gameobject = GameObject.Find(name);
+
         if (gameobject != null)
         {
             this.SetPoseFromJSON(json_pose_info, gameobject);
@@ -236,7 +237,6 @@ public class GazeboSceneManager : MonoBehaviour {
         // import Mesh
         GameObject mesh_prefab = null;
         mesh_prefab = (GameObject)AssetDatabase.LoadAssetAtPath(mesh_uri, typeof(UnityEngine.Object));
-        //mesh_prefab = (GameObject) Resources.Load(mesh_uri, typeof(UnityEngine.Object));
         if (mesh_prefab == null)
         {
             Debug.Log("Could not import model! (" + mesh_uri + ")");
@@ -246,6 +246,8 @@ public class GazeboSceneManager : MonoBehaviour {
         {
             GameObject mesh_gameobject = Instantiate(mesh_prefab);
             mesh_gameobject.transform.SetParent(parent_transform, false);
+            // unity model import is turned 180 degrees around local Y?
+            mesh_gameobject.transform.localRotation = Quaternion.Euler(mesh_gameobject.transform.localRotation.eulerAngles.x, 180.0f, mesh_gameobject.transform.localRotation.eulerAngles.z);
 
             // adjust materials
             MeshRenderer[] mesh_renderers = mesh_gameobject.GetComponentsInChildren<MeshRenderer>();
@@ -300,7 +302,7 @@ public class GazeboSceneManager : MonoBehaviour {
         if (json_pose != null)
         {
             this.SetPoseFromJSON(json_pose, model_gameobject);
-            model_gameobject.transform.localRotation *= Quaternion.AngleAxis(180f, Vector3.up);  // necessary, gazebo or conversion (gazebo->unity) quirk?
+            //model_gameobject.transform.localRotation *= Quaternion.AngleAxis(180f, Vector3.up);  // necessary, gazebo or conversion (gazebo->unity) quirk?
         }
 
         // scale
@@ -322,10 +324,6 @@ public class GazeboSceneManager : MonoBehaviour {
     private void SetLinkFromJSON(JSONNode json_link, Transform parent_transform, JSONNode json_model_scale)
     {
         string link_name = json_link["name"];
-        if (link_name.Contains("::"))
-        {
-            link_name = link_name.Substring(link_name.LastIndexOf("::") + 2);
-        }
 
         // get or create link gameobject
         Transform link_gameobject_transform = parent_transform.Find(link_name);
@@ -391,10 +389,6 @@ public class GazeboSceneManager : MonoBehaviour {
         }
 
         string visual_name = json_visual["name"];
-        if (visual_name.Contains("::"))
-        {
-            visual_name = visual_name.Substring(visual_name.LastIndexOf("::") + 2);
-        }
 
         Transform visual_gameobject_transform = parent_transform.Find(visual_name);
         GameObject visual_gameobject = visual_gameobject_transform == null ? new GameObject(visual_name) : visual_gameobject_transform.gameObject;
@@ -570,8 +564,20 @@ public class GazeboSceneManager : MonoBehaviour {
         // position
         JSONNode json_position = json_pose["position"];
         Vector3 position = Gz2UnityVec3(new Vector3(json_position["x"].AsFloat, json_position["y"].AsFloat, json_position["z"].AsFloat));
+        // scale
+        JSONNode json_scale = json_pose["scale"];
+        if (json_scale != null)
+        {
+            Debug.Log("SetPoseFromJSON - " + name + ", json_scale: " + json_scale.ToString());
+        }
+        // reference frame
+        JSONNode json_reference_frame = json_pose["reference_frame"];
+        if (json_reference_frame != null)
+        {
+            Debug.Log("SetPoseFromJSON - " + name + ", json_reference_frame: " + json_reference_frame.ToString());
+        }
 
-        gameobject.transform.localRotation = rotation * Quaternion.AngleAxis(180f, Vector3.up);
+        gameobject.transform.localRotation = rotation /** Quaternion.AngleAxis(180f, Vector3.up)*/;
         gameobject.transform.localPosition = position;
     }
 
@@ -636,17 +642,9 @@ public class GazeboSceneManager : MonoBehaviour {
     /// <returns>Quaternion in unity coordinate frame.</returns>
     private Quaternion Gz2UnityQuaternion(Quaternion gazeboRot)
     {
-        Quaternion rotX = Quaternion.AngleAxis(180f, Vector3.right);
-        Quaternion rotZ = Quaternion.AngleAxis(180f, Vector3.forward);
-        Quaternion rotY = Quaternion.AngleAxis(180f, Vector3.up);
-
-        //Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
         Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
-        //Quaternion tempRot = new Quaternion(-gazeboRot.z, gazeboRot.w, -gazeboRot.x, gazeboRot.y);
-
-        //Quaternion finalRot = tempRot * rotZ * rotX;
-        //Quaternion finalRot = tempRot * rotZ * rotX;
-        Quaternion finalRot = tempRot * rotY;
+        
+        Quaternion finalRot = tempRot;
 
         return finalRot;
     }
