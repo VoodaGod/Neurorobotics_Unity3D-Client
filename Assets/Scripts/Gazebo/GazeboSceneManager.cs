@@ -231,54 +231,79 @@ public class GazeboSceneManager : MonoBehaviour {
 
         string json_uri_path = json_mesh_uri.Substring(json_mesh_uri.IndexOf("://") + 3);
         string model_name = json_uri_path.Split('/')[0];
-        string model_subpath = this.nrp_models_subpaths[model_name] + json_uri_path.Substring(model_name.Length);
-        string mesh_uri = "Assets/" + this.NRPModelsSubpath + "/" + model_subpath;
 
-        // import Mesh
-        GameObject mesh_prefab = null;
-        mesh_prefab = (GameObject)AssetDatabase.LoadAssetAtPath(mesh_uri, typeof(UnityEngine.Object));
-        if (mesh_prefab == null)
+        try
         {
-            Debug.Log("Could not import model! (" + mesh_uri + ")");
-        }
+            string model_subpath = this.nrp_models_subpaths[model_name] + json_uri_path.Substring(model_name.Length);
+            string mesh_uri = "Assets/" + this.NRPModelsSubpath + "/" + model_subpath;
 
-        if (mesh_prefab != null)
-        {
-            GameObject mesh_gameobject = Instantiate(mesh_prefab);
-            mesh_gameobject.transform.SetParent(parent_transform, false);
-            // unity model import is turned 180 degrees around local Y?
-            mesh_gameobject.transform.localRotation = Quaternion.Euler(mesh_gameobject.transform.localRotation.eulerAngles.x, 180.0f, mesh_gameobject.transform.localRotation.eulerAngles.z);
-
-            // adjust materials
-            MeshRenderer[] mesh_renderers = mesh_gameobject.GetComponentsInChildren<MeshRenderer>();
-            foreach (MeshRenderer mesh_renderer in mesh_renderers)
+            // import Mesh
+            GameObject mesh_prefab = null;
+            mesh_prefab = (GameObject)AssetDatabase.LoadAssetAtPath(mesh_uri, typeof(UnityEngine.Object));
+            if (mesh_prefab == null)
             {
-                if (mesh_renderer.materials != null)
+                Debug.LogWarning("Could not import model! (" + mesh_uri + ")");
+            }
+
+            if (mesh_prefab != null)
+            {
+                GameObject mesh_gameobject = Instantiate(mesh_prefab);
+                mesh_gameobject.transform.SetParent(parent_transform, false);
+                // unity model import is turned 180 degrees around local Y?
+                mesh_gameobject.transform.localRotation = Quaternion.Euler(mesh_gameobject.transform.localRotation.eulerAngles.x, 180.0f, mesh_gameobject.transform.localRotation.eulerAngles.z);
+
+                // adjust materials
+                List<Renderer> mesh_renderers = new List<Renderer>();
+                //mesh_renderers.Add(mesh_gameobject.GetComponent<Renderer>());
+                foreach (Renderer renderer in mesh_gameobject.GetComponentsInChildren<MeshRenderer>())
                 {
-                    for (int i = 0; i < mesh_renderer.materials.Length; i = i+1)
+                    mesh_renderers.Add(renderer);
+                }
+                foreach (MeshRenderer mesh_renderer in mesh_renderers)
+                {
+                    if (mesh_renderer.materials != null)
                     {
-                        Material material = mesh_renderer.materials[i];
-                        if (material.name.Contains("PBR"))
+                        for (int i = 0; i < mesh_renderer.materials.Length; i = i + 1)
                         {
-                            string material_uri = "Assets/Materials/NRP/" + this.nrp_models_subpaths[model_name] + "/" + material.name;
-                            if (material_uri.Contains(" (Instance)"))
+                            Material material = mesh_renderer.materials[i];
+                            if (material.name.Contains("PBR"))
                             {
-                                material_uri = material_uri.Remove(material_uri.IndexOf(" (Instance)"));
-                            }
-                            material_uri = material_uri + ".mat";
-                            Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
-                            if (material_preset != null)
-                            {
-                                mesh_renderer.material = material_preset;
-                            }
-                            else
-                            {
-                                Debug.LogWarning("Could not load " + material_uri);
+                                string material_uri = "Assets/Materials/NRP/" + this.nrp_models_subpaths[model_name] + "/" + material.name;
+                                if (material_uri.Contains(" (Instance)"))
+                                {
+                                    material_uri = material_uri.Remove(material_uri.IndexOf(" (Instance)"));
+                                }
+                                material_uri = material_uri + ".mat";
+                                Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
+                                if (material_preset != null)
+                                {
+                                    Debug.Log("CreateMeshFromJSON() - material " + material_uri + " for " + mesh_renderer.gameObject.name);
+                                    /*List<Renderer> renderers = new List<Renderer>();
+                                    if (gameobject.GetComponent<Renderer>() != null) renderers.Add(gameobject.GetComponent<Renderer>());
+                                    foreach (Renderer renderer in gameobject.GetComponentsInChildren<Renderer>())
+                                    {
+                                        renderers.Add(renderer);
+                                    }
+                                    gameobject.GetComponent<Renderer>().materials[0] = material_preset;*/
+                                    mesh_renderer.materials[i] = Instantiate(material_preset);
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("Could not load " + material_uri);
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+        catch (KeyNotFoundException e)
+        {
+            Debug.Log("CreateMeshFromJSON() - model subpath for '" + model_name + "' is not in dictionary");
+        }
+        catch (Exception e)
+        {
+            Debug.Log("CreateMeshFromJSON() - model subpath for '" + model_name + "' is not in dictionary");
         }
     }
 
@@ -454,6 +479,9 @@ public class GazeboSceneManager : MonoBehaviour {
             Transform geometry_gameobject_transform = parent_transform.Find("Sphere");
             geometry_gameobject = geometry_gameobject_transform == null ? GameObject.CreatePrimitive(PrimitiveType.Sphere) : geometry_gameobject_transform.gameObject;
             geometry_gameobject.transform.SetParent(parent_transform, false);
+
+            JSONNode json_radius = json_geometry["sphere"].AsObject["radius"];
+            geometry_gameobject.transform.localScale = new Vector3(json_radius.AsFloat * 2, json_radius.AsFloat * 2, json_radius.AsFloat * 2);
         }
         else if (json_geometry["plane"] != null)
         {
@@ -469,6 +497,7 @@ public class GazeboSceneManager : MonoBehaviour {
         }
         else if (json_geometry["mesh"] != null)
         {
+            //Debug.Log("creating mesh " + json_geometry["mesh"].AsObject["filename"].ToString() + " with material " + json_material.ToString());
             this.CreateMeshFromJSON(json_geometry["mesh"], parent_transform, json_model_scale);
         }
 
@@ -514,11 +543,13 @@ public class GazeboSceneManager : MonoBehaviour {
         if (json_material_script != null)
         {
             string material_subpath = json_material_script["name"];
+            Debug.Log("SetMaterialFromJSON() - applying material " + json_material_script["name"] + " for " + gameobject.name);
             string material_uri = "Assets/Materials/" + material_subpath + ".mat";
             Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
+            
             if (material_preset != null && gameobject.GetComponent<Renderer>() != null)
             {
-                gameobject.GetComponent<Renderer>().material = material_preset;
+                gameobject.GetComponent<Renderer>().materials[0] = material_preset;
             }
             else
             {
@@ -603,9 +634,21 @@ public class GazeboSceneManager : MonoBehaviour {
                 {
                     do
                     {
+                        if (line.LastIndexOf('/') == line.Length-1)
+                        {
+                            line = line.Remove(line.Length - 1);
+                        }
                         string[] model_subpath_directories = line.Split('/');
                         string model_name = model_subpath_directories[model_subpath_directories.Length - 1];
-                        this.nrp_models_subpaths.Add(model_name, line);
+
+                        try
+                        {
+                            this.nrp_models_subpaths.Add(model_name, line);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.Log(e.Message + " (model: " + model_name + ", line: " + line);
+                        }
 
                         line = stream_reader.ReadLine();
                     }
