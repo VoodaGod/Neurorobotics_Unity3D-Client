@@ -31,7 +31,8 @@ public class NRPBackendManager : MonoBehaviour {
 
         if (!string.IsNullOrEmpty(this.NRPBackendIP))
         {
-            GzBridgeManager.URL = NRPBackendIP + ":" + GzBridgePort.ToString() + "/gzbridge";
+            //TODO: find out how to retrieve token in a clean way
+            GzBridgeManager.URL = NRPBackendIP + ":" + GzBridgePort.ToString() + "/gzbridge?token=ffa3a4d8-13cf-4b1f-b05c-987acc6efc10";
             GzBridgeManager.GazeboScene = this.GazeboScene;
             GzBridgeManager.ConnectToGzBridge();
 
