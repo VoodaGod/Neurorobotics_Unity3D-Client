@@ -1,16 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class NRPBackendManager : MonoBehaviour {
 
     public string NRPBackendIP = "192.168.0.153";
     public int GzBridgePort = 8080;
     public int ROSBridgePort = 9090;
+    public int BackendProxyPort = 8000;
     public GameObject GazeboScene = null;
 
     private GzBridgeManager GzBridgeManager;
     private ROSBridge ROSBridgeManager;
+    private string authToken = null;
 
 	// Use this for initialization
 	void Start ()
@@ -31,18 +34,41 @@ public class NRPBackendManager : MonoBehaviour {
 
         if (!string.IsNullOrEmpty(this.NRPBackendIP))
         {
+            // get token
+
             //TODO: find out how to retrieve token in a clean way
-            GzBridgeManager.URL = NRPBackendIP + ":" + GzBridgePort.ToString() + "/gzbridge?token=ffa3a4d8-13cf-4b1f-b05c-987acc6efc10";
+            GzBridgeManager.URL = NRPBackendIP + ":" + GzBridgePort.ToString() + "/gzbridge?token=" + authToken;
             GzBridgeManager.GazeboScene = this.GazeboScene;
             GzBridgeManager.ConnectToGzBridge();
 
             ROSBridgeManager.ROSCoreIP = NRPBackendIP;
             ROSBridgeManager.Port = ROSBridgePort;
         }
+
+        Debug.Log(GetAuthTocken());
     }
 	
 	// Update is called once per frame
 	void Update () {
 		
 	}
+
+    private IEnumerator GetAuthTocken()
+    {
+        string urlAuthenticate = NRPBackendIP + ":" + BackendProxyPort.ToString() + "/authentication/authenticate";
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
+        formData.Add(new MultipartFormDataSection("user=nrpuser&password=password"));
+
+        UnityWebRequest request = UnityWebRequest.Post(urlAuthenticate, formData);
+        yield return request.Send();
+
+        if (request.isError)
+        {
+            Debug.Log(request.error);
+        }
+        else
+        {
+            Debug.Log("Form upload complete!");
+        }
+    }
 }
