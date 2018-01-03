@@ -9,6 +9,8 @@ public class NRPBackendManager : MonoBehaviour {
     public int GzBridgePort = 8080;
     public int ROSBridgePort = 9090;
     public int BackendProxyPort = 8000;
+    public string AuthUsername = "nrpuser";
+    public string AuthPassword = "password";
     public GameObject GazeboScene = null;
 
     private GzBridgeManager GzBridgeManager;
@@ -18,34 +20,11 @@ public class NRPBackendManager : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
     {
-        // initialize GzBridge component
-        if (this.gameObject.GetComponent<GzBridgeManager>() == null)
-        {
-            this.gameObject.AddComponent<GzBridgeManager>();
-        }
-        this.GzBridgeManager = this.gameObject.GetComponent<GzBridgeManager>();
-
-        // initialize ROSBridge component
-        if (this.gameObject.GetComponent<ROSBridge>() == null)
-        {
-            this.gameObject.AddComponent<ROSBridge>();
-        }
-        this.ROSBridgeManager = this.gameObject.GetComponent<ROSBridge>();
-
         if (!string.IsNullOrEmpty(this.NRPBackendIP))
         {
-            // get token
-
-            //TODO: find out how to retrieve token in a clean way
-            GzBridgeManager.URL = NRPBackendIP + ":" + GzBridgePort.ToString() + "/gzbridge?token=" + authToken;
-            GzBridgeManager.GazeboScene = this.GazeboScene;
-            GzBridgeManager.ConnectToGzBridge();
-
-            ROSBridgeManager.ROSCoreIP = NRPBackendIP;
-            ROSBridgeManager.Port = ROSBridgePort;
+            this.ConnectToGazeboBridge();
+            this.ConnectToROSBridge();
         }
-
-        Debug.Log(GetAuthTocken());
     }
 	
 	// Update is called once per frame
@@ -53,22 +32,59 @@ public class NRPBackendManager : MonoBehaviour {
 		
 	}
 
-    private IEnumerator GetAuthTocken()
+    private void ConnectToGazeboBridge()
     {
-        string urlAuthenticate = NRPBackendIP + ":" + BackendProxyPort.ToString() + "/authentication/authenticate";
-        List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
-        formData.Add(new MultipartFormDataSection("user=nrpuser&password=password"));
-
-        UnityWebRequest request = UnityWebRequest.Post(urlAuthenticate, formData);
-        yield return request.Send();
-
-        if (request.isError)
+        // initialize GzBridge component
+        if (this.gameObject.GetComponent<GzBridgeManager>() == null)
         {
-            Debug.Log(request.error);
+            this.gameObject.AddComponent<GzBridgeManager>();
+        }
+        this.GzBridgeManager = this.gameObject.GetComponent<GzBridgeManager>();
+
+        // get authentication token
+        string authURL = this.NRPBackendIP + ":" + this.BackendProxyPort.ToString() + "/authentication/authenticate";
+        string authJSON = "{\"user\":\"" + this.AuthUsername + "\",\"" + this.AuthPassword + "\":\"password\"}";
+        Debug.Log("authentication json: " + authJSON);
+
+        WWW www;
+        Dictionary<string, string> postHeader = new Dictionary<string, string>();
+        postHeader.Add("Content-Type", "application/json");
+
+        // convert json string to byte
+        var postData = System.Text.Encoding.UTF8.GetBytes(authJSON);
+
+        www = new WWW(authURL, postData, postHeader);
+        StartCoroutine(this.WaitForAuthRequest(www));
+    }
+
+    private void ConnectToROSBridge()
+    {
+        // initialize ROSBridge component
+        if (this.gameObject.GetComponent<ROSBridge>() == null)
+        {
+            this.gameObject.AddComponent<ROSBridge>();
+        }
+        this.ROSBridgeManager = this.gameObject.GetComponent<ROSBridge>();
+
+        ROSBridgeManager.ROSCoreIP = NRPBackendIP;
+        ROSBridgeManager.Port = ROSBridgePort;
+    }
+
+    private IEnumerator WaitForAuthRequest(WWW data)
+    {
+        yield return data; // Wait until the download is done
+        if (data.error != null)
+        {
+            Debug.LogWarning("There was an error sending request: " + data.error);
         }
         else
         {
-            Debug.Log("Form upload complete!");
+            this.authToken = data.text;
+            //Debug.Log("auth token: " + this.authToken);
+
+            GzBridgeManager.URL = NRPBackendIP + ":" + GzBridgePort.ToString() + "/gzbridge?token=" + this.authToken;
+            GzBridgeManager.GazeboScene = this.GazeboScene;
+            GzBridgeManager.ConnectToGzBridge();
         }
     }
 }

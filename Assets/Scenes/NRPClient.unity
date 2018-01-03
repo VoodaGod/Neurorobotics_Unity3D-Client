@@ -341,9 +341,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41060aea552a4d94bbcd37eaf3961364, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NRPBackendIP: 192.168.178.27
+  NRPBackendIP: 192.168.178.28
   GzBridgePort: 8080
   ROSBridgePort: 9090
+  BackendProxyPort: 8000
   GazeboScene: {fileID: 139956225}
 --- !u!4 &688564783
 Transform:

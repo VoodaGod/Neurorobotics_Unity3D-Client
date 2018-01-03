@@ -309,7 +309,7 @@ public class GazeboSceneManager : MonoBehaviour {
                             Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
                             if (material_preset != null)
                             {
-                                Debug.Log("CreateMeshFromJSON() - material " + material_preset + " for " + mesh_renderer.gameObject.name + "(uri: " + material_uri + ")");
+                                //Debug.Log("CreateMeshFromJSON() - material " + material_preset + " for " + mesh_renderer.gameObject.name + "(uri: " + material_uri + ")");
                                 mesh_renderer.material = Instantiate(material_preset);
                             }
                             else
@@ -567,7 +567,7 @@ public class GazeboSceneManager : MonoBehaviour {
         if (json_material_script != null)
         {
             string material_subpath = json_material_script["name"];
-            Debug.Log("SetMaterialFromJSON() - applying material " + json_material_script["name"] + " for " + gameobject.name);
+            //Debug.Log("SetMaterialFromJSON() - applying material " + json_material_script["name"] + " for " + gameobject.name);
             string material_uri = "Assets/Materials/" + material_subpath + ".mat";
             Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
             
