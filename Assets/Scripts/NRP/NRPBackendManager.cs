@@ -42,7 +42,7 @@ public class NRPBackendManager : MonoBehaviour {
         this.GzBridgeManager = this.gameObject.GetComponent<GzBridgeManager>();
 
         // get authentication token
-        string authURL = this.NRPBackendIP + ":" + this.BackendProxyPort.ToString() + "/authentication/authenticate";
+        string authURL = "http://" + this.NRPBackendIP + ":" + this.BackendProxyPort.ToString() + "/authentication/authenticate";
         string authJSON = "{\"user\":\"" + this.AuthUsername + "\",\"" + this.AuthPassword + "\":\"password\"}";
         Debug.Log("authentication json: " + authJSON);
 
@@ -53,8 +53,8 @@ public class NRPBackendManager : MonoBehaviour {
         // convert json string to byte
         var postData = System.Text.Encoding.UTF8.GetBytes(authJSON);
 
-        www = new WWW(authURL, postData, postHeader);
-        StartCoroutine(this.WaitForAuthRequest(www));
+        //www = new WWW(authURL, postData, postHeader);
+        //StartCoroutine(this.WaitForAuthRequest(www));
     }
 
     private void ConnectToROSBridge()
