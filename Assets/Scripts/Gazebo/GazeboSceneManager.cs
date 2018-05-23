@@ -552,9 +552,16 @@ public class GazeboSceneManager : MonoBehaviour {
             GameObject visual_gameobject = this.SetVisualFromJSON(json_visual, visuals_parent_gameobject.transform, json_model_scale);
             if (visual_gameobject != null && visual_gameobject.GetComponentInChildren<Renderer>() != null)
             {
-                visual_gameobject.GetComponentInChildren<Renderer>().material = this.CollisionMaterial;
-                // deactivate collision visuals by default
-                visual_gameobject.GetComponentInChildren<Renderer>().enabled = false;
+                Renderer[] renderers = visual_gameobject.GetComponentsInChildren<Renderer>();
+                foreach (Renderer renderer in renderers)
+                {
+                    renderer.material = this.CollisionMaterial;
+                    // deactivate collision visuals by default
+                    renderer.enabled = false;
+                }
+                //visual_gameobject.GetComponentInChildren<Renderer>().material = this.CollisionMaterial;
+                //// deactivate collision visuals by default
+                //visual_gameobject.GetComponentInChildren<Renderer>().enabled = false;
             }
         }
     }
