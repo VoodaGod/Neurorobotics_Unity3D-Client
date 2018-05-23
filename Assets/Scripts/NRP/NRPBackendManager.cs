@@ -53,8 +53,13 @@ public class NRPBackendManager : MonoBehaviour {
         // convert json string to byte
         var postData = System.Text.Encoding.UTF8.GetBytes(authJSON);
 
-        //www = new WWW(authURL, postData, postHeader);
+        www = new WWW(authURL, postData, postHeader);
         //StartCoroutine(this.WaitForAuthRequest(www));
+
+        // no auth
+        GzBridgeManager.URL = NRPBackendIP + ":" + GzBridgePort.ToString() + "/gzbridge";
+        GzBridgeManager.GazeboScene = this.GazeboScene;
+        GzBridgeManager.ConnectToGzBridge();
     }
 
     private void ConnectToROSBridge()
