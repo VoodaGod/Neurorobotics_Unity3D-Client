@@ -298,24 +298,31 @@ public class GazeboSceneManager : MonoBehaviour {
                     if (mesh_renderer.material != null)
                     {
                         Material material = mesh_renderer.material;
-                        if (material.name.Contains("PBR"))
+                        string material_folder = "Assets/Materials/NRP/" + this.nrp_models_subpaths[model_name] + "/";
+                        string material_name = material.name;
+                        if (material_name.Contains(" (Instance)"))
                         {
-                            string material_uri = "Assets/Materials/NRP/" + this.nrp_models_subpaths[model_name] + "/" + material.name;
-                            if (material_uri.Contains(" (Instance)"))
-                            {
-                                material_uri = material_uri.Remove(material_uri.IndexOf(" (Instance)"));
-                            }
-                            material_uri = material_uri + ".mat";
-                            Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
-                            if (material_preset != null)
-                            {
-                                //Debug.Log("CreateMeshFromJSON() - material " + material_preset + " for " + mesh_renderer.gameObject.name + "(uri: " + material_uri + ")");
-                                mesh_renderer.material = Instantiate(material_preset);
-                            }
-                            else
-                            {
-                                Debug.LogWarning("Could not load " + material_uri);
-                            }
+                            material_name = material_name.Remove(material_name.IndexOf(" (Instance)"));
+                        }
+
+                        Material material_preset = AssetDatabase.LoadAssetAtPath(material_folder + material_name + ".mat", typeof(UnityEngine.Material)) as Material;
+                        if (material_preset == null)
+                        {
+                            material_preset = AssetDatabase.LoadAssetAtPath(material_folder + "PBR_" + material_name + ".mat", typeof(UnityEngine.Material)) as Material;
+                        }
+                        if (material_preset == null)
+                        {
+                            material_preset = AssetDatabase.LoadAssetAtPath(material_folder + "PBRFULL_" + material_name + ".mat", typeof(UnityEngine.Material)) as Material;
+                        }
+
+                        if (material_preset != null)
+                        {
+                            //Debug.Log("CreateMeshFromJSON() - material " + material_preset + " for " + mesh_renderer.gameObject.name + "(uri: " + material_uri + ")");
+                            mesh_renderer.material = Instantiate(material_preset);
+                        }
+                        else
+                        {
+                            Debug.LogWarning("Could not find material for '" + material_name + "' at " + material_folder);
                         }
                     }
                 }
