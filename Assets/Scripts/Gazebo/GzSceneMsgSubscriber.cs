@@ -35,7 +35,7 @@ public class GzSceneMsgSubscriber : ROSBridgeSubscriber
     public new static void CallBack(ROSBridgeMsg msg)
     {
         //Debug.Log("GzSceneTopicSubscriber.CallBack()");
-        GzBridgeManager.Instance.ReceiveMessage((GzSceneMsg)msg);
+        GzBridgeService.Instance.ReceiveMessage((GzSceneMsg)msg);
     }
 
     #endregion //PUBLIC_METHODS

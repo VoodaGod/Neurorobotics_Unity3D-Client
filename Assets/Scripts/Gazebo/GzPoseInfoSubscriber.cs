@@ -33,7 +33,7 @@ public class GzPoseInfoSubscriber : ROSBridgeSubscriber
 
     public new static void CallBack(ROSBridgeMsg msg)
     {
-        GzBridgeManager.Instance.ReceiveMessage((GzPoseInfoMsg)msg);
+        GzBridgeService.Instance.ReceiveMessage((GzPoseInfoMsg)msg);
     }
 
     #endregion //PUBLIC_METHODS

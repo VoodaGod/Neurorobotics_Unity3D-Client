@@ -33,8 +33,8 @@ public class AuthenticationService : Singleton<AuthenticationService> {
     IEnumerator Authenticate()
     {
         Debug.Log("AuthenticationService - authenticating ...");
-        string auth_url = "http://" + backend.IP + ":" + backend.ProxyPort.ToString() + "/proxy/authentication/authenticate";
-        string auth_json = "{\"user\": \"" + this.auth_username + "\", \"password\": \"" + this.auth_password + "\"}";
+        string auth_url = string.Format("http://{0}:{1}/proxy/authentication/authenticate", backend.IP, backend.ProxyPort);
+        string auth_json = string.Format("{{\"user\": \"{0}\", \"password\": \"{1}\"}}", this.auth_username, this.auth_password);
 
         WWW www;
         Dictionary<string, string> post_header = new Dictionary<string, string>();

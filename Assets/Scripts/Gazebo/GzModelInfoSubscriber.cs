@@ -33,7 +33,7 @@ public class GzModelInfoSubscriber : ROSBridgeSubscriber
 
     public new static void CallBack(ROSBridgeMsg msg)
     {
-        GzBridgeManager.Instance.ReceiveMessage((GzModelInfoMsg)msg);
+        GzBridgeService.Instance.ReceiveMessage((GzModelInfoMsg)msg);
     }
 
     #endregion //PUBLIC_METHODS

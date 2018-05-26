@@ -8,9 +8,7 @@ public class BackendConfigService : Singleton<BackendConfigService>
     public int GzBridgePort = 8080;
     public int ROSBridgePort = 9090;
     public int ProxyPort = 9000;
-    public GameObject GazeboScene = null;
 
-    private GzBridgeManager GzBridgeManager;
     private ROSBridge ROSBridgeManager;
 
 	// Use this for initialization
@@ -18,7 +16,6 @@ public class BackendConfigService : Singleton<BackendConfigService>
     {
         if (!string.IsNullOrEmpty(this.IP))
         {
-            this.ConnectToGazeboBridge();
             this.ConnectToROSBridge();
         }
     }
@@ -26,20 +23,6 @@ public class BackendConfigService : Singleton<BackendConfigService>
 	// Update is called once per frame
 	void Update () {
 
-    }
-
-    private void ConnectToGazeboBridge()
-    {
-        // initialize GzBridge component
-        if (this.gameObject.GetComponent<GzBridgeManager>() == null)
-        {
-            this.gameObject.AddComponent<GzBridgeManager>();
-        }
-        this.GzBridgeManager = this.gameObject.GetComponent<GzBridgeManager>();
-        
-        GzBridgeManager.URL = this.IP + ":" + GzBridgePort.ToString() + "/gzbridge";
-        GzBridgeManager.GazeboScene = this.GazeboScene;
-        GzBridgeManager.ConnectToGzBridge();
     }
 
     private void ConnectToROSBridge()

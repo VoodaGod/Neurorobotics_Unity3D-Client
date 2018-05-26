@@ -27,7 +27,8 @@ public class ExperimentsService : Singleton<ExperimentsService>
         // wait until authentication token received
         yield return new WaitUntil(() => !string.IsNullOrEmpty(AuthenticationService.Instance.token));
 
-        string experiments_url = "http://" + this.backend.IP + ":" + this.backend.ProxyPort.ToString() + "/proxy/storage/experiments";
+        //string experiments_url = "http://" + this.backend.IP + ":" + this.backend.ProxyPort.ToString() + "/proxy/storage/experiments";
+        string experiments_url = string.Format("http://{0}:{1}/proxy/storage/experiments", BackendConfigService.Instance.IP, BackendConfigService.Instance.ProxyPort);
 
         UnityWebRequest www = UnityWebRequest.Get(experiments_url);
         www.SetRequestHeader("Authorization", "Bearer " + AuthenticationService.Instance.token);
