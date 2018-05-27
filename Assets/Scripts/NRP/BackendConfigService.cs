@@ -16,7 +16,7 @@ public class BackendConfigService : Singleton<BackendConfigService>
     {
         if (!string.IsNullOrEmpty(this.IP))
         {
-            this.ConnectToROSBridge();
+            //this.ConnectToROSBridge();
         }
     }
 	

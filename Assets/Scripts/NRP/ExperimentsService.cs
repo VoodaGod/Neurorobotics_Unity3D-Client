@@ -5,33 +5,31 @@ using UnityEngine.Networking;
 
 public class ExperimentsService : Singleton<ExperimentsService>
 {
-    private BackendConfigService backend = null;
-
     // Use this for initialization
-    void Start () {
-        this.backend = BackendConfigService.Instance;
+    void Start()
+    {
 
-        if (!string.IsNullOrEmpty(backend.IP))
+        if (!string.IsNullOrEmpty(BackendConfigService.Instance.IP))
         {
-            StartCoroutine(GetExperiments());
+            StartCoroutine(GetExperimentsList());
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
-    IEnumerator GetExperiments()
+    // Update is called once per frame
+    void Update()
     {
-        // wait until authentication token received
+
+    }
+
+    IEnumerator GetExperimentsList()
+    {
+        // wait until authentication token available
         yield return new WaitUntil(() => !string.IsNullOrEmpty(AuthenticationService.Instance.token));
 
-        //string experiments_url = "http://" + this.backend.IP + ":" + this.backend.ProxyPort.ToString() + "/proxy/storage/experiments";
-        string experiments_url = string.Format("http://{0}:{1}/proxy/storage/experiments", BackendConfigService.Instance.IP, BackendConfigService.Instance.ProxyPort);
+        string url = string.Format("http://{0}:{1}/proxy/storage/experiments", BackendConfigService.Instance.IP, BackendConfigService.Instance.ProxyPort);
 
-        UnityWebRequest www = UnityWebRequest.Get(experiments_url);
-        www.SetRequestHeader("Authorization", "Bearer " + AuthenticationService.Instance.token);
+        UnityWebRequest www = UnityWebRequest.Get(url);
+        AuthenticationService.Instance.AddAuthHeader(ref www);
         yield return www.SendWebRequest();
 
         if (www.isNetworkError || www.isHttpError)
@@ -40,7 +38,7 @@ public class ExperimentsService : Singleton<ExperimentsService>
         }
         else
         {
-            Debug.Log(www.downloadHandler.text);
+            //Debug.Log(www.downloadHandler.text);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class AuthenticationService : Singleton<AuthenticationService> {
 
@@ -30,7 +31,12 @@ public class AuthenticationService : Singleton<AuthenticationService> {
 
     }
 
-    IEnumerator Authenticate()
+    public void AddAuthHeader(ref UnityWebRequest uwr)
+    {
+        uwr.SetRequestHeader("Authorization", "Bearer " + this.token);
+    }
+
+    private IEnumerator Authenticate()
     {
         Debug.Log("AuthenticationService - authenticating ...");
         string auth_url = string.Format("http://{0}:{1}/proxy/authentication/authenticate", backend.IP, backend.ProxyPort);
@@ -49,7 +55,7 @@ public class AuthenticationService : Singleton<AuthenticationService> {
         }
         else
         {
-            Debug.Log("AuthenticationService - auth token: " + www.text);
+            //Debug.Log("AuthenticationService - auth token: " + www.text);
             this.auth_token = www.text;
         }
     }
