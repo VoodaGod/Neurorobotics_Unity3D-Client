@@ -221,13 +221,13 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         }
     }
 
-    private void CreateMeshFromJSON(JSONNode json_mesh, Transform parent_transform, JSONNode json_model_scale)
+    private GameObject CreateMeshFromJSON(JSONNode json_mesh, Transform parent_transform, JSONNode json_model_scale)
     {
         string json_mesh_uri = json_mesh["filename"];
         string mesh_uri_type = json_mesh_uri.Substring(0, json_mesh_uri.IndexOf("://"));
         // need "file" or "model" to load
         if (mesh_uri_type != "file" && mesh_uri_type != "model")
-            return;
+            return null;
 
         string json_uri_path = json_mesh_uri.Substring(json_mesh_uri.IndexOf("://") + 3);
         string model_name = json_uri_path.Split('/')[0];
@@ -254,47 +254,12 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
                 // adjust materials
                 List<Renderer> mesh_renderers = new List<Renderer>();
-                //mesh_renderers.Add(mesh_gameobject.GetComponent<Renderer>());
                 foreach (Renderer renderer in mesh_gameobject.GetComponentsInChildren<MeshRenderer>())
                 {
                     mesh_renderers.Add(renderer);
                 }
                 foreach (MeshRenderer mesh_renderer in mesh_renderers)
                 {
-                    //if (mesh_renderer.materials != null)
-                    //{
-                    //    for (int i = 0; i < mesh_renderer.materials.Length; i = i + 1)
-                    //    {
-                    //        Material material = mesh_renderer.materials[i];
-                    //        if (material.name.Contains("PBR"))
-                    //        {
-                    //            string material_uri = "Assets/Materials/NRP/" + this.nrp_models_subpaths[model_name] + "/" + material.name;
-                    //            if (material_uri.Contains(" (Instance)"))
-                    //            {
-                    //                material_uri = material_uri.Remove(material_uri.IndexOf(" (Instance)"));
-                    //            }
-                    //            material_uri = material_uri + ".mat";
-                    //            Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
-                    //            if (material_preset != null)
-                    //            {
-                    //                Debug.Log("CreateMeshFromJSON() - material " + material_preset + " for " + mesh_renderer.gameObject.name + "(uri: " + material_uri + ")");
-                    //                /*List<Renderer> renderers = new List<Renderer>();
-                    //                if (gameobject.GetComponent<Renderer>() != null) renderers.Add(gameobject.GetComponent<Renderer>());
-                    //                foreach (Renderer renderer in gameobject.GetComponentsInChildren<Renderer>())
-                    //                {
-                    //                    renderers.Add(renderer);
-                    //                }
-                    //                gameobject.GetComponent<Renderer>().materials[0] = material_preset;*/
-                    //                mesh_renderer.material = Instantiate(material_preset);
-                    //            }
-                    //            else
-                    //            {
-                    //                Debug.LogWarning("Could not load " + material_uri);
-                    //            }
-                    //        }
-                    //    }
-                    //}
-
                     if (mesh_renderer.material != null)
                     {
                         Material material = mesh_renderer.material;
@@ -326,6 +291,8 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
                         }
                     }
                 }
+
+                return mesh_gameobject;
             }
         }
         catch (KeyNotFoundException e)
@@ -336,6 +303,8 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         {
             Debug.Log("CreateMeshFromJSON() - model subpath for '" + model_name + "' is not in dictionary");
         }
+
+        return null;
     }
 
     #endregion //CREATE_SCENE_ELEMENTS
@@ -480,6 +449,13 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
     private GameObject SetGeometryFromJSON(JSONNode json_geometry, JSONNode json_material, Transform parent_transform, JSONNode json_model_scale)
     {
+        // test
+        if (json_material["script"]["name"].ToString().Contains("Glow"))
+        {
+            Debug.Log("SetGeometryFromJSON - parent: " + parent_transform.name);
+        }
+        // test
+
         // geometry
         GameObject geometry_gameobject = null;
         if (json_geometry["box"] != null)
@@ -528,8 +504,13 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         }
         else if (json_geometry["mesh"] != null)
         {
-            //Debug.Log("creating mesh " + json_geometry["mesh"].AsObject["filename"].ToString() + " with material " + json_material.ToString());
-            this.CreateMeshFromJSON(json_geometry["mesh"], parent_transform, json_model_scale);
+            string mesh_name = json_geometry["mesh"]["filename"];
+            mesh_name = mesh_name.Remove(mesh_name.IndexOf(".dae"));
+            mesh_name = mesh_name.Substring(mesh_name.LastIndexOf("/")+1) + "(Clone)";
+
+            Transform geometry_gameobject_transform = parent_transform.Find(mesh_name);
+            geometry_gameobject = geometry_gameobject_transform == null ? this.CreateMeshFromJSON(json_geometry["mesh"], parent_transform, json_model_scale) : geometry_gameobject_transform.gameObject;
+            geometry_gameobject.transform.SetParent(parent_transform, false);
         }
 
         if (geometry_gameobject != null)
@@ -573,6 +554,13 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     private void SetMaterialFromJSON(JSONNode json_material, GameObject gameobject)
     {
         if (gameobject == null) return;
+
+        // test
+        if (json_material["script"]["name"].ToString().Contains("Glow"))
+        {
+            Debug.Log("SetMaterialFromJSON - gameobject: " + gameobject.name);
+        }
+        // test
 
         JSONNode json_material_script = json_material["script"];
         if (json_material_script != null)
