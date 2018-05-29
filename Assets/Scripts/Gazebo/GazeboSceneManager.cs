@@ -69,7 +69,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         {
             Debug.Log("skybox: " + sky.ToString());
         }
-
+        
         // shadow settings
 
         // background color
