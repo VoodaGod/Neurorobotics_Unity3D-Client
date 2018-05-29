@@ -6,7 +6,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 
-public class GazeboSceneManager : MonoBehaviour {
+public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
     public enum GZ_LIGHT_TYPE
     {
@@ -566,9 +566,6 @@ public class GazeboSceneManager : MonoBehaviour {
                     // deactivate collision visuals by default
                     renderer.enabled = false;
                 }
-                //visual_gameobject.GetComponentInChildren<Renderer>().material = this.CollisionMaterial;
-                //// deactivate collision visuals by default
-                //visual_gameobject.GetComponentInChildren<Renderer>().enabled = false;
             }
         }
     }
