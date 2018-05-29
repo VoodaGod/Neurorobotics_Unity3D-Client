@@ -31,9 +31,6 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 	// Use this for initialization
 	void Start ()
     {
-        Camera.main.transform.position = new Vector3(6, 3, 6);
-        Camera.main.transform.LookAt(new Vector3());
-
         this.InitModelSubpaths();
     }
 	
@@ -64,6 +61,13 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
             Color color_ambient = new Color(ambient["r"].AsFloat, ambient["g"].AsFloat, ambient["b"].AsFloat, ambient["a"].AsFloat);
             RenderSettings.ambientLight = color_ambient;
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+        }
+
+        //skybox
+        JSONClass sky = json_scene["sky"].AsObject;
+        if (sky != null)
+        {
+            Debug.Log("skybox: " + sky.ToString());
         }
 
         // shadow settings
@@ -253,12 +257,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
                 mesh_gameobject.transform.localRotation = Quaternion.Euler(mesh_gameobject.transform.localRotation.eulerAngles.x, 180.0f, mesh_gameobject.transform.localRotation.eulerAngles.z);
 
                 // adjust materials
-                List<Renderer> mesh_renderers = new List<Renderer>();
-                foreach (Renderer renderer in mesh_gameobject.GetComponentsInChildren<MeshRenderer>())
-                {
-                    mesh_renderers.Add(renderer);
-                }
-                foreach (MeshRenderer mesh_renderer in mesh_renderers)
+                foreach (MeshRenderer mesh_renderer in mesh_gameobject.GetComponentsInChildren<MeshRenderer>())
                 {
                     if (mesh_renderer.material != null)
                     {
@@ -346,12 +345,17 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         }
     }
 
+    // parent_transform: the subnode "links" as a collection of all links, parent_transform.parent is model node
     private void SetLinkFromJSON(JSONNode json_link, Transform parent_transform, JSONNode json_model_scale)
     {
         string link_name = json_link["name"];
 
         // get or create link gameobject
         Transform link_gameobject_transform = parent_transform.Find(link_name);
+        if (link_gameobject_transform == null)
+        {
+            link_gameobject_transform = parent_transform.Find(parent_transform.parent.name + "::" + link_name);
+        }
         GameObject link_gameobject = link_gameobject_transform == null ? new GameObject(link_name) : link_gameobject_transform.gameObject;
         link_gameobject.transform.SetParent(parent_transform, false);
 
@@ -449,13 +453,6 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
     private GameObject SetGeometryFromJSON(JSONNode json_geometry, JSONNode json_material, Transform parent_transform, JSONNode json_model_scale)
     {
-        // test
-        if (json_material["script"]["name"].ToString().Contains("Glow"))
-        {
-            Debug.Log("SetGeometryFromJSON - parent: " + parent_transform.name);
-        }
-        // test
-
         // geometry
         GameObject geometry_gameobject = null;
         if (json_geometry["box"] != null)
@@ -516,12 +513,11 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         if (geometry_gameobject != null)
         {
             geometry_gameobject.transform.SetParent(parent_transform, false);
-            // don't need collisions
+            // don't need collisions for now
             Destroy(geometry_gameobject.GetComponent<Collider>());
         }
 
         // material
-        //Debug.Log("material: " + json_material.ToString());
         this.SetMaterialFromJSON(json_material, geometry_gameobject);
 
         return geometry_gameobject;
@@ -555,28 +551,24 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     {
         if (gameobject == null) return;
 
-        // test
-        if (json_material["script"]["name"].ToString().Contains("Glow"))
-        {
-            Debug.Log("SetMaterialFromJSON - gameobject: " + gameobject.name);
-        }
-        // test
-
         JSONNode json_material_script = json_material["script"];
         if (json_material_script != null)
         {
             string material_subpath = json_material_script["name"];
-            //Debug.Log("SetMaterialFromJSON() - applying material " + json_material_script["name"] + " for " + gameobject.name);
             string material_uri = "Assets/Materials/" + material_subpath + ".mat";
             Material material_preset = AssetDatabase.LoadAssetAtPath(material_uri, typeof(UnityEngine.Material)) as Material;
-            
-            if (material_preset != null && gameobject.GetComponent<Renderer>() != null)
-            {
-                gameobject.GetComponent<Renderer>().materials[0] = material_preset;
-            }
-            else
+            if (material_preset == null)
             {
                 Debug.LogWarning("Could not load " + material_uri);
+                return;
+            }
+            
+            foreach (MeshRenderer mesh_renderer in gameobject.GetComponentsInChildren<MeshRenderer>())
+            {
+                if (mesh_renderer.material != null)
+                {
+                    mesh_renderer.material = material_preset;
+                }
             }
         }
     }
