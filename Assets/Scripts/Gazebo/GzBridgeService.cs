@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using GzBridgeLib;
+using ROSBridgeLib;
 
 public class GzBridgeService : Singleton<GzBridgeService> {
 
@@ -10,6 +11,11 @@ public class GzBridgeService : Singleton<GzBridgeService> {
     public GameObject GazeboScene = null;
 
     #endregion //PUBLIC_MEMBER_VARIABLES
+
+    public GzBridgeWebSocketConnection gzbridge
+    {
+        get { return this.m_GzBridge; }
+    }
 
     #region PRIVATE_MEMBER_VARIABLES
 
