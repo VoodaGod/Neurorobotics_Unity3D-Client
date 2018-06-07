@@ -3,26 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - FxTemporaire
-  - RoboyPart
-  - RoboyUI
-  - projectile
-  - TeleportIgnore
-  - Roboy
-  - SelectorTool
-  - UIPanel
-  - FadeInPanel
-  - FadeOutPanel
-  - FadeStandardPanel
-  - FadePanelStruct
-  - GUIController
-  - UIButton
-  - UISlider
-  - SimImg
-  - ZedImg
-  - HtcImg
-  - VRUI
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -32,12 +13,12 @@ TagManager:
   - UI
   - 
   - 
-  - Ethan
-  - MazeWalls
-  - MazeTurret
-  - MazeTurretBullet
-  - Bg
-  - FPSWeapon
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 
@@ -59,10 +40,4 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: GUI World
-    uniqueID: 2379361113
-    locked: 0
-  - name: GUI Overlay
-    uniqueID: 4137188381
     locked: 0
