@@ -30,6 +30,9 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
     void Awake()
     {
+        GzBridgeService.Instance.AddCallbackMaterialMsg(this.OnMaterialMsg);
+        GzBridgeService.Instance.AddCallbackModelInfoMsg(this.OnModelInfoMsg);
+        GzBridgeService.Instance.AddCallbackPoseInfoMsg(this.OnPoseInfoMsg);
         GzBridgeService.Instance.AddCallbackSceneMsg(this.OnSceneMsg);
     }
 
@@ -47,9 +50,9 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
     #region ON_MESSAGE_FUNCTIONS
 
-    public void OnSceneMsg(GzSceneMsg json_scene_msg)
+    public void OnSceneMsg(GzSceneMsg scene_msg)
     {
-        JSONNode json_scene = json_scene_msg.MsgJSON;
+        JSONNode json_scene = scene_msg.MsgJSON;
 
         // clear scene before building new one
         List<GameObject> children = new List<GameObject>();
@@ -118,34 +121,30 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         }
     }
 
-    public bool OnPoseInfoMsg(JSONNode json_pose_info)
+    public void OnPoseInfoMsg(GzPoseInfoMsg pose_info_msg)
     {
+        JSONNode json_pose_info = pose_info_msg.MsgJSON;
+
         string name = json_pose_info["name"];
         GameObject gameobject = GameObject.Find(name);
 
         if (gameobject != null)
         {
             this.SetPoseFromJSON(json_pose_info, gameobject);
-
-            return true;
         }
-
-        return false;
     }
 
-    public bool OnModelInfoMsg(JSONNode json_model_info)
+    public void OnModelInfoMsg(GzModelInfoMsg model_info_msg)
     {
         //Debug.Log("model info: " + json_model_info.ToString());
-        this.SetModelFromJSON(json_model_info, this.models_parent.transform);
 
-        return true;
+        JSONNode json_model_info = model_info_msg.MsgJSON;
+        this.SetModelFromJSON(json_model_info, this.models_parent.transform);
     }
 
-    public bool OnMaterialMsg(JSONNode json_material)
+    public void OnMaterialMsg(GzMaterialMsg json_material)
     {
         //Debug.Log("material msg: " + json_material.ToString());
-
-        return true;
     }
 
     #endregion //ON_MESSAGE_FUNCTIONS
