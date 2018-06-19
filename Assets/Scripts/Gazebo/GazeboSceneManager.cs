@@ -28,8 +28,13 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
     public Material CollisionMaterial = null;
 
-	// Use this for initialization
-	void Start ()
+    void Awake()
+    {
+        GzBridgeService.Instance.AddCallbackSceneInfo(this.OnSceneMsg);
+    }
+
+    // Use this for initialization
+    void Start ()
     {
         this.InitModelSubpaths();
     }
@@ -682,13 +687,13 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     }
 
     #region Convert function from gazebo to unity and vice versa.
-    
+
     /// <summary>
     /// Converts a vector in gazebo coordinate frame to unity coordinate frame.
     /// </summary>
     /// <param name="gazeboPos">Vector in gazebo coordinate frame.</param>
     /// <returns>Vector in unity coordinate frame.</returns>
-    private Vector3 Gz2UnityVec3(Vector3 gazeboPos)
+    public static Vector3 Gz2UnityVec3(Vector3 gazeboPos)
     {
         return new Vector3(gazeboPos.x, gazeboPos.z, gazeboPos.y);
     }
@@ -698,7 +703,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     /// </summary>
     /// <param name="gazeboRot">Quaternion in gazebo coordinate frame.</param>
     /// <returns>Quaternion in unity coordinate frame.</returns>
-    private Quaternion Gz2UnityQuaternion(Quaternion gazeboRot)
+    public static Quaternion Gz2UnityQuaternion(Quaternion gazeboRot)
     {
         Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
         
@@ -712,7 +717,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     /// </summary>
     /// <param name="unityPos">Vector in unity coordinate frame.</param>
     /// <returns>Vector in gazebo coordinate frame.</returns>
-    private Vector3 Unity2GzVec3(Vector3 unityPos)
+    public static Vector3 Unity2GzVec3(Vector3 unityPos)
     {
         return new Vector3(unityPos.x, unityPos.z, unityPos.y);
     }
@@ -722,7 +727,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     /// </summary>
     /// <param name="unityRot">Quaternion in unity coordinate frame.</param>
     /// <returns>Quaternion in gazebo coordinate frame.</returns>
-    private Quaternion Unity2GzQuaternion(Quaternion unityRot)
+    public static Quaternion Unity2GzQuaternion(Quaternion unityRot)
     {
         Quaternion rotX = Quaternion.AngleAxis(180f, Vector3.right);
         Quaternion rotZ = Quaternion.AngleAxis(180f, Vector3.forward);

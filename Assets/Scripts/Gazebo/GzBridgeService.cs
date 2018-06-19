@@ -22,6 +22,11 @@ public class GzBridgeService : Singleton<GzBridgeService> {
     private GzBridgeWebSocketConnection m_GzBridge = null;
     private bool m_Initialized = false;
 
+    delegate void CallbackModelInfoMsg(GzModelInfoMsg msg);
+    private List<CallbackModelInfoMsg> callbacks_model_info_msg = new List<CallbackModelInfoMsg>();
+    delegate void CallbackSceneMsg(GzSceneMsg msg);
+    private List<CallbackSceneMsg> callbacks_scene_msg = new List<CallbackSceneMsg>();
+
     #endregion //PRIVATE_MEMBER_VARIABLES
 
     #region MONOBEHAVIOR_METHODS
@@ -50,13 +55,27 @@ public class GzBridgeService : Singleton<GzBridgeService> {
 
     #region PUBLIC_METHODS
 
+    public void AddCallbackModelInfoMsg(CallbackModelInfoMsg callback)
+    {
+        this.callbacks_model_info_msg.Add(callback);
+    }
+
+    public void AddCallbackSceneMsg(CallbackSceneMsg callback)
+    {
+        this.callbacks_scene_msg.Add(callback);
+    }
+
     /// <summary>
     /// Main function to receive scene messages from GzBridge.
     /// </summary>
     /// <param name="msg">JSON msg containing scene message.</param>
     public void ReceiveMessage(GzSceneMsg msg)
     {
-        GazeboScene.GetComponent<GazeboSceneManager>().OnSceneMsg(msg.MsgJSON);
+        //GazeboScene.GetComponent<GazeboSceneManager>().OnSceneMsg(msg.MsgJSON);
+        foreach(CallbackSceneMsg callback in callbacks_scene_msg)
+        {
+            callback(msg);
+        }
     }
 
     /// <summary>
