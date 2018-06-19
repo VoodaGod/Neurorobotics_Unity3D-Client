@@ -30,7 +30,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
     void Awake()
     {
-        GzBridgeService.Instance.AddCallbackSceneInfo(this.OnSceneMsg);
+        GzBridgeService.Instance.AddCallbackSceneMsg(this.OnSceneMsg);
     }
 
     // Use this for initialization
@@ -47,8 +47,10 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
     #region ON_MESSAGE_FUNCTIONS
 
-    public bool OnSceneMsg(JSONNode json_scene)
+    public void OnSceneMsg(GzSceneMsg json_scene_msg)
     {
+        JSONNode json_scene = json_scene_msg.MsgJSON;
+
         // clear scene before building new one
         List<GameObject> children = new List<GameObject>();
         foreach (Transform child in transform)
@@ -114,8 +116,6 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         {
             this.SetJointFromJSON(json_joint, joints_parent.transform);
         }
-
-        return true;
     }
 
     public bool OnPoseInfoMsg(JSONNode json_pose_info)

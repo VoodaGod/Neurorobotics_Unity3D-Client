@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GzBridgeLib;
 using ROSBridgeLib;
+using SimpleJSON;
 
 public class GzBridgeService : Singleton<GzBridgeService> {
 
@@ -22,9 +23,9 @@ public class GzBridgeService : Singleton<GzBridgeService> {
     private GzBridgeWebSocketConnection m_GzBridge = null;
     private bool m_Initialized = false;
 
-    delegate void CallbackModelInfoMsg(GzModelInfoMsg msg);
+    public delegate void CallbackModelInfoMsg(GzSceneMsg msg);
     private List<CallbackModelInfoMsg> callbacks_model_info_msg = new List<CallbackModelInfoMsg>();
-    delegate void CallbackSceneMsg(GzSceneMsg msg);
+    public delegate void CallbackSceneMsg(GzSceneMsg msg);
     private List<CallbackSceneMsg> callbacks_scene_msg = new List<CallbackSceneMsg>();
 
     #endregion //PRIVATE_MEMBER_VARIABLES
