@@ -8,12 +8,18 @@ public class UnityIKControl : MonoBehaviour {
 
     protected Animator animator;
     public bool ikActive = true;
+
+    public Transform headObj = null;
+    public Transform bodyObj = null;
     public Transform rightHandObj = null;
     public Transform leftHandObj = null;
-    public Transform headObj = null;
-    public Transform lookObj = null;
+    public Transform rightFootObj = null;
+    public Transform leftFootObj = null;
 
-    public Vector3 head_to_feet_offset = new Vector3(0, -0.75f, 0);
+
+    public Transform lookAtObj = null;
+
+    public Vector3 bodyTargetOffset = new Vector3(0, -0.75f, 0);
 
     // Use this for initialization
     void Start () {
@@ -34,12 +40,17 @@ public class UnityIKControl : MonoBehaviour {
             //if the IK is active, set the position and rotation directly to the goal. 
             if (ikActive)
             {
+                // position body
+                if (bodyObj != null)
+                {
+                    this.transform.position = bodyObj.position + bodyTargetOffset;
+                }
 
                 // Set the look target position, if one has been assigned
-                if (lookObj != null)
+                if (lookAtObj != null)
                 {
                     animator.SetLookAtWeight(1);
-                    animator.SetLookAtPosition(lookObj.position);
+                    animator.SetLookAtPosition(lookAtObj.position);
                 }
 
                 // Set the right hand target position and rotation, if one has been assigned
@@ -60,15 +71,23 @@ public class UnityIKControl : MonoBehaviour {
                     animator.SetIKRotation(AvatarIKGoal.LeftHand, leftHandObj.rotation);
                 }
 
-                this.transform.position = headObj.position + head_to_feet_offset;
-            }
+                // Set the right foot target position and rotation, if one has been assigned
+                if (rightFootObj != null)
+                {
+                    animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1);
+                    animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, 1);
+                    animator.SetIKPosition(AvatarIKGoal.RightFoot, rightFootObj.position);
+                    animator.SetIKRotation(AvatarIKGoal.RightFoot, rightFootObj.rotation);
+                }
 
-            //if the IK is not active, set the position and rotation of the hand and head back to the original position
-            else
-            {
-                animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 0);
-                animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 0);
-                animator.SetLookAtWeight(0);
+                // Set the right foot target position and rotation, if one has been assigned
+                if (leftFootObj != null)
+                {
+                    animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1);
+                    animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, 1);
+                    animator.SetIKPosition(AvatarIKGoal.LeftFoot, leftFootObj.position);
+                    animator.SetIKRotation(AvatarIKGoal.LeftFoot, leftFootObj.rotation);
+                }
             }
         }
     }
