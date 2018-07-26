@@ -6,13 +6,15 @@ public class MyoArmCalibration : MonoBehaviour {
 
     public GameObject myo1, myo2;
     public GameObject joint_shoulder, joint_elbow, joint_wrist;
-    public GameObject hmd;
+    public Transform hmd;
 
     //public float neck_length = 0.2f, shoulder_to_shoulder_width = 0.4f, shoulder_forward = 0.0f;
-    public GameObject tracker_shoulder;
-    public float shoulder2tracker_offset = -0.05f;
-    public float arm_length = 0.6f;
+    //public GameObject tracker_shoulder;
+    //public float shoulder2tracker_offset = -0.05f;
+    //public float arm_length = 0.6f;
     public float accelerometer_sum_tap_threshold = ACCELEROMETER_SUM_TAP_THRESHOLD;
+
+    public Vector3 bodyHeadOffset = new Vector3(0, -0.65f, 0);
 
     private GameObject myo_upper_arm_ = null, myo_lower_arm_ = null;
     private bool calibrate = true;
@@ -41,20 +43,23 @@ public class MyoArmCalibration : MonoBehaviour {
         if (myo2) myo2.GetComponent<ThalmicMyo>().Unlock(Thalmic.Myo.UnlockType.Hold);
 
         // set everything transparent
-        this.SetArmAlpha(0.5f);
-        StartCoroutine(SetStretchArmActive(false, 0f));
+        //this.SetArmAlpha(0.5f);
+        //StartCoroutine(SetStretchArmActive(false, 0f));
 
-        this.transform.localPosition = new Vector3(0, 0, this.shoulder2tracker_offset);
+        //this.transform.localPosition = new Vector3(0, 0, this.shoulder2tracker_offset);
     }
 	
 	void Update ()
     {
         //this.SetArmToShoulderTrackerPosition();
+        //TODO: extract from IKControls and here to separate script positioning whole avatar
+        this.transform.position = hmd.position + bodyHeadOffset;
+    
 
         //joint_shoulder.transform.position = hmd.transform.position + shoulder_offset_;
         if (this.calibrate)
         {
-            this.SetArmRotationHorizontally();
+            //this.SetArmRotationHorizontally();
 
             // check for taps
             if (myo1 && myo2)
@@ -66,7 +71,7 @@ public class MyoArmCalibration : MonoBehaviour {
         // re-enable calibration
         if (Input.GetKeyDown("f1"))
         {
-            this.SetArmAlpha(0.5f);
+            //this.SetArmAlpha(0.5f);
             Debug.Log("f1");
 
             joint_shoulder.GetComponent<MyoArmJointOrientation>().UpdateReference(null);
@@ -75,13 +80,11 @@ public class MyoArmCalibration : MonoBehaviour {
             joint_shoulder.transform.rotation = new Quaternion();
             joint_elbow.transform.rotation = new Quaternion();
 
-            //this.GetComponentInChildren<MyoStretchArm>().enabled = false;
-
             this.calibrate = true;
         }
 
         // calibrate shoulder offset
-        if (Input.GetKeyDown("f2"))
+        /*if (Input.GetKeyDown("f2"))
         {
             Debug.Log("f2 shoulder set");
             //shoulder_offset_ = tracker_shoulder.transform.position - hmd.transform.position;
@@ -94,14 +97,14 @@ public class MyoArmCalibration : MonoBehaviour {
             elbow_local_pos.z = this.GetArmSegmentLength();
             Vector3 wrist_local_pos = joint_wrist.transform.localPosition;
             wrist_local_pos.z = this.GetArmSegmentLength();
-        }
+        }*/
 
         // calibrate shoulder offset
-        if (Input.GetKeyDown("s"))
+        /*if (Input.GetKeyDown("s"))
         {
             Debug.Log("setting stretchy arm active");
             StartCoroutine(SetStretchArmActive(true, 0.5f));
-        }
+        }*/
     }
 
     void OnDrawGizmos()
@@ -109,16 +112,16 @@ public class MyoArmCalibration : MonoBehaviour {
 
     }
 
-    public float GetArmSegmentLength()
+    /*public float GetArmSegmentLength()
     {
         return arm_length / 2.0f;
-    }
+    }*/
 
-    IEnumerator SetStretchArmActive (bool active, float wait_time)
+    /*IEnumerator SetStretchArmActive (bool active, float wait_time)
     {
         yield return new WaitForSeconds(wait_time);
 
-        /*MyoStretchArm stretch_hand = this.GetComponent<MyoStretchArm>();
+        MyoStretchArm stretch_hand = this.GetComponent<MyoStretchArm>();
         if (!stretch_hand)
         {
             stretch_hand = this.GetComponentInChildren<MyoStretchArm>();
@@ -127,10 +130,10 @@ public class MyoArmCalibration : MonoBehaviour {
         if (stretch_hand)
         {
             stretch_hand.enabled = active;
-        }*/
-    }
+        }
+    }*/
 
-    private void SetArmAlpha (float alpha)
+    /*private void SetArmAlpha (float alpha)
     {
         Renderer[] renderers = this.GetComponentsInChildren<Renderer>();
         for (int i = 0; i < renderers.Length; i = i + 1)
@@ -139,13 +142,13 @@ public class MyoArmCalibration : MonoBehaviour {
             color.a = alpha;
             renderers[i].material.color = color;
         }
-    }
+    }*/
 
-    private void SetArmRotationHorizontally()
+    /*private void SetArmRotationHorizontally()
     {
         Quaternion local_delta = Quaternion.FromToRotation(Vector3.forward, Quaternion.Inverse(this.tracker_shoulder.transform.rotation) * Vector3.forward);
         this.joint_shoulder.transform.localRotation = local_delta;
-    }
+    }*/
 
     private void CalibrateMyoPositionsOnArmViaPat()
     {
@@ -177,12 +180,12 @@ public class MyoArmCalibration : MonoBehaviour {
             {
                 joint_shoulder.GetComponent<MyoArmJointOrientation>().UpdateReference(myo_upper_arm_);
                 joint_elbow.GetComponent<MyoArmJointOrientation>().UpdateReference(myo_lower_arm_);
-                //Debug.Log("Myo references and reference poses updated");
+                Debug.Log("Myo references and reference poses updated");
 
                 this.calibrate = false;
                 //StartCoroutine(SetStretchArmActive(true, 0.5f));
 
-                this.SetArmAlpha(1.0f);
+                //this.SetArmAlpha(1.0f);
             }
         }
     }
@@ -222,7 +225,7 @@ public class MyoArmCalibration : MonoBehaviour {
         }
     }
 
-    private void CalibrateMyoPositionViaDoubleTap()
+    /*private void CalibrateMyoPositionViaDoubleTap()
     {
         bool placement_calibrated = false;
         if (myo1.GetComponent<ThalmicMyo>().pose == Thalmic.Myo.Pose.DoubleTap)
@@ -254,7 +257,7 @@ public class MyoArmCalibration : MonoBehaviour {
                 this.SetArmAlpha(1.0f);
             }
         }
-    }
+    }*/
 
     /*private void SetArmToShoulderTrackerPosition()
     {

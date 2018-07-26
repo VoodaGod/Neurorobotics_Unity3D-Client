@@ -20,6 +20,7 @@ public class UnityIKControl : MonoBehaviour {
     public Transform lookAtObj = null;
 
     public Vector3 bodyTargetOffset = new Vector3(0, -0.75f, 0);
+    public Vector3 bodyHeadOffset = new Vector3(0, -1.0f, 0);
 
     // Use this for initialization
     void Start () {
@@ -44,6 +45,10 @@ public class UnityIKControl : MonoBehaviour {
                 if (bodyObj != null)
                 {
                     this.transform.position = bodyObj.position + bodyTargetOffset;
+                }
+                else
+                {
+                    this.transform.position = headObj.position + bodyHeadOffset;
                 }
 
                 // Set the look target position, if one has been assigned

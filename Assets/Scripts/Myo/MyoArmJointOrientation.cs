@@ -20,7 +20,7 @@ public class MyoArmJointOrientation : MonoBehaviour
     {
         if (!this.myo_) return;
 
-        this.UpdateOrientationSmoothed();
+        this.UpdateOrientationSlerp();
     }
 
     public void UpdateReference(GameObject myo)
@@ -84,6 +84,7 @@ public class MyoArmJointOrientation : MonoBehaviour
         Quaternion antiRoll = Quaternion.AngleAxis(relativeRoll, this.myo_.transform.forward);
 
         transform.rotation = _antiYaw * antiRoll * Quaternion.LookRotation(this.myo_.transform.forward);
+        transform.rotation = new Quaternion(transform.rotation.z, transform.rotation.y, -transform.rotation.x, transform.rotation.w);  // black magic, figure out later
 
         // the rotation needs to be updated to compensate.
         if (thalmic_myo.xDirection == Thalmic.Myo.XDirection.TowardWrist)
@@ -112,6 +113,7 @@ public class MyoArmJointOrientation : MonoBehaviour
             rotations.Dequeue();
         }
         transform.rotation = QuaternionUtility.GetAverage(rotations.ToArray());
+        transform.rotation = new Quaternion(transform.rotation.z, transform.rotation.y, -transform.rotation.x, transform.rotation.w);  // black magic, figure out later
 
         // the rotation needs to be updated to compensate.
         if (thalmic_myo.xDirection == Thalmic.Myo.XDirection.TowardWrist)
@@ -141,6 +143,7 @@ public class MyoArmJointOrientation : MonoBehaviour
         }
         Quaternion[] rotations_array = rotations.ToArray();
         transform.rotation = Quaternion.Slerp(rotations_array[0], rotations_array[1], 0.5f);
+        transform.rotation = new Quaternion(transform.rotation.z, transform.rotation.y, -transform.rotation.x, transform.rotation.w);  // black magic, figure out later
 
         // the rotation needs to be updated to compensate.
         if (thalmic_myo.xDirection == Thalmic.Myo.XDirection.TowardWrist)
