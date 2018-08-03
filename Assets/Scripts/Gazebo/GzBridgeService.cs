@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GzBridgeLib;
+using ROSBridgeLib;
+using SimpleJSON;
 
 public class GzBridgeService : Singleton<GzBridgeService> {
 
@@ -9,12 +11,31 @@ public class GzBridgeService : Singleton<GzBridgeService> {
     
     public GameObject GazeboScene = null;
 
+    public GzBridgeWebSocketConnection gzbridge
+    {
+        get { return this.m_GzBridge; }
+    }
+
+    public delegate void CallbackOnCloseConnection();
+
+    public delegate void CallbackMaterialMsg(GzMaterialMsg msg);
+    public delegate void CallbackModelInfoMsg(GzModelInfoMsg msg);
+    public delegate void CallbackPoseInfoMsg(GzPoseInfoMsg msg);
+    public delegate void CallbackSceneMsg(GzSceneMsg msg);
+
     #endregion //PUBLIC_MEMBER_VARIABLES
 
     #region PRIVATE_MEMBER_VARIABLES
 
     private GzBridgeWebSocketConnection m_GzBridge = null;
     private bool m_Initialized = false;
+
+    private List<CallbackOnCloseConnection> callbacks_on_close_connection = new List<CallbackOnCloseConnection>();
+
+    private List<CallbackMaterialMsg> callbacks_material_msg = new List<CallbackMaterialMsg>();
+    private List<CallbackModelInfoMsg> callbacks_model_info_msg = new List<CallbackModelInfoMsg>();
+    private List<CallbackPoseInfoMsg> callbacks_pose_info_msg = new List<CallbackPoseInfoMsg>();
+    private List<CallbackSceneMsg> callbacks_scene_msg = new List<CallbackSceneMsg>();
 
     #endregion //PRIVATE_MEMBER_VARIABLES
 
@@ -36,6 +57,11 @@ public class GzBridgeService : Singleton<GzBridgeService> {
 
     void OnApplicationQuit()
     {
+        foreach (CallbackOnCloseConnection callback in callbacks_on_close_connection)
+        {
+            callback();
+        }
+
         if (m_Initialized)
             m_GzBridge.Disconnect();
     }
@@ -44,13 +70,42 @@ public class GzBridgeService : Singleton<GzBridgeService> {
 
     #region PUBLIC_METHODS
 
+    public void AddCallbackOnCloseConnection(CallbackOnCloseConnection callback)
+    {
+        this.callbacks_on_close_connection.Add(callback);
+    }
+
+    public void AddCallbackMaterialMsg(CallbackMaterialMsg callback)
+    {
+        this.callbacks_material_msg.Add(callback);
+    }
+
+    public void AddCallbackModelInfoMsg(CallbackModelInfoMsg callback)
+    {
+        this.callbacks_model_info_msg.Add(callback);
+    }
+
+    public void AddCallbackPoseInfoMsg(CallbackPoseInfoMsg callback)
+    {
+        this.callbacks_pose_info_msg.Add(callback);
+    }
+
+    public void AddCallbackSceneMsg(CallbackSceneMsg callback)
+    {
+        this.callbacks_scene_msg.Add(callback);
+    }
+
     /// <summary>
     /// Main function to receive scene messages from GzBridge.
     /// </summary>
     /// <param name="msg">JSON msg containing scene message.</param>
     public void ReceiveMessage(GzSceneMsg msg)
     {
-        GazeboScene.GetComponent<GazeboSceneManager>().OnSceneMsg(msg.MsgJSON);
+        //GazeboScene.GetComponent<GazeboSceneManager>().OnSceneMsg(msg.MsgJSON);
+        foreach(CallbackSceneMsg callback in callbacks_scene_msg)
+        {
+            callback(msg);
+        }
     }
 
     /// <summary>
@@ -59,7 +114,11 @@ public class GzBridgeService : Singleton<GzBridgeService> {
     /// <param name="msg">JSON msg containing pose info message.</param>
     public void ReceiveMessage(GzPoseInfoMsg msg)
     {
-        GazeboScene.GetComponent<GazeboSceneManager>().OnPoseInfoMsg(msg.MsgJSON);
+        //GazeboScene.GetComponent<GazeboSceneManager>().OnPoseInfoMsg(msg.MsgJSON);
+        foreach (CallbackPoseInfoMsg callback in callbacks_pose_info_msg)
+        {
+            callback(msg);
+        }
     }
 
     /// <summary>
@@ -68,7 +127,11 @@ public class GzBridgeService : Singleton<GzBridgeService> {
     /// <param name="msg">JSON msg containing model info message.</param>
     public void ReceiveMessage(GzModelInfoMsg msg)
     {
-        GazeboScene.GetComponent<GazeboSceneManager>().OnModelInfoMsg(msg.MsgJSON);
+        //GazeboScene.GetComponent<GazeboSceneManager>().OnModelInfoMsg(msg);
+        foreach (CallbackModelInfoMsg callback in callbacks_model_info_msg)
+        {
+            callback(msg);
+        }
     }
 
     /// <summary>
@@ -77,7 +140,11 @@ public class GzBridgeService : Singleton<GzBridgeService> {
     /// <param name="msg">JSON msg containing material message.</param>
     public void ReceiveMessage(GzMaterialMsg msg)
     {
-        GazeboScene.GetComponent<GazeboSceneManager>().OnMaterialMsg(msg.MsgJSON);
+        //GazeboScene.GetComponent<GazeboSceneManager>().OnMaterialMsg(msg);
+        foreach (CallbackMaterialMsg callback in callbacks_material_msg)
+        {
+            callback(msg);
+        }
     }
 
     public void ConnectToGzBridge(string url)

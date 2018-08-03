@@ -38,7 +38,6 @@ public class AuthenticationService : Singleton<AuthenticationService> {
 
     private IEnumerator Authenticate()
     {
-        Debug.Log("AuthenticationService - authenticating ...");
         string auth_url = string.Format("http://{0}:{1}/proxy/authentication/authenticate", backend.IP, backend.ProxyPort);
         string auth_json = string.Format("{{\"user\": \"{0}\", \"password\": \"{1}\"}}", this.auth_username, this.auth_password);
 
@@ -55,7 +54,7 @@ public class AuthenticationService : Singleton<AuthenticationService> {
         }
         else
         {
-            //Debug.Log("AuthenticationService - auth token: " + www.text);
+            Debug.Log("AuthenticationService - auth token: " + www.text);
             this.auth_token = www.text;
         }
     }
