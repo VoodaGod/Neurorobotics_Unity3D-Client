@@ -23,7 +23,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     private GameObject joints_parent = null;
 
     // loading models
-    public string NRPModelsSubpath = "Models/nrp_models";
+    public string NRPModelsSubpath = "Models/NRP";
     private Dictionary<string, string> nrp_models_subpaths = new Dictionary<string, string>();
 
     public Material CollisionMaterial = null;
@@ -39,7 +39,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     // Use this for initialization
     void Start ()
     {
-        this.InitModelSubpaths();
+        //this.InitModelSubpaths();
     }
 	
 	// Update is called once per frame
@@ -242,8 +242,8 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
         try
         {
-            string model_subpath = this.nrp_models_subpaths[model_name] + json_uri_path.Substring(model_name.Length);
-            string mesh_uri = "Assets/" + this.NRPModelsSubpath + "/" + model_subpath;
+            string model_subpath = json_uri_path.Substring(model_name.Length);
+            string mesh_uri = "Assets/" + this.NRPModelsSubpath + "/" + json_uri_path;
 
             // import Mesh
             GameObject mesh_prefab = null;
@@ -266,7 +266,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
                     if (mesh_renderer.material != null)
                     {
                         Material material = mesh_renderer.material;
-                        string material_folder = "Assets/Materials/NRP/" + this.nrp_models_subpaths[model_name] + "/";
+                        string material_folder = "Assets/Materials/NRP/" + model_name;
                         string material_name = material.name;
                         if (material_name.Contains(" (Instance)"))
                         {
@@ -642,7 +642,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     private bool InitModelSubpaths()
     {
         // load model list file
-        string model_list_file_path = Application.dataPath + "/" + this.NRPModelsSubpath + "/_rpmbuild/models.txt";
+        string model_list_file_path = Application.dataPath + "/" + this.NRPModelsSubpath + "/libraries/model_library.json";
         StreamReader stream_reader = new StreamReader(model_list_file_path, Encoding.Default);
         using (stream_reader)
         {
