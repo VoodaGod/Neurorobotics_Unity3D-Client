@@ -24,18 +24,13 @@ public class UserAvatarService : Singleton<UserAvatarService>
     // Use this for initialization
     void Start()
     {
-        this.SpawnAvatarRayman();  // test
+        StartCoroutine(SpawnAvatar("user_avatar_ybot"));
     }
 
     // Update is called once per frame
     void Update()
     {
 
-    }
-
-    public void SpawnAvatarRayman()
-    {
-        StartCoroutine(SpawnAvatar("user_avatar_rayman"));
     }
 
     public void DespawnAvatar()
@@ -67,7 +62,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
         yield return new WaitUntil(() => !string.IsNullOrEmpty(AuthenticationService.Instance.token));
 
         this.avatar_name = "user_avatar_" + AuthenticationService.Instance.token;
-        Vector3 spawn_pos = GazeboSceneManager.Unity2GzVec3(new Vector3(-6.5f, 0f, 2f));
+        Vector3 spawn_pos = GazeboSceneManager.Unity2GzVec3(new Vector3(0f, 1f, 0f));
         Quaternion spawn_rot = new Quaternion();
 
         GzFactoryMsg msg = new GzFactoryMsg(this.avatar_name, avatar_model_name, new PointMsg(spawn_pos.x, spawn_pos.y, spawn_pos.z), new QuaternionMsg(spawn_rot.x, spawn_rot.y, spawn_rot.z, spawn_rot.w));
