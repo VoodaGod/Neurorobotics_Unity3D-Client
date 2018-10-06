@@ -20,14 +20,12 @@ public class UserAvatarService : Singleton<UserAvatarService>
         GzBridgeService.Instance.AddCallbackModelInfoMsg(this.OnModelInfoMsg);
         GzBridgeService.Instance.AddCallbackOnCloseConnection(this.DespawnAvatar);
     }
-
-    // Use this for initialization
+    
     void Start()
     {
         StartCoroutine(SpawnAvatar("user_avatar_ybot"));
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
 
@@ -77,12 +75,5 @@ public class UserAvatarService : Singleton<UserAvatarService>
             return this.user_avatar != null;
             }
         );
-    }
-
-    private IEnumerator TestAvatarRaymanMovement()
-    {
-
-
-        yield return null;
     }
 }

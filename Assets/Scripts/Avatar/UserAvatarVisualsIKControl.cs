@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
 
-public class UnityIKControl : MonoBehaviour {
+public class UserAvatarVisualsIKControl : MonoBehaviour {
 
     protected Animator animator;
     public bool ikActive = true;
@@ -16,14 +16,10 @@ public class UnityIKControl : MonoBehaviour {
     public Transform leftFootTarget = null;
     public Transform rightFootTarget = null;
 
-
     public Transform lookAtObj = null;
 
     public Vector3 bodyTargetOffset = new Vector3(0, -0.75f, 0);
     public Vector3 bodyHeadOffset = new Vector3(0, -1.0f, 0);
-    /*public Vector3 handTranslationOffset = new Vector3(0, 0, 0.05f);
-    public Quaternion leftHandRotationOffset = new Quaternion(0, 0, 0, 0);
-    public Quaternion rightHandRotationOffset = new Quaternion(0, 0, 0, 0);*/
 
 
     // Use this for initialization
@@ -49,38 +45,37 @@ public class UnityIKControl : MonoBehaviour {
                 if (bodyTarget != null)
                 {
                     this.transform.position = bodyTarget.position + bodyTargetOffset;
+                    this.transform.rotation = bodyTarget.rotation;
                 }
-                else
+                else if (headTarget != null)
                 {
                     this.transform.position = headTarget.position + bodyHeadOffset;
+                    //this.transform.rotation = headTarget.rotation;
+                    this.transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(headTarget.forward, Vector3.up), Vector3.up);
                 }
-
-                // Set the look target position, if one has been assigned
+                
                 if (lookAtObj != null)
                 {
                     animator.SetLookAtWeight(1);
                     animator.SetLookAtPosition(lookAtObj.position);
                 }
-
-                // Set the right hand target position and rotation, if one has been assigned
+                
                 if (rightHandTarget != null)
                 {
                     animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
                     animator.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
-                    animator.SetIKPosition(AvatarIKGoal.RightHand, rightHandTarget.position /*+ rightHandTarget.TransformDirection(handTranslationOffset)*/);
-                    animator.SetIKRotation(AvatarIKGoal.RightHand, rightHandTarget.rotation /** rightHandRotationOffset*/);
+                    animator.SetIKPosition(AvatarIKGoal.RightHand, rightHandTarget.position);
+                    animator.SetIKRotation(AvatarIKGoal.RightHand, rightHandTarget.rotation);
                 }
-
-                // Set the left hand target position and rotation, if one has been assigned
-                if (rightHandTarget != null)
+                
+                if (leftHandTarget != null)
                 {
                     animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
                     animator.SetIKRotationWeight(AvatarIKGoal.LeftHand, 1);
-                    animator.SetIKPosition(AvatarIKGoal.LeftHand, leftHandTarget.position /*+ leftHandTarget.TransformDirection(handTranslationOffset)*/);
-                    animator.SetIKRotation(AvatarIKGoal.LeftHand, leftHandTarget.rotation /** leftHandRotationOffset*/);
+                    animator.SetIKPosition(AvatarIKGoal.LeftHand, leftHandTarget.position);
+                    animator.SetIKRotation(AvatarIKGoal.LeftHand, leftHandTarget.rotation);
                 }
-
-                // Set the right foot target position and rotation, if one has been assigned
+                
                 if (rightFootTarget != null)
                 {
                     animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1);
@@ -88,8 +83,7 @@ public class UnityIKControl : MonoBehaviour {
                     animator.SetIKPosition(AvatarIKGoal.RightFoot, rightFootTarget.position);
                     animator.SetIKRotation(AvatarIKGoal.RightFoot, rightFootTarget.rotation);
                 }
-
-                // Set the right foot target position and rotation, if one has been assigned
+                
                 if (leftFootTarget != null)
                 {
                     animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1);
