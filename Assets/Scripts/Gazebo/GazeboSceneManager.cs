@@ -715,11 +715,12 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     /// <returns>Quaternion in unity coordinate frame.</returns>
     public static Quaternion Gz2UnityQuaternion(Quaternion gazeboRot)
     {
-        Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
+        /*Quaternion tempRot = new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
         
         Quaternion finalRot = tempRot;
 
-        return finalRot;
+        return finalRot;*/
+        return new Quaternion(-gazeboRot.x, -gazeboRot.z, -gazeboRot.y, gazeboRot.w);
     }
 
     /// <summary>
@@ -739,14 +740,15 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
     /// <returns>Quaternion in gazebo coordinate frame.</returns>
     public static Quaternion Unity2GzQuaternion(Quaternion unityRot)
     {
+        /*
         Quaternion rotX = Quaternion.AngleAxis(180f, Vector3.right);
         Quaternion rotZ = Quaternion.AngleAxis(180f, Vector3.forward);
-
         Quaternion tempRot = unityRot * rotX * rotZ;
-
         Quaternion finalRot = new Quaternion(-tempRot.x, -tempRot.z, -tempRot.y, tempRot.w);
-
         return finalRot;
+        */
+
+        return new Quaternion(-unityRot.x, -unityRot.z, -unityRot.y, unityRot.w);
     }
     #endregion
 
