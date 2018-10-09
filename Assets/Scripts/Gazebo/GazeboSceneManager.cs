@@ -119,6 +119,8 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         {
             this.SetJointFromJSON(json_joint, joints_parent.transform);
         }
+
+        this.DisableAllGazeboCameras();
     }
 
     public void OnPoseInfoMsg(GzPoseInfoMsg pose_info_msg)
@@ -682,6 +684,15 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
                 Debug.Log(e.Message);
                 return false;
             }
+        }
+    }
+
+    private void DisableAllGazeboCameras()
+    {
+        Camera[] cameras = this.GetComponentsInChildren<Camera>();
+        foreach (Camera camera in cameras)
+        {
+            camera.enabled = false;
         }
     }
 

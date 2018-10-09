@@ -21,6 +21,11 @@ public class ROSBridgeService : Singleton<ROSBridgeService>
 {
     #region PUBLIC_MEMBER_VARIABLES
 
+    public ROSBridgeWebSocketConnection websocket
+    {
+        get { return this.m_Ros; }
+    }
+
     #endregion //PUBLIC_MEMBER_VARIABLES
 
     #region PRIVATE_MEMBER_VARIABLES
@@ -52,6 +57,11 @@ public class ROSBridgeService : Singleton<ROSBridgeService>
 
     #region PUBLIC_METHODS
     
+    public void CallService(string service, string args)
+    {
+        this.m_Ros.CallService(service, args);
+    }
+
     #endregion //PUBLIC_METHODS
 
     #region PRIVATE_METHODS

@@ -8,6 +8,18 @@ public class UserAvatarVisuals : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+        this.SetOpacity(this.opacity);
+	}
+	
+	// Update is called once per frame
+	void Update () {
+
+	}
+
+    public void SetOpacity(float opacity)
+    {
+        this.opacity = opacity;
+
         Renderer[] renderers = this.GetComponentsInChildren<Renderer>();
         foreach (Renderer renderer in renderers)
         {
@@ -19,12 +31,7 @@ public class UserAvatarVisuals : MonoBehaviour {
                 this.SetRenderModeTransparent(material);
             }
         }
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    }
 
     private void SetRenderModeTransparent (Material material)
     {

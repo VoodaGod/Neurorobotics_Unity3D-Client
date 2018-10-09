@@ -11,6 +11,8 @@ public class UserAvatarService : Singleton<UserAvatarService>
         get { return this.user_avatar; }
     }
 
+    public GameObject avatar_visuals = null;
+
     private string avatar_name = null;
 
     private GameObject user_avatar = null;
@@ -28,7 +30,20 @@ public class UserAvatarService : Singleton<UserAvatarService>
     
     void Update()
     {
+        if (!this.user_avatar)
+        {
+            return;
+        }
 
+        string topic = "/" + this.avatar_name + "/user_avatar_ybot/mixamorig_Head/cmd_pose";
+
+        Vector3 gazebo_head_position_target = GazeboSceneManager.Unity2GzVec3(this.avatar_visuals.transform.position);
+        PointMsg position_msg = new PointMsg(gazebo_head_position_target.x, gazebo_head_position_target.y, gazebo_head_position_target.z);
+
+        Quaternion gazebo_head_rotation_target = GazeboSceneManager.Unity2GzQuaternion(this.avatar_visuals.transform.rotation);
+        QuaternionMsg rotation_msg = new QuaternionMsg(gazebo_head_rotation_target.x, gazebo_head_rotation_target.y, gazebo_head_rotation_target.z, gazebo_head_rotation_target.w);
+        PoseMsg pose = new PoseMsg(position_msg, rotation_msg);
+        //ROSBridgeService.Instance.websocket.Publish(String topic, ROSBridgeMsg msg);
     }
 
     public void DespawnAvatar()
@@ -60,7 +75,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
         yield return new WaitUntil(() => !string.IsNullOrEmpty(AuthenticationService.Instance.token));
 
         this.avatar_name = "user_avatar_" + AuthenticationService.Instance.token;
-        Vector3 spawn_pos = GazeboSceneManager.Unity2GzVec3(new Vector3(0f, 1f, 0f));
+        Vector3 spawn_pos = GazeboSceneManager.Unity2GzVec3(new Vector3(avatar_visuals.transform.position.x, avatar_visuals.transform.position.y + 1.5f, avatar_visuals.transform.position.z));
         Quaternion spawn_rot = new Quaternion();
 
         GzFactoryMsg msg = new GzFactoryMsg(this.avatar_name, avatar_model_name, new PointMsg(spawn_pos.x, spawn_pos.y, spawn_pos.z), new QuaternionMsg(spawn_rot.x, spawn_rot.y, spawn_rot.z, spawn_rot.w));

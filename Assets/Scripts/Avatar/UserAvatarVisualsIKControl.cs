@@ -50,7 +50,6 @@ public class UserAvatarVisualsIKControl : MonoBehaviour {
                 else if (headTarget != null)
                 {
                     this.transform.position = headTarget.position + bodyHeadOffset;
-                    //this.transform.rotation = headTarget.rotation;
                     this.transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(headTarget.forward, Vector3.up), Vector3.up);
                 }
                 
