@@ -748,7 +748,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         return finalRot;
         */
 
-        return new Quaternion(-unityRot.x, -unityRot.z, -unityRot.y, unityRot.w);
+        return new Quaternion(unityRot.x, unityRot.z, unityRot.y, unityRot.w);
     }
     #endregion
 

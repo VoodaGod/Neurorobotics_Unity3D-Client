@@ -13,7 +13,9 @@ public class UserAvatarService : Singleton<UserAvatarService>
 
     public GameObject avatar_visuals = null;
 
-    public List<GameObject> publish_links = null;
+    public List<GameObject> published_links = null;
+
+    public bool scripted_publishing = false;
 
     private string avatar_name = null;
 
@@ -45,7 +47,18 @@ public class UserAvatarService : Singleton<UserAvatarService>
             ROSBridgeService.Instance.websocket.Publish(topic, pose);
         }*/
 
+        if (this.scripted_publishing)
+        {
+            this.PublishScriptedSequence();
+            return;
+        }
+
         if (this.avatar_visuals)
+        {
+            this.PublishModelRotationTarget();
+        }
+
+        if (this.published_links.Count > 0)
         {
             this.TestPublishPose();
         }
@@ -99,7 +112,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
 
     private void TestPublishPose()
     {
-        foreach(GameObject link in this.publish_links)
+        foreach(GameObject link in this.published_links)
         {
             if (link != null)
             {
@@ -109,11 +122,31 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 PointMsg position_msg = new PointMsg(position_target.x, position_target.y, position_target.z);
 
                 Quaternion rotation_target = GazeboSceneManager.Unity2GzQuaternion(link.transform.rotation);
-                //QuaternionMsg rotation_msg = new QuaternionMsg(rotation_target.x, rotation_target.y, rotation_target.z, rotation_target.w);
-                QuaternionMsg rotation_msg = new QuaternionMsg(0, 0, 0, 1);
-                PoseMsg pose = new PoseMsg(position_msg, rotation_msg);
-                ROSBridgeService.Instance.websocket.Publish(topic, pose);
+                QuaternionMsg rotation_msg = new QuaternionMsg(rotation_target.x, rotation_target.y, rotation_target.z, rotation_target.w);
+                PoseMsg pose_msg = new PoseMsg(position_msg, rotation_msg);
+                ROSBridgeService.Instance.websocket.Publish(topic, pose_msg);
             }
         }
+    }
+
+    private void PublishScriptedSequence()
+    {
+        string topic = "/user_avatar_ybot_0/avatar_ybot/mixamorig_Spine2/cmd_pose";
+
+        Vector3 position_target = GazeboSceneManager.Unity2GzVec3(new Vector3(Mathf.Sin(Time.time), 0.5f, Mathf.Cos(Time.time)));
+        PointMsg position_msg = new PointMsg(position_target.x, position_target.y, position_target.z);
+
+        Quaternion rotation_target = GazeboSceneManager.Unity2GzQuaternion(Quaternion.Euler(0, (Time.time) % 360, 0));
+        QuaternionMsg rotation_msg = new QuaternionMsg(rotation_target.x, rotation_target.y, rotation_target.z, rotation_target.w);
+        PoseMsg pose = new PoseMsg(position_msg, rotation_msg);
+        ROSBridgeService.Instance.websocket.Publish(topic, pose);
+    }
+
+    private void PublishModelRotationTarget()
+    {
+        string topic = "/user_avatar_ybot_0/cmd_rot";
+        Quaternion rotation_target = GazeboSceneManager.Unity2GzQuaternion(this.avatar_visuals.transform.rotation);
+        QuaternionMsg rotation_msg = new QuaternionMsg(rotation_target.x, rotation_target.y, rotation_target.z, rotation_target.w);
+        ROSBridgeService.Instance.websocket.Publish(topic, rotation_msg);
     }
 }
