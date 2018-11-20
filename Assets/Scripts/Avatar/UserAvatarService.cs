@@ -20,6 +20,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
     private string avatar_name = null;
 
     private GameObject user_avatar = null;
+    private GameObject avatar_target = null;
 
     private bool spawning_avatar = false;
 
@@ -60,11 +61,6 @@ public class UserAvatarService : Singleton<UserAvatarService>
             StartCoroutine(SpawnAvatar("user_avatar_ybot"));
         }
 
-        /*if (Input.GetKey("c"))
-        {
-            this.CommandPublishWrench();
-        }*/
-
         if (this.scripted_publishing)
         {
             this.PublishScriptedSequence();
@@ -81,7 +77,8 @@ public class UserAvatarService : Singleton<UserAvatarService>
             float t = Time.time;
             if (t - this.publish_linear_velocity_tlast > this.publish_linear_velocity_frequency)
             {
-                this.TestPublishLinearVelocity();
+                //this.TestPublishLinearVelocity();
+                //this.TestPublishAngularVelocity();
                 this.publish_linear_velocity_tlast = t;
             }
 
@@ -144,20 +141,10 @@ public class UserAvatarService : Singleton<UserAvatarService>
         );
 
         Debug.Log("Found avatar model: " + this.user_avatar);
-
-        //this.AddLinkPublishers();
+        this.avatar_target = Object.Instantiate(this.user_avatar);
+        this.avatar_target.transform.SetParent(this.transform);  // make sure this is not different from the parent of user_avatar (the "Gazebo Scene" object)
+        this.avatar_target.name = "avatar_local_visuals";
     }
-
-    /*private void AddLinkPublishers()
-    {
-        foreach (GameObject link in this.published_links)
-        {
-            string topic = "~/" + this.avatar_name + "/avatar_ybot/" + link.name + "/wrench";
-            GzWrenchPublisher publisher = new GzWrenchPublisher(topic);
-            GzBridgeService.Instance.gzbridge.AddPublisher(typeof(GzWrenchPublisher));
-        }
-        
-    }*/
 
     private void TestPublishPose()
     {
@@ -208,6 +195,41 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 Vector3 velocity = GazeboSceneManager.Unity2GzVec3(position_diff) * this.publish_linear_velocity_velocity_factor;
                 Vector3Msg velocity_msg = new Vector3Msg(velocity.x, velocity.y, velocity.z);
                 ROSBridgeService.Instance.websocket.Publish(topic, velocity_msg);
+            }
+        }
+    }
+
+    private void TestPublishAngularVelocity()
+    {
+        if (this.user_avatar == null)
+        {
+            return;
+        }
+
+        foreach (GameObject target_link in this.published_links)
+        {
+            if (target_link != null)
+            {
+                string topic = "/" + this.avatar_name + "/avatar_ybot/" + target_link.name + "/angular_vel";
+
+                string server_link_name = this.avatar_name + "::avatar_ybot::" + target_link.name;
+                GameObject server_link = GameObject.Find(server_link_name);
+                if (!server_link)
+                {
+                    Debug.Log("could not find child link " + server_link_name + " of server avatar model");
+                    return;
+                }
+
+                //Quaternion rotation_diff = target_link.transform.rotation * Quaternion.Inverse(server_link.transform.rotation);
+                Quaternion rotation_diff = Quaternion.FromToRotation(server_link.transform.forward, target_link.transform.up);
+
+                Vector3 angular_velocity = rotation_diff.eulerAngles * 0.5f;
+                Debug.Log("rotation difference (" + target_link.name + ") : " + angular_velocity);
+                //rotation_diff = GazeboSceneManager.Unity2GzQuaternion(rotation_diff);
+                //Vector3 rotation = rotation_diff.eulerAngles;
+
+                Vector3Msg angular_velocity_msg = new Vector3Msg(-angular_velocity.x, -angular_velocity.y, -angular_velocity.z);
+                ROSBridgeService.Instance.websocket.Publish(topic, angular_velocity_msg);
             }
         }
     }
