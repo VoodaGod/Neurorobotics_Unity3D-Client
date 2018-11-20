@@ -39,7 +39,7 @@ namespace ROSBridgeLib {
 			}
 			
 			public override string ToString() {
-				return "Vector3 [x=" + _x + ",  y="+ _y + ",  z=" + _z + "]";
+                return "Vector3 [x=" + _x + ",  y="+ _y + ",  z=" + _z + "]";
 			}
 			
 			public override string ToYAMLString() {
