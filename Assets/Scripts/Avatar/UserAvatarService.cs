@@ -11,24 +11,25 @@ public class UserAvatarService : Singleton<UserAvatarService>
         get { return this.user_avatar; }
     }
 
-    public GameObject avatar_visuals = null;
+    public GameObject avatar_rig = null;
 
     public List<GameObject> published_links = null;
+    public bool publish_all_links = false;
 
     public bool scripted_publishing = false;
 
     private string avatar_name = null;
 
     private GameObject user_avatar = null;
-    private GameObject avatar_target = null;
+    private GameObject avatar_clone = null;
 
     private bool spawning_avatar = false;
 
     private float publish_linear_velocity_frequency = 0.01f;
     private float publish_linear_velocity_tlast;
-    private float publish_linear_velocity_velocity_const = 5f;
-    private float publish_linear_velocity_velocity_factor = 25f;
-    private float publish_linear_velocity_max_velocity = 20f;
+    private float publish_linear_velocity_const = 5f;
+    private float publish_linear_velocity_factor = 5f;
+    private float publish_linear_velocity_max = 20f;
 
     void Awake()
     {
@@ -67,7 +68,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
             return;
         }
 
-        if (this.avatar_visuals)
+        if (this.avatar_rig)
         {
             //this.PublishModelRotationTarget();
         }
@@ -77,9 +78,14 @@ public class UserAvatarService : Singleton<UserAvatarService>
             float t = Time.time;
             if (t - this.publish_linear_velocity_tlast > this.publish_linear_velocity_frequency)
             {
-                this.TestPublishLinearVelocity();
-                //this.TestPublishAngularVelocity();
                 this.publish_linear_velocity_tlast = t;
+
+                this.FitCloneToVisuals();
+
+                //this.TestPublishLinearVelocity();
+                this.TestPublishLinearVelocityFromClone();
+
+                //this.TestPublishAngularVelocity();
             }
 
             //this.TestPublishPose();
@@ -124,7 +130,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
         this.avatar_name = "user_avatar_" + AuthenticationService.Instance.token.Replace("-", "_");
         Debug.Log("SpawnAvatar - auth token: " + AuthenticationService.Instance.token);
         Debug.Log("SpawnAvatar - avatar_name: " + this.avatar_name);
-        Vector3 spawn_pos = GazeboSceneManager.Unity2GzVec3(new Vector3(avatar_visuals.transform.position.x, avatar_visuals.transform.position.y + 0.5f, avatar_visuals.transform.position.z));
+        Vector3 spawn_pos = GazeboSceneManager.Unity2GzVec3(new Vector3(avatar_rig.transform.position.x, avatar_rig.transform.position.y + 0.5f, avatar_rig.transform.position.z));
         Quaternion spawn_rot = new Quaternion();
 
         GzFactoryMsg msg = new GzFactoryMsg(this.avatar_name, avatar_model_name, new PointMsg(spawn_pos.x, spawn_pos.y, spawn_pos.z), new QuaternionMsg(spawn_rot.x, spawn_rot.y, spawn_rot.z, spawn_rot.w));
@@ -141,9 +147,12 @@ public class UserAvatarService : Singleton<UserAvatarService>
         );
 
         Debug.Log("Found avatar model: " + this.user_avatar);
-        /*this.avatar_target = Object.Instantiate(this.user_avatar);
-        this.avatar_target.transform.SetParent(this.transform);  // make sure this is not different from the parent of user_avatar (the "Gazebo Scene" object)
-        this.avatar_target.name = "avatar_local_visuals";*/
+        this.avatar_clone = Object.Instantiate(this.user_avatar);
+        this.avatar_clone.transform.SetParent(this.transform);  // make sure this is not different from the parent of user_avatar (the "Gazebo Scene" object)
+        this.avatar_clone.name = "avatar_clone";
+
+        this.avatar_clone.AddComponent<UserAvatarVisuals>();
+        this.avatar_clone.GetComponent<UserAvatarVisuals>().SetOpacity(0.2f);
     }
 
     private void TestPublishPose()
@@ -192,7 +201,58 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 }
 
                 Vector3 position_diff = target_link.transform.position - server_link.transform.position;
-                Vector3 velocity = GazeboSceneManager.Unity2GzVec3(position_diff) * this.publish_linear_velocity_velocity_factor;
+                Vector3 velocity = GazeboSceneManager.Unity2GzVec3(position_diff) * this.publish_linear_velocity_factor;
+                Vector3Msg velocity_msg = new Vector3Msg(velocity.x, velocity.y, velocity.z);
+                ROSBridgeService.Instance.websocket.Publish(topic, velocity_msg);
+            }
+        }
+    }
+
+    private void TestPublishLinearVelocityFromClone()
+    {
+        if (!this.user_avatar || !this.avatar_clone) return;
+
+        Transform clone_links = this.avatar_clone.transform.Find("links");
+        Transform server_links = this.user_avatar.transform.Find("links");
+        if (!clone_links || !server_links) return;
+
+        List<GameObject> links_to_publish;
+        if (this.publish_all_links)
+        {
+            links_to_publish = new List<GameObject>();
+            foreach (Transform target_transform in this.avatar_rig.transform.Find("mixamorig_Hips").GetComponentsInChildren<Transform>())
+            {
+                if (target_transform != null)
+                {
+                    links_to_publish.Add(target_transform.gameObject);
+                }
+            }
+        } else
+        {
+            links_to_publish = this.published_links;
+        }
+
+        foreach (GameObject target_link in links_to_publish)
+        {
+            if (target_link != null)
+            {
+                string topic = "/" + this.avatar_name + "/avatar_ybot/" + target_link.name + "/linear_vel";
+                string link_name = this.avatar_name + "::avatar_ybot::" + target_link.name;
+                Transform target_transform = clone_links.Find(link_name);
+                Transform server_transform = server_links.Find(link_name);
+                if (!target_transform)
+                {
+                    Debug.Log("could not find child link " + target_transform.name + " of avatar clone");
+                    return;
+                }
+                if (!server_transform)
+                {
+                    Debug.Log("could not find child link " + server_transform.name + " of avatar");
+                    return;
+                }
+
+                Vector3 position_diff = target_transform.position - server_transform.transform.position;
+                Vector3 velocity = GazeboSceneManager.Unity2GzVec3(position_diff) * this.publish_linear_velocity_factor;
                 Vector3Msg velocity_msg = new Vector3Msg(velocity.x, velocity.y, velocity.z);
                 ROSBridgeService.Instance.websocket.Publish(topic, velocity_msg);
             }
@@ -360,8 +420,37 @@ public class UserAvatarService : Singleton<UserAvatarService>
         }
 
         string topic = this.avatar_name + "/cmd_rot";
-        Quaternion rotation_target = GazeboSceneManager.Unity2GzQuaternion(this.avatar_visuals.transform.rotation);
+        Quaternion rotation_target = GazeboSceneManager.Unity2GzQuaternion(this.avatar_rig.transform.rotation);
         QuaternionMsg rotation_msg = new QuaternionMsg(rotation_target.x, rotation_target.y, rotation_target.z, rotation_target.w);
         ROSBridgeService.Instance.websocket.Publish(topic, rotation_msg);
+    }
+
+    private void FitCloneToVisuals()
+    {
+        if (!this.avatar_clone || !this.avatar_rig) return;
+
+        Transform clone_links = this.avatar_clone.transform.Find("links");
+        if (!clone_links) return;
+
+        foreach (Transform target_transform in this.avatar_rig.transform.Find("mixamorig_Hips").GetComponentsInChildren<Transform>())
+        {
+            if (target_transform != null)
+            {
+                Transform clone_link_transform = clone_links.Find(this.avatar_name + "::avatar_ybot::" + target_transform.name);
+                clone_link_transform.position = target_transform.position;
+                clone_link_transform.rotation = this.VisualToGazeboRotation(target_transform.rotation);
+            }
+        }
+    }
+
+    private Quaternion VisualToGazeboRotation(Quaternion visual_rotation)
+    {
+        Matrix4x4 matrix_ybot_unity2gazebo = new Matrix4x4();
+        matrix_ybot_unity2gazebo.SetRow(0, new Vector4(-1, 0, 0, 0));
+        matrix_ybot_unity2gazebo.SetRow(1, new Vector4(0, 0, 1, 0));
+        matrix_ybot_unity2gazebo.SetRow(2, new Vector4(0, 1, 0, 0));
+        matrix_ybot_unity2gazebo.SetRow(3, new Vector4(0, 0, 0, 1));
+
+        return visual_rotation * matrix_ybot_unity2gazebo.rotation;
     }
 }
