@@ -39,24 +39,10 @@ public class UserAvatarService : Singleton<UserAvatarService>
     
     void Start()
     {
-        //StartCoroutine(SpawnAvatar("user_avatar_ybot"));
     }
     
     void Update()
     {
-        /*if (this.user_avatar && this.avatar_visuals)
-        {
-            string topic = "/" + this.avatar_name + "/avatar_ybot/mixamorig_Head/cmd_pose";
-
-            Vector3 gazebo_head_position_target = GazeboSceneManager.Unity2GzVec3(this.avatar_visuals.transform.position);
-            PointMsg position_msg = new PointMsg(gazebo_head_position_target.x, gazebo_head_position_target.y, gazebo_head_position_target.z);
-
-            Quaternion gazebo_head_rotation_target = GazeboSceneManager.Unity2GzQuaternion(this.avatar_visuals.transform.rotation);
-            QuaternionMsg rotation_msg = new QuaternionMsg(gazebo_head_rotation_target.x, gazebo_head_rotation_target.y, gazebo_head_rotation_target.z, gazebo_head_rotation_target.w);
-            PoseMsg pose = new PoseMsg(position_msg, rotation_msg);
-            ROSBridgeService.Instance.websocket.Publish(topic, pose);
-        }*/
-
         if (Input.GetKey("s"))
         {
             StartCoroutine(SpawnAvatar("user_avatar_ybot"));
@@ -71,25 +57,6 @@ public class UserAvatarService : Singleton<UserAvatarService>
         if (this.avatar_rig)
         {
             //this.PublishModelRotationTarget();
-        }
-
-        if (this.published_links.Count > 0)
-        {
-            float t = Time.time;
-            if (t - this.publish_linear_velocity_tlast > this.publish_linear_velocity_frequency)
-            {
-                this.publish_linear_velocity_tlast = t;
-
-                this.FitCloneToVisuals();
-
-                //this.TestPublishLinearVelocity();
-                this.TestPublishLinearVelocityFromClone();
-
-                //this.TestPublishAngularVelocity();
-            }
-
-            //this.TestPublishPose();
-            //this.TestPublishWrench();
         }
     }
 
@@ -147,12 +114,14 @@ public class UserAvatarService : Singleton<UserAvatarService>
         );
 
         Debug.Log("Found avatar model: " + this.user_avatar);
+
         this.avatar_clone = Object.Instantiate(this.user_avatar);
         this.avatar_clone.transform.SetParent(this.transform);  // make sure this is not different from the parent of user_avatar (the "Gazebo Scene" object)
         this.avatar_clone.name = "avatar_clone";
 
-        this.avatar_clone.AddComponent<UserAvatarVisuals>();
-        this.avatar_clone.GetComponent<UserAvatarVisuals>().SetOpacity(0.2f);
+        this.avatar_clone.AddComponent<UserAvatarVisuals>().SetOpacity(0.2f);
+
+        this.InitializeLinkLinearVelocityControllers();
     }
 
     private void TestPublishPose()
@@ -175,86 +144,6 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 QuaternionMsg rotation_msg = new QuaternionMsg(rotation_target.x, rotation_target.y, rotation_target.z, rotation_target.w);
                 PoseMsg pose_msg = new PoseMsg(position_msg, rotation_msg);
                 ROSBridgeService.Instance.websocket.Publish(topic, pose_msg);
-            }
-        }
-    }
-
-    private void TestPublishLinearVelocity()
-    {
-        if (this.user_avatar == null)
-        {
-            return;
-        }
-
-        foreach (GameObject target_link in this.published_links)
-        {
-            if (target_link != null)
-            {
-                string topic = "/" + this.avatar_name + "/avatar_ybot/" + target_link.name + "/linear_vel";
-
-                string server_link_name = this.avatar_name + "::avatar_ybot::" + target_link.name;
-                GameObject server_link = GameObject.Find(server_link_name);
-                if (!server_link)
-                {
-                    Debug.Log("could not find child link " + server_link_name + " of server avatar model");
-                    return;
-                }
-
-                Vector3 position_diff = target_link.transform.position - server_link.transform.position;
-                Vector3 velocity = GazeboSceneManager.Unity2GzVec3(position_diff) * this.publish_linear_velocity_factor;
-                Vector3Msg velocity_msg = new Vector3Msg(velocity.x, velocity.y, velocity.z);
-                ROSBridgeService.Instance.websocket.Publish(topic, velocity_msg);
-            }
-        }
-    }
-
-    private void TestPublishLinearVelocityFromClone()
-    {
-        if (!this.user_avatar || !this.avatar_clone) return;
-
-        Transform clone_links = this.avatar_clone.transform.Find("links");
-        Transform server_links = this.user_avatar.transform.Find("links");
-        if (!clone_links || !server_links) return;
-
-        List<GameObject> links_to_publish;
-        if (this.publish_all_links)
-        {
-            links_to_publish = new List<GameObject>();
-            foreach (Transform target_transform in this.avatar_rig.transform.Find("mixamorig_Hips").GetComponentsInChildren<Transform>())
-            {
-                if (target_transform != null)
-                {
-                    links_to_publish.Add(target_transform.gameObject);
-                }
-            }
-        } else
-        {
-            links_to_publish = this.published_links;
-        }
-
-        foreach (GameObject target_link in links_to_publish)
-        {
-            if (target_link != null)
-            {
-                string topic = "/" + this.avatar_name + "/avatar_ybot/" + target_link.name + "/linear_vel";
-                string link_name = this.avatar_name + "::avatar_ybot::" + target_link.name;
-                Transform target_transform = clone_links.Find(link_name);
-                Transform server_transform = server_links.Find(link_name);
-                if (!target_transform)
-                {
-                    Debug.Log("could not find child link " + target_transform.name + " of avatar clone");
-                    return;
-                }
-                if (!server_transform)
-                {
-                    Debug.Log("could not find child link " + server_transform.name + " of avatar");
-                    return;
-                }
-
-                Vector3 position_diff = target_transform.position - server_transform.transform.position;
-                Vector3 velocity = GazeboSceneManager.Unity2GzVec3(position_diff) * this.publish_linear_velocity_factor;
-                Vector3Msg velocity_msg = new Vector3Msg(velocity.x, velocity.y, velocity.z);
-                ROSBridgeService.Instance.websocket.Publish(topic, velocity_msg);
             }
         }
     }
@@ -425,32 +314,40 @@ public class UserAvatarService : Singleton<UserAvatarService>
         ROSBridgeService.Instance.websocket.Publish(topic, rotation_msg);
     }
 
-    private void FitCloneToVisuals()
+    private void InitializeLinkLinearVelocityControllers()
     {
-        if (!this.avatar_clone || !this.avatar_rig) return;
+        if (!this.user_avatar || !this.avatar_clone) return;
 
-        Transform clone_links = this.avatar_clone.transform.Find("links");
-        if (!clone_links) return;
+        Transform target_links = this.avatar_clone.transform.Find("links");
+        Transform gazebo_links = this.user_avatar.transform.Find("links");
+        if (!target_links || !gazebo_links) return;
 
-        foreach (Transform target_transform in this.avatar_rig.transform.Find("mixamorig_Hips").GetComponentsInChildren<Transform>())
+        List<GameObject> links_to_publish;
+        if (this.publish_all_links)
         {
-            if (target_transform != null)
+            links_to_publish = new List<GameObject>();
+            foreach (Transform rig_transform in this.avatar_rig.transform.Find("mixamorig_Hips").GetComponentsInChildren<Transform>())
             {
-                Transform clone_link_transform = clone_links.Find(this.avatar_name + "::avatar_ybot::" + target_transform.name);
-                clone_link_transform.position = target_transform.position;
-                clone_link_transform.rotation = this.VisualToGazeboRotation(target_transform.rotation);
+                if (rig_transform != null)
+                {
+                    links_to_publish.Add(rig_transform.gameObject);
+                }
             }
         }
-    }
+        else
+        {
+            links_to_publish = this.published_links;
+        }
 
-    private Quaternion VisualToGazeboRotation(Quaternion visual_rotation)
-    {
-        Matrix4x4 matrix_ybot_unity2gazebo = new Matrix4x4();
-        matrix_ybot_unity2gazebo.SetRow(0, new Vector4(-1, 0, 0, 0));
-        matrix_ybot_unity2gazebo.SetRow(1, new Vector4(0, 0, 1, 0));
-        matrix_ybot_unity2gazebo.SetRow(2, new Vector4(0, 1, 0, 0));
-        matrix_ybot_unity2gazebo.SetRow(3, new Vector4(0, 0, 0, 1));
-
-        return visual_rotation * matrix_ybot_unity2gazebo.rotation;
+        foreach (GameObject rig_link in links_to_publish)
+        {
+            if (rig_link != null)
+            {
+                string link_name = rig_link.name;
+                string link_full_name = this.avatar_name + "::avatar_ybot::" + link_name;
+                GzLinkLinearVelocityPID controller = rig_link.AddComponent<GzLinkLinearVelocityPID>();
+                controller.Initialize(this.avatar_name, link_name, rig_link.transform, target_links.Find(link_full_name), gazebo_links.Find(link_full_name));
+            }
+        }
     }
 }
