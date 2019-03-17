@@ -54,9 +54,10 @@ public class UserAvatarService : Singleton<UserAvatarService>
             return;
         }
 
-        if (this.avatar_rig)
+        if (this.user_avatar)
         {
             //this.PublishModelRotationTarget();
+            this.PublishJointSetPosition();
         }
     }
 
@@ -115,13 +116,12 @@ public class UserAvatarService : Singleton<UserAvatarService>
 
         Debug.Log("Found avatar model: " + this.user_avatar);
 
-        this.avatar_clone = Object.Instantiate(this.user_avatar);
-        this.avatar_clone.transform.SetParent(this.transform);  // make sure this is not different from the parent of user_avatar (the "Gazebo Scene" object)
-        this.avatar_clone.name = "avatar_clone";
+        //this.avatar_clone = Object.Instantiate(this.user_avatar);
+        //this.avatar_clone.transform.SetParent(this.transform);  // make sure this is not different from the parent of user_avatar (the "Gazebo Scene" object)
+        //this.avatar_clone.name = "avatar_clone";
+        //this.avatar_clone.AddComponent<UserAvatarVisuals>().SetOpacity(0.2f);
 
-        this.avatar_clone.AddComponent<UserAvatarVisuals>().SetOpacity(0.2f);
-
-        this.InitializeLinkLinearVelocityControllers();
+        //this.InitializeLinkLinearVelocityControllers();
     }
 
     private void TestPublishPose()
@@ -348,6 +348,44 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 GzLinkLinearVelocityPID controller = rig_link.AddComponent<GzLinkLinearVelocityPID>();
                 controller.Initialize(this.avatar_name, link_name, rig_link.transform, target_links.Find(link_full_name), gazebo_links.Find(link_full_name));
             }
+        }
+    }
+
+    private void PublishJointSetPosition()
+    {
+        Transform joints_parent = this.transform.Find("avatar_rig").Find("mixamorig_Hips");
+        Transform[] children = joints_parent.GetComponentsInChildren<Transform>();
+        foreach(Transform child in children)
+        {
+            if (child == joints_parent) continue;
+
+            //Quaternion rot_diff = Quaternion.FromToRotation(child.parent.forward, child.forward);
+            Quaternion rot_diff = Quaternion.Inverse(child.parent.rotation) * child.rotation;
+
+            Vector3 euler_angles = rot_diff.eulerAngles;
+            euler_angles.x = euler_angles.x % 360;
+            euler_angles.y = euler_angles.y % 360;
+            euler_angles.z = euler_angles.z % 360;
+
+            euler_angles.x = euler_angles.x > 180 ? euler_angles.x - 360 : euler_angles.x;
+            euler_angles.y = euler_angles.y > 180 ? euler_angles.y - 360 : euler_angles.y;
+            euler_angles.z = euler_angles.z > 180 ? euler_angles.z - 360 : euler_angles.z;
+
+            //Vector3 euler_angles_rad = euler_angles * Mathf.Deg2Rad;
+
+            string topic = "/" + this.avatar_name + "/avatar_ybot/" + child.name + "/set_position";
+            PointMsg position_msg;
+            if (child.name.Contains("LeftForeArm") || child.name.Contains("RightForeArm"))
+            {
+                float tmp = euler_angles.x;
+                euler_angles.x = euler_angles.y;
+                euler_angles.y = tmp;
+                Debug.Log(child.name + " : " + euler_angles);
+            }
+
+            euler_angles = euler_angles * Mathf.Deg2Rad;
+            position_msg = new PointMsg(euler_angles.x, euler_angles.y, euler_angles.z);
+            ROSBridgeService.Instance.websocket.Publish(topic, position_msg);
         }
     }
 }
