@@ -98,7 +98,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
         this.avatar_name = "user_avatar_" + AuthenticationService.Instance.token.Replace("-", "_");
         Debug.Log("SpawnAvatar - auth token: " + AuthenticationService.Instance.token);
         Debug.Log("SpawnAvatar - avatar_name: " + this.avatar_name);
-        Vector3 spawn_pos = GazeboSceneManager.Unity2GzVec3(new Vector3(avatar_rig.transform.position.x, avatar_rig.transform.position.y + 0.5f, avatar_rig.transform.position.z));
+        Vector3 spawn_pos = GazeboSceneManager.Unity2GzVec3(new Vector3(avatar_rig.transform.position.x, avatar_rig.transform.position.y - 1.0f, avatar_rig.transform.position.z));
         Quaternion spawn_rot = new Quaternion();
 
         GzFactoryMsg msg = new GzFactoryMsg(this.avatar_name, avatar_model_name, new PointMsg(spawn_pos.x, spawn_pos.y, spawn_pos.z), new QuaternionMsg(spawn_rot.x, spawn_rot.y, spawn_rot.z, spawn_rot.w));
@@ -374,18 +374,41 @@ public class UserAvatarService : Singleton<UserAvatarService>
             //Vector3 euler_angles_rad = euler_angles * Mathf.Deg2Rad;
 
             string topic = "/" + this.avatar_name + "/avatar_ybot/" + child.name + "/set_position";
-            PointMsg position_msg;
-            if (child.name.Contains("LeftForeArm") || child.name.Contains("RightForeArm"))
+            /* 
+             * in case the naming seems confusing, the ...Arm joints are actually placed at the shoulder and the ...Shoulder joints are closer to the spine for the ybot type of rigged model
+             * the name of the joint indicates the child limb that is attached to it 
+             * => ...Arm is the shoulder joint where the upper arm is attached, ...ForeArm is the elbow joint where the forearm is attached, etc.
+             */
+            if (child.name.Contains("LeftArm") || child.name.Contains("RightArm"))
             {
-                float tmp = euler_angles.x;
-                euler_angles.x = euler_angles.y;
-                euler_angles.y = tmp;
-                Debug.Log(child.name + " : " + euler_angles);
-            }
+                /* 
+                 * unfortunately, gazebo doesn't play well with joints having multiple DoFs / rotation axes (i.e. joint type ball, revolute2, universal)
+                 * revolute2, universal let you set positions but seem to run into gimbal-lock-alike problems for local rotation axes of the joints
+                 * specifically defining the two axes of rotation to be local y & z seems impossible 
+                 * we have to split the natural shoulder joint (ball joint) into three individual revolute joints, each covering one axis of rotation for the shoulder 
+                 */
 
-            euler_angles = euler_angles * Mathf.Deg2Rad;
-            position_msg = new PointMsg(euler_angles.x, euler_angles.y, euler_angles.z);
-            ROSBridgeService.Instance.websocket.Publish(topic, position_msg);
+                //Debug.Log(child.name + " : " + euler_angles);
+                string topic_x_axis = "/" + this.avatar_name + "/avatar_ybot/" + child.name + "_x/set_position";
+                string topic_y_axis = "/" + this.avatar_name + "/avatar_ybot/" + child.name + "_y/set_position";
+                string topic_z_axis = "/" + this.avatar_name + "/avatar_ybot/" + child.name + "_z/set_position";
+
+                euler_angles = euler_angles * Mathf.Deg2Rad;
+                ROSBridgeService.Instance.websocket.Publish(topic_x_axis, new PointMsg(-euler_angles.x, 0, 0));
+                ROSBridgeService.Instance.websocket.Publish(topic_y_axis, new PointMsg(-euler_angles.z, 0, 0));  // new PointMsg(-euler_angles.y * Mathf.Deg2Rad, 0, 0)
+                ROSBridgeService.Instance.websocket.Publish(topic_z_axis, new PointMsg(euler_angles.y, 0, 0));  // PointMsg(euler_angles.z * Mathf.Deg2Rad, 0, 0)
+            }
+            else if (child.name.Contains("LeftForeArm") || child.name.Contains("RightForeArm"))
+            {
+                euler_angles = new Vector3(euler_angles.y, euler_angles.x, euler_angles.z);
+                euler_angles = euler_angles * Mathf.Deg2Rad;
+                ROSBridgeService.Instance.websocket.Publish(topic, new PointMsg(euler_angles.x, euler_angles.y, euler_angles.z));
+            }
+            else
+            {
+                euler_angles = euler_angles * Mathf.Deg2Rad;
+                ROSBridgeService.Instance.websocket.Publish(topic, new PointMsg(euler_angles.x, euler_angles.y, euler_angles.z));
+            }
         }
     }
 }
