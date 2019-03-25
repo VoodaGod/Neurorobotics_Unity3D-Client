@@ -11,6 +11,12 @@ namespace ROSBridgeLib
             private PointMsg _position;
             private QuaternionMsg _orientation;
 
+            public PoseMsg()
+            {
+                _position = new PointMsg(0f, 0f, 0f);
+                _orientation = new QuaternionMsg(0f, 0f, 0f, 0f);
+            }
+
             public PoseMsg(JSONNode msg)
             {
                 _position = new PointMsg(msg["position"]);

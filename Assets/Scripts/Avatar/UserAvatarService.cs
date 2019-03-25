@@ -1,8 +1,10 @@
-﻿using ROSBridgeLib.geometry_msgs;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SimpleJSON;
+
+using ROSBridgeLib.geometry_msgs;
+using ROSBridgeLib.gazebo_msgs;
 
 public class UserAvatarService : Singleton<UserAvatarService>
 {
@@ -31,6 +33,8 @@ public class UserAvatarService : Singleton<UserAvatarService>
     private float publish_linear_velocity_factor = 5f;
     private float publish_linear_velocity_max = 20f;
 
+    private Vector3 gazebo_model_pos_offset = new Vector3();
+
     void Awake()
     {
         GzBridgeService.Instance.AddCallbackModelInfoMsg(this.OnModelInfoMsg);
@@ -39,6 +43,14 @@ public class UserAvatarService : Singleton<UserAvatarService>
     
     void Start()
     {
+        if (this.avatar_rig)
+        {
+            SkinnedMeshRenderer rig_mesh_renderer = this.avatar_rig.GetComponentInChildren<SkinnedMeshRenderer>();
+            //Debug.Log("rig center = " + rig_mesh_renderer.bounds.center);
+            this.gazebo_model_pos_offset = new Vector3(0f, rig_mesh_renderer.bounds.extents.y, 0f);
+            this.gazebo_model_pos_offset.y -= 0.25f;  // center of mesh is not the center of the model ?
+            Debug.Log("gazebo_model_pos_offset = " + this.gazebo_model_pos_offset);
+        }
     }
     
     void Update()
@@ -57,6 +69,8 @@ public class UserAvatarService : Singleton<UserAvatarService>
         if (this.user_avatar)
         {
             //this.PublishModelRotationTarget();
+
+            this.PublishModelPose();
             this.PublishJointSetPosition();
         }
     }
@@ -394,21 +408,38 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 string topic_z_axis = "/" + this.avatar_name + "/avatar_ybot/" + child.name + "_z/set_position";
 
                 euler_angles = euler_angles * Mathf.Deg2Rad;
-                ROSBridgeService.Instance.websocket.Publish(topic_x_axis, new PointMsg(-euler_angles.x, 0, 0));
-                ROSBridgeService.Instance.websocket.Publish(topic_y_axis, new PointMsg(-euler_angles.z, 0, 0));  // new PointMsg(-euler_angles.y * Mathf.Deg2Rad, 0, 0)
-                ROSBridgeService.Instance.websocket.Publish(topic_z_axis, new PointMsg(euler_angles.y, 0, 0));  // PointMsg(euler_angles.z * Mathf.Deg2Rad, 0, 0)
+                ROSBridgeService.Instance.websocket.Publish(topic_x_axis, new Vector3Msg(-euler_angles.x, 0, 0));
+                ROSBridgeService.Instance.websocket.Publish(topic_y_axis, new Vector3Msg(-euler_angles.z, 0, 0));
+                ROSBridgeService.Instance.websocket.Publish(topic_z_axis, new Vector3Msg(euler_angles.y, 0, 0));
             }
             else if (child.name.Contains("LeftForeArm") || child.name.Contains("RightForeArm"))
             {
                 euler_angles = new Vector3(euler_angles.y, euler_angles.x, euler_angles.z);
                 euler_angles = euler_angles * Mathf.Deg2Rad;
-                ROSBridgeService.Instance.websocket.Publish(topic, new PointMsg(euler_angles.x, euler_angles.y, euler_angles.z));
+                ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(euler_angles.x, euler_angles.y, euler_angles.z));
             }
             else
             {
                 euler_angles = euler_angles * Mathf.Deg2Rad;
-                ROSBridgeService.Instance.websocket.Publish(topic, new PointMsg(euler_angles.x, euler_angles.y, euler_angles.z));
+                ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(euler_angles.x, euler_angles.y, euler_angles.z));
             }
         }
+    }
+
+    private void PublishModelPose()
+    {
+        string topic = "/gazebo/set_model_state";
+        Vector3 model_position = GazeboSceneManager.Unity2GzVec3(this.avatar_rig.transform.position + this.avatar_rig.transform.rotation * this.gazebo_model_pos_offset);
+        Quaternion model_rotation = GazeboSceneManager.Unity2GzQuaternion(this.avatar_rig.transform.rotation);
+        ModelStateMsg model_state_msg = new ModelStateMsg(
+            this.avatar_name,
+            new PoseMsg(
+                new PointMsg(model_position.x, model_position.y, model_position.z),
+                new QuaternionMsg(model_rotation.x, model_rotation.y, model_rotation.z, model_rotation.w)
+            ),
+            new Vector3Msg(1f, 1f, 1f),
+            new TwistMsg()
+        );
+        ROSBridgeService.Instance.websocket.Publish(topic, model_state_msg);
     }
 }

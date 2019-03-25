@@ -7,8 +7,14 @@ namespace ROSBridgeLib {
 		public class TwistMsg : ROSBridgeMsg {
 			private Vector3Msg _linear;
 			private Vector3Msg _angular;
-			
-			public TwistMsg(JSONNode msg) {
+
+            public TwistMsg()
+            {
+                _linear = new Vector3Msg(0f, 0f, 0f);
+                _angular = new Vector3Msg(0f, 0f, 0f);
+            }
+
+            public TwistMsg(JSONNode msg) {
 				_linear = new Vector3Msg(msg["linear"]);
 				_angular = new Vector3Msg(msg["angular"]);
 			}

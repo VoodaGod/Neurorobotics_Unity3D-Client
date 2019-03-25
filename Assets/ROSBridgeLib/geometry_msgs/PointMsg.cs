@@ -9,8 +9,15 @@ namespace ROSBridgeLib {
 			private double _x;
 			private double _y;
 			private double _z;
-			
-			public PointMsg(JSONNode msg) {
+
+            public PointMsg()
+            {
+                _x = 0f;
+                _y = 0f;
+                _z = 0f;
+            }
+
+            public PointMsg(JSONNode msg) {
 				_x = double.Parse(msg["x"]);
 				_y = double.Parse(msg["y"]);
 				_z = double.Parse(msg["z"]);

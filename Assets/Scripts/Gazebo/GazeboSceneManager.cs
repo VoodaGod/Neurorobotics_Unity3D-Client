@@ -748,6 +748,8 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
         return finalRot;
         */
 
+        unityRot *= Quaternion.AngleAxis(180, Vector3.up);
+
         return new Quaternion(-unityRot.x, -unityRot.z, -unityRot.y, unityRot.w);
     }
     #endregion

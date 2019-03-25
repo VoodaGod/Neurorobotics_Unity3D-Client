@@ -9,8 +9,15 @@ namespace ROSBridgeLib {
 			private double _x;
 			private double _y;
 			private double _z;
-			
-			public Vector3Msg(JSONNode msg) {
+
+            public Vector3Msg()
+            {
+                _x = 0f;
+                _y = 0f;
+                _z = 0f;
+            }
+
+            public Vector3Msg(JSONNode msg) {
 				_x = double.Parse(msg["x"]);
 				_y = double.Parse(msg["y"]);
 				_z = double.Parse(msg["z"]);
