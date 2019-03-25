@@ -47,7 +47,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
         {
             SkinnedMeshRenderer rig_mesh_renderer = this.avatar_rig.GetComponentInChildren<SkinnedMeshRenderer>();
             //Debug.Log("rig center = " + rig_mesh_renderer.bounds.center);
-            this.gazebo_model_pos_offset = new Vector3(0f, rig_mesh_renderer.bounds.extents.y, 0f);
+            this.gazebo_model_pos_offset = new Vector3(0f, -rig_mesh_renderer.bounds.extents.y, 0f);
             this.gazebo_model_pos_offset.y -= 0.25f;  // center of mesh is not the center of the model ?
             Debug.Log("gazebo_model_pos_offset = " + this.gazebo_model_pos_offset);
         }
