@@ -75,6 +75,10 @@ public class UserAvatarService : Singleton<UserAvatarService>
         }
     }
 
+    private void FixedUpdate()
+    {
+    }
+
     public void DespawnAvatar()
     {
         if (this.user_avatar == null)
@@ -96,6 +100,11 @@ public class UserAvatarService : Singleton<UserAvatarService>
         {
             StartCoroutine(this.WaitForAvatarCreation());
         }
+    }
+
+    public void SpawnYBot()
+    {
+        StartCoroutine(SpawnAvatar("user_avatar_ybot"));
     }
 
     private IEnumerator SpawnAvatar(string avatar_model_name)
@@ -407,10 +416,13 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 string topic_y_axis = "/" + this.avatar_name + "/avatar_ybot/" + child.name + "_y/set_position";
                 string topic_z_axis = "/" + this.avatar_name + "/avatar_ybot/" + child.name + "_z/set_position";
 
+                // TEST
+                // TEST end
+
                 euler_angles = euler_angles * Mathf.Deg2Rad;
                 ROSBridgeService.Instance.websocket.Publish(topic_x_axis, new Vector3Msg(-euler_angles.x, 0, 0));
-                ROSBridgeService.Instance.websocket.Publish(topic_y_axis, new Vector3Msg(-euler_angles.z, 0, 0));
-                ROSBridgeService.Instance.websocket.Publish(topic_z_axis, new Vector3Msg(euler_angles.y, 0, 0));
+                ROSBridgeService.Instance.websocket.Publish(topic_y_axis, new Vector3Msg(-euler_angles.y, 0, 0));
+                ROSBridgeService.Instance.websocket.Publish(topic_z_axis, new Vector3Msg(-euler_angles.z, 0, 0));
             }
             else if (child.name.Contains("LeftForeArm") || child.name.Contains("RightForeArm"))
             {
@@ -418,7 +430,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 euler_angles = euler_angles * Mathf.Deg2Rad;
                 ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(euler_angles.x, euler_angles.y, euler_angles.z));
             }
-            else
+            else if (child.name.Contains("UpLeg") || child.name.Contains("Leg") || child.name.Contains("Foot"))
             {
                 euler_angles = euler_angles * Mathf.Deg2Rad;
                 ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(euler_angles.x, euler_angles.y, euler_angles.z));
