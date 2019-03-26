@@ -420,9 +420,9 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 // TEST end
 
                 euler_angles = euler_angles * Mathf.Deg2Rad;
-                ROSBridgeService.Instance.websocket.Publish(topic_x_axis, new Vector3Msg(-euler_angles.x, 0, 0));
-                ROSBridgeService.Instance.websocket.Publish(topic_y_axis, new Vector3Msg(-euler_angles.y, 0, 0));
-                ROSBridgeService.Instance.websocket.Publish(topic_z_axis, new Vector3Msg(-euler_angles.z, 0, 0));
+                ROSBridgeService.Instance.websocket.Publish(topic_x_axis, new Vector3Msg(euler_angles.x, 0, 0));
+                ROSBridgeService.Instance.websocket.Publish(topic_y_axis, new Vector3Msg(-euler_angles.z, 0, 0));
+                ROSBridgeService.Instance.websocket.Publish(topic_z_axis, new Vector3Msg(euler_angles.y, 0, 0));
             }
             else if (child.name.Contains("LeftForeArm") || child.name.Contains("RightForeArm"))
             {
