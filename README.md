@@ -3,8 +3,8 @@
 To install the NRP backend + web frontend, follow instructions at http://neurorobotics.net/local_install.html
 
 Once this repository is cloned
-- clone https://bitbucket.org/hbpneurorobotics/models as well
+- clone the models repository at https://bitbucket.org/hbpneurorobotics/models as well
 - in a terminal, go to Unity3D-Client/Assets/Models/scripts and run 
 ```
-copy_flat_hierarchy.py <path_to_models_repository>
+python ./copy_flat_hierarchy.py <path_to_models_repository>
 ```
