@@ -311,3 +311,6 @@ build/
 ### NRP models
 Assets/Models/NRP/
 Assets/Models/NRP.meta
+
+### VS Code
+.vscode
