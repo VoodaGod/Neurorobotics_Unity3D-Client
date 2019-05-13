@@ -5,15 +5,6 @@ using UnityEngine;
 public class DiscrepancyTracker : MonoBehaviour
 {
 	[SerializeField]
-	Transform remoteHandPosLeft;
-	[SerializeField]
-	Transform remoteHandPosRight;
-	[SerializeField]
-	Transform remoteFootPosLeft;
-	[SerializeField]
-	Transform remoteFootPosRight;
-
-	[SerializeField]
 	Transform localHandPosLeft;
 	[SerializeField]
 	Transform localHandPosRight;
@@ -22,6 +13,10 @@ public class DiscrepancyTracker : MonoBehaviour
 	[SerializeField]
 	Transform localFootPosRight;
 
+	Transform remoteHandPosLeft;
+	Transform remoteHandPosRight;
+	Transform remoteFootPosLeft;
+	Transform remoteFootPosRight;
 
 	[SerializeField]
 	UserAvatarService userAvatarService;
@@ -31,6 +26,16 @@ public class DiscrepancyTracker : MonoBehaviour
 
 	void Start()
 	{
+		if (userAvatarService == null){
+			Debug.Log("userAvatarService not set, looking in scene...");
+			userAvatarService = Object.FindObjectOfType<UserAvatarService>();
+			if (userAvatarService == null){
+				Debug.LogError("no userAvatarService found");
+			}
+		}
+		if (localHandPosLeft == null || localHandPosRight == null || localFootPosLeft == null || localFootPosRight == null){
+			Debug.LogError("local avatar joints not set");
+		}
 	}
 
 
@@ -40,23 +45,43 @@ public class DiscrepancyTracker : MonoBehaviour
 	{
 		if (userAvatarService != null && userAvatarService.avatar != null)
 		{
+			#region //find remote joint objects
+			string name;
 			if (remoteHandPosLeft == null)
 			{
-				remoteHandPosLeft = GameObject.Find(userAvatarService.avatar.name + "::avatar_ybot::" + localHandPosLeft.name).transform;
+				name = userAvatarService.avatar.name + "::avatar_ybot::" + localHandPosLeft.name;
+				remoteHandPosLeft = GameObject.Find(name).transform;
+				if (remoteHandPosLeft == null){
+					Debug.LogError("could not find " + name);
+				}
 			}
 			if (remoteHandPosRight == null)
 			{
-				remoteHandPosRight = GameObject.Find(userAvatarService.avatar.name + "::avatar_ybot::" + localHandPosRight.name).transform;
+				name = userAvatarService.avatar.name + "::avatar_ybot::" + localHandPosRight.name;
+				remoteHandPosRight = GameObject.Find(name).transform;
+				if (remoteHandPosRight == null){
+					Debug.LogError("could not find " + name);
+				}
 			}
 			if (remoteFootPosLeft == null)
 			{
-				remoteFootPosLeft = GameObject.Find(userAvatarService.avatar.name + "::avatar_ybot::" + localFootPosLeft.name).transform;
+				name = userAvatarService.avatar.name + "::avatar_ybot::" + localFootPosLeft.name;
+				remoteFootPosLeft = GameObject.Find(name).transform;
+				if (remoteFootPosLeft == null){
+					Debug.LogError("could not find " + name);
+				}
 			}
 			if (remoteFootPosRight == null)
 			{
-				remoteFootPosRight = GameObject.Find(userAvatarService.avatar.name + "::avatar_ybot::" + localFootPosRight.name).transform;
+				name = userAvatarService.avatar.name + "::avatar_ybot::" + localFootPosRight.name;
+				remoteFootPosRight = GameObject.Find(name).transform;
+				if (remoteFootPosRight == null){
+					Debug.LogError("could not find " + name);
+				}
 			}
+			#endregion
 
+			//check for discrepancies
 			float dist = 0;
 			dist = (localHandPosLeft.position - remoteHandPosLeft.position).magnitude;
 			if (dist > toleranceDistance)
