@@ -2,170 +2,109 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(DiscrepancyHandler))]
 public class DiscrepancyTracker : MonoBehaviour
 {
 	
 	[SerializeField]
-	Transform localHeadPos;
-	[SerializeField]
-	Transform localHandPosLeft;
-	[SerializeField]
-	Transform localHandPosRight;
-	[SerializeField]
-	Transform localFootPosLeft;
-	[SerializeField]
-	Transform localFootPosRight;
+	Transform localHeadPos, localHandPosLeft, localHandPosRight, localFootPosLeft, localFootPosRight;
 
-	Transform remoteHeadPos;
-	Transform remoteHandPosLeft;
-	Transform remoteHandPosRight;
-	Transform remoteFootPosLeft;
-	Transform remoteFootPosRight;
+	Dictionary<TrackedJoints, Transform> localPosDict = new Dictionary<TrackedJoints, Transform>();
+
+	Dictionary<TrackedJoints, Transform> remotePosDict = new Dictionary<TrackedJoints, Transform>();
 
 	[SerializeField]
 	UserAvatarService userAvatarService;
 
+	[SerializeField]
+	DiscrepancyHandler discrepancyHandler;
+
 	public float toleranceDistance = 0.1f;
 	public float toleranceTime = 1f;
 
+	Dictionary<TrackedJoints, bool> discrepancyDict = new Dictionary<TrackedJoints, bool>();
+	Dictionary<TrackedJoints, float> timerDict = new Dictionary<TrackedJoints, float>();
+
+	public enum TrackedJoints{
+		Head, HandLeft, HandRight, FootLeft, FootRight
+	}
+
 	void Start()
 	{
-		if (userAvatarService == null){
+		if (userAvatarService == null)
+		{
 			Debug.Log("userAvatarService not set, looking in scene...");
 			userAvatarService = Object.FindObjectOfType<UserAvatarService>();
 			if (userAvatarService == null){
-				Debug.LogError("no userAvatarService found");
+				Debug.LogError("no UserAvatarService found");
 			}
 		}
 		if (localHeadPos == null || localHandPosLeft == null || localHandPosRight == null || localFootPosLeft == null || localFootPosRight == null){
 			Debug.LogError("local avatar joint(s) not set");
 		}
+
+		TrackedJoints joint = TrackedJoints.Head;
+		localPosDict[joint] = localHeadPos;
+		discrepancyDict[joint] = false;
+		timerDict[joint] = 0;
+		joint = TrackedJoints.HandLeft;
+		localPosDict[joint] = localHandPosLeft;
+		discrepancyDict[joint] = false;
+		timerDict[joint] = 0;
+		joint = TrackedJoints.HandRight;
+		localPosDict[joint] = localHandPosRight;
+		discrepancyDict[joint] = false;
+		timerDict[joint] = 0;
+		joint = TrackedJoints.FootLeft;
+		localPosDict[joint] = localFootPosLeft;
+		discrepancyDict[joint] = false;
+		timerDict[joint] = 0;
+		joint = TrackedJoints.FootRight;
+		localPosDict[joint] = localFootPosRight;
+		discrepancyDict[joint] = false;
+		timerDict[joint] = 0;
 	}
 
-
-	float timerHead, timerHandLeft, timerHandRight, timerFootLeft, timerFootRight;
-	bool discrepancyHead, discrepancyHandLeft, discrepancyHandRight, discrepancyFootLeft, discrepancyFootRight;
 	void FixedUpdate()
 	{
 		if (userAvatarService != null && userAvatarService.avatar != null)
 		{
-			#region //find remote joint objects
-			string name;
-			if (remoteHeadPos == null){
-				name = userAvatarService.avatar.name + "::avatar_ybot::" + localHeadPos.name;
-				remoteHeadPos = GameObject.Find(name).transform;
-				if (remoteHeadPos == null){
+			//find remote joint objects
+			foreach (KeyValuePair<TrackedJoints, Transform> entry in localPosDict)
+			{
+				string name = userAvatarService.avatar.name + "::avatar_ybot::" + localPosDict[entry.Key].name;
+				TrackedJoints joint = entry.Key;
+				if (!remotePosDict.ContainsKey(joint)){
+					remotePosDict[joint] = GameObject.Find(name).transform;
+				}
+				if (remotePosDict[joint] == null){
 					Debug.LogError("could not find " + name);
 				}
-			}
-			if (remoteHandPosLeft == null)
-			{
-				name = userAvatarService.avatar.name + "::avatar_ybot::" + localHandPosLeft.name;
-				remoteHandPosLeft = GameObject.Find(name).transform;
-				if (remoteHandPosLeft == null){
-					Debug.LogError("could not find " + name);
-				}
-			}
-			if (remoteHandPosRight == null)
-			{
-				name = userAvatarService.avatar.name + "::avatar_ybot::" + localHandPosRight.name;
-				remoteHandPosRight = GameObject.Find(name).transform;
-				if (remoteHandPosRight == null){
-					Debug.LogError("could not find " + name);
-				}
-			}
-			if (remoteFootPosLeft == null)
-			{
-				name = userAvatarService.avatar.name + "::avatar_ybot::" + localFootPosLeft.name;
-				remoteFootPosLeft = GameObject.Find(name).transform;
-				if (remoteFootPosLeft == null){
-					Debug.LogError("could not find " + name);
-				}
-			}
-			if (remoteFootPosRight == null)
-			{
-				name = userAvatarService.avatar.name + "::avatar_ybot::" + localFootPosRight.name;
-				remoteFootPosRight = GameObject.Find(name).transform;
-				if (remoteFootPosRight == null){
-					Debug.LogError("could not find " + name);
-				}
-			}
-			#endregion
-
-			//check for discrepancies
-			float dist = 0;
-			dist = (localHeadPos.position - remoteHeadPos.position).magnitude;
-			if (dist > toleranceDistance)
-			{
-				timerHead += Time.fixedDeltaTime;
-				if (timerHead >= toleranceTime)
-				{
-					discrepancyHead = true;
-					Debug.Log("Discrepancy at head");
-				}
-			} else if (dist <= toleranceDistance && discrepancyHead)
-			{
-				discrepancyHead = false;
-				timerHead = 0;
-			}
-			dist = (localHandPosLeft.position - remoteHandPosLeft.position).magnitude;
-			if (dist > toleranceDistance)
-			{
-				timerHandLeft += Time.fixedDeltaTime;
-				if (timerHandLeft >= toleranceTime)
-				{
-					discrepancyHandLeft = true;
-					Debug.Log("Discrepancy at left hand");
-				}
-			} else if (dist <= toleranceDistance && discrepancyHandLeft) 
-			{
-				discrepancyHandLeft = false;
-				timerHandLeft = 0;
 			}
 
-			dist = (localHandPosRight.position - remoteHandPosRight.position).magnitude;
-			if (dist > toleranceDistance)
+			//check discrepancies
+			foreach (KeyValuePair<TrackedJoints, Transform> entry in localPosDict)
 			{
-				timerHandRight += Time.fixedDeltaTime;
-				if (timerHandRight >= toleranceTime)
+				TrackedJoints joint = entry.Key;
+				Transform localPos = entry.Value;
+				Transform remotePos = remotePosDict[joint];
+				float dist = (localPos.position - remotePos.position).magnitude;
+				if (dist > toleranceDistance)
 				{
-					discrepancyHandRight = true;
-					Debug.Log("Discrepancy at rigth hand");
+					timerDict[joint] += Time.fixedDeltaTime;
+					if (timerDict[joint] >= toleranceTime)
+					{
+						discrepancyDict[joint] = true;
+						//Debug.Log("Discrepancy at " + joint.ToString());
+						discrepancyHandler.HandleDiscrepancy(joint, localPos, remotePos, dist);
+					}
 				}
-			} else if (dist <= toleranceDistance && discrepancyHandRight) 
-			{
-				discrepancyHandRight = false;
-				timerHandRight = 0;
-			}
-
-			dist = (localFootPosLeft.position - remoteFootPosLeft.position).magnitude;
-			if (dist > toleranceDistance) 
-			{
-				timerFootLeft += Time.fixedDeltaTime;
-				if (timerFootLeft >= toleranceTime)
+				else if (dist <= toleranceDistance && discrepancyDict[joint])
 				{
-					discrepancyFootLeft = true;
-					Debug.Log("Discrepancy at left foot");
+					discrepancyDict[joint]= false;
+					timerDict[joint] = 0;
+					discrepancyHandler.StopHandlingDiscrepancyHand(joint);
 				}
-			} else if (dist <= toleranceDistance && discrepancyFootLeft) 
-			{
-				discrepancyFootLeft = false;
-				timerFootLeft = 0;
-			}
-
-			dist = (localFootPosRight.position - remoteFootPosRight.position).magnitude;
-			if (dist > toleranceDistance) 
-			{
-				timerFootRight += Time.fixedDeltaTime;
-				if (timerFootRight >= toleranceTime)
-				{
-					discrepancyFootRight = true;
-					Debug.Log("Discrepancy at right foot");
-				}
-			} else if (dist <= toleranceDistance && discrepancyFootRight) 
-			{
-				discrepancyFootRight = false;
-				timerFootRight = 0;
 			}
 		}
 	}
