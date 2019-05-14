@@ -51,6 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a571687ab9f555e45902658af51ce7e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  localHeadPos: {fileID: 0}
   localHandPosLeft: {fileID: 0}
   localHandPosRight: {fileID: 0}
   localFootPosLeft: {fileID: 0}

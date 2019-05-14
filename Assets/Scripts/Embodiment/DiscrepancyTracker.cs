@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class DiscrepancyTracker : MonoBehaviour
 {
+	
+	[SerializeField]
+	Transform localHeadPos;
 	[SerializeField]
 	Transform localHandPosLeft;
 	[SerializeField]
@@ -13,6 +16,7 @@ public class DiscrepancyTracker : MonoBehaviour
 	[SerializeField]
 	Transform localFootPosRight;
 
+	Transform remoteHeadPos;
 	Transform remoteHandPosLeft;
 	Transform remoteHandPosRight;
 	Transform remoteFootPosLeft;
@@ -33,20 +37,27 @@ public class DiscrepancyTracker : MonoBehaviour
 				Debug.LogError("no userAvatarService found");
 			}
 		}
-		if (localHandPosLeft == null || localHandPosRight == null || localFootPosLeft == null || localFootPosRight == null){
-			Debug.LogError("local avatar joints not set");
+		if (localHeadPos == null || localHandPosLeft == null || localHandPosRight == null || localFootPosLeft == null || localFootPosRight == null){
+			Debug.LogError("local avatar joint(s) not set");
 		}
 	}
 
 
-	float timerHandLeft, timerHandRight, timerFootLeft, timerFootRight;
-	bool discrepancyHandLeft, discrepancyHandRight, discrepancyFootLeft, discrepancyFootRight;
+	float timerHead, timerHandLeft, timerHandRight, timerFootLeft, timerFootRight;
+	bool discrepancyHead, discrepancyHandLeft, discrepancyHandRight, discrepancyFootLeft, discrepancyFootRight;
 	void FixedUpdate()
 	{
 		if (userAvatarService != null && userAvatarService.avatar != null)
 		{
 			#region //find remote joint objects
 			string name;
+			if (remoteHeadPos == null){
+				name = userAvatarService.avatar.name + "::avatar_ybot::" + localHeadPos.name;
+				remoteHeadPos = GameObject.Find(name).transform;
+				if (remoteHeadPos == null){
+					Debug.LogError("could not find " + name);
+				}
+			}
 			if (remoteHandPosLeft == null)
 			{
 				name = userAvatarService.avatar.name + "::avatar_ybot::" + localHandPosLeft.name;
@@ -83,6 +94,20 @@ public class DiscrepancyTracker : MonoBehaviour
 
 			//check for discrepancies
 			float dist = 0;
+			dist = (localHeadPos.position - remoteHeadPos.position).magnitude;
+			if (dist > toleranceDistance)
+			{
+				timerHead += Time.fixedDeltaTime;
+				if (timerHead >= toleranceTime)
+				{
+					discrepancyHead = true;
+					Debug.Log("Discrepancy at head");
+				}
+			} else if (dist <= toleranceDistance && discrepancyHead)
+			{
+				discrepancyHead = false;
+				timerHead = 0;
+			}
 			dist = (localHandPosLeft.position - remoteHandPosLeft.position).magnitude;
 			if (dist > toleranceDistance)
 			{
