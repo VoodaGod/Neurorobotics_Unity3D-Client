@@ -35,7 +35,9 @@ public class UserAvatarService : Singleton<UserAvatarService>
 
     private Vector3 gazebo_model_pos_offset = new Vector3();
 
-    public float publish_threshold = 0.1f;
+    public float publish_threshold = 10.0f;
+    public float publish_frequency = 0.5f;
+    private float t_last_publish = 0.0f;
     private Dictionary<string, Vector3> joint_pid_position_targets_ = new Dictionary<string, Vector3>();
     private Dictionary<string, Vector3> joint_pid_position_targets_last_published_ = new Dictionary<string, Vector3>();
 
@@ -70,11 +72,15 @@ public class UserAvatarService : Singleton<UserAvatarService>
             this.PublishModelPose();
             //this.PublishJointSetPosition();
             this.GetJointPIDPositionTargets();
-            this.PublishJointPIDPositionTargets();
+            if (Time.time - t_last_publish >= publish_frequency)
+            {
+                this.PublishJointPIDPositionTargets();
+                t_last_publish = Time.time;
+            }
         }
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
     }
 
@@ -243,7 +249,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
             string topic = "/" + this.avatar_name + "/avatar_ybot/" + child.name + "/set_pid_params";
             
             // default is (100f, 50f, 10f)
-            ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(1000f, 50f, 10f));
+            ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(100f, 10f, 1f));
         }
     }
 
