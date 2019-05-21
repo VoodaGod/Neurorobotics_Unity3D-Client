@@ -35,7 +35,9 @@ public class UserAvatarService : Singleton<UserAvatarService>
 
     private Vector3 gazebo_model_pos_offset = new Vector3();
 
-    public float publish_threshold = 0.1f;
+    public float publish_threshold = 10.0f;
+    public float publish_frequency = 0.5f;
+    private float t_last_publish = 0.0f;
     private Dictionary<string, Vector3> joint_pid_position_targets_ = new Dictionary<string, Vector3>();
     private Dictionary<string, Vector3> joint_pid_position_targets_last_published_ = new Dictionary<string, Vector3>();
 
@@ -65,16 +67,20 @@ public class UserAvatarService : Singleton<UserAvatarService>
 
         if (this.avatar_ready)
         {
-            //this.PublishModelRotationTarget();
-
-            this.PublishModelPose();
-            //this.PublishJointSetPosition();
             this.GetJointPIDPositionTargets();
-            this.PublishJointPIDPositionTargets();
+
+            if (Time.time - t_last_publish >= publish_frequency)
+            {
+                this.PublishModelPose();  //TODO: move to physical movement
+                //this.PublishModelRotationTarget();
+                this.PublishJointPIDPositionTargets();
+                //this.PublishJointSetPosition();
+                t_last_publish = Time.time;
+            }
         }
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
     }
 
@@ -243,7 +249,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
             string topic = "/" + this.avatar_name + "/avatar_ybot/" + child.name + "/set_pid_params";
             
             // default is (100f, 50f, 10f)
-            ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(1000f, 50f, 10f));
+            ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(100f, 10f, 1f));
         }
     }
 
@@ -328,19 +334,21 @@ public class UserAvatarService : Singleton<UserAvatarService>
     {
         foreach (KeyValuePair<string, Vector3> entry in joint_pid_position_targets_)
         {
-            if (!joint_pid_position_targets_last_published_.ContainsKey(entry.Key))
+            var topic = entry.Key;
+            var cur_target = entry.Value;
+            if (!joint_pid_position_targets_last_published_.ContainsKey(topic))
             {
-                joint_pid_position_targets_last_published_.Add(entry.Key, entry.Value);
-                ROSBridgeService.Instance.websocket.Publish(entry.Key, new Vector3Msg(entry.Value.x, entry.Value.y, entry.Value.z));
+                joint_pid_position_targets_last_published_.Add(topic, cur_target);
+                ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(cur_target.x, cur_target.y, cur_target.z));
             }
             else
             {
-                var last_published = joint_pid_position_targets_last_published_[entry.Key];
-                var difference = (entry.Value - last_published).magnitude;
+                var last_published = joint_pid_position_targets_last_published_[topic];
+                var difference = (cur_target - last_published).magnitude;
                 if (difference > publish_threshold)
                 {
-                    joint_pid_position_targets_last_published_.Add(entry.Key, entry.Value);
-                    ROSBridgeService.Instance.websocket.Publish(entry.Key, new Vector3Msg(entry.Value.x, entry.Value.y, entry.Value.z));
+                    joint_pid_position_targets_last_published_[topic] = cur_target;
+                    ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(cur_target.x, cur_target.y, cur_target.z));
                 }
             }
         }
