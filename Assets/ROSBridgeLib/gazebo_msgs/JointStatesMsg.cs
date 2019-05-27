@@ -19,16 +19,16 @@ namespace ROSBridgeLib
             private List<geometry_msgs.Vector3Msg> _body1Torques;
             private List<geometry_msgs.Vector3Msg> _body2Torques;*/
 
-            private string[] _name;
+            /*private string[] _name;
             private double[] _position;
             private double[] _rate;
             private geometry_msgs.Vector3Msg[] _axes;
             private geometry_msgs.Vector3Msg[] _body1Forces;
             private geometry_msgs.Vector3Msg[] _body2Forces;
             private geometry_msgs.Vector3Msg[] _body1Torques;
-            private geometry_msgs.Vector3Msg[] _body2Torques;
+            private geometry_msgs.Vector3Msg[] _body2Torques;*/
 
-            //private List<gazebo_msgs.JointStateMsg> _states;
+            private List<gazebo_msgs.JointStateMsg> _states;
 
             public JointStatesMsg(JSONNode msg)
             {
@@ -41,7 +41,7 @@ namespace ROSBridgeLib
                 _body1Torques = new List<geometry_msgs.Vector3Msg>(msg["body1Torques"].ToList());
                 _body2Torques = new List<geometry_msgs.Vector3Msg>(msg["body2Torques"].ToList());*/
 
-                _name = new string[msg["name"].Count];
+                /*_name = new string[msg["name"].Count];
                 for (int i = 0; i < _name.Length; i++)
                 {
                     _name[i] = msg["name"][i];
@@ -87,17 +87,17 @@ namespace ROSBridgeLib
                 for (int i = 0; i < _body2Torques.Length; i++)
                 {
                     _body2Torques[i] = new geometry_msgs.Vector3Msg(msg["body_2_torques"][i]);
-                }
+                }*/
 
-                /*_states = new List<JointStateMsg>();
+                _states = new List<JointStateMsg>();
                 JSONArray states = msg["states"].AsArray;
                 for (int i = 0; i < states.Count; i = i+1)
                 {
                     _states.Add(new JointStateMsg(states[i]));
-                }*/
+                }
             }
 
-            public JointStatesMsg(string[] name, double[] position, double[] rate, 
+            /*public JointStatesMsg(string[] name, double[] position, double[] rate, 
                 geometry_msgs.Vector3Msg[] axes, 
                 geometry_msgs.Vector3Msg[] body1Forces, 
                 geometry_msgs.Vector3Msg[] body2Forces, 
@@ -112,9 +112,9 @@ namespace ROSBridgeLib
                 _body2Forces = (body2Forces != null) ? body2Forces : new geometry_msgs.Vector3Msg[0];
                 _body1Torques = (body1Torques != null) ? body1Torques : new geometry_msgs.Vector3Msg[0];
                 _body2Torques = (body2Torques != null) ? body2Torques : new geometry_msgs.Vector3Msg[0];
-            }
+            }*/
 
-            /*public JointStatesMsg(List<gazebo_msgs.JointStateMsg> states)
+            public JointStatesMsg(List<gazebo_msgs.JointStateMsg> states)
             {
                 _states = states;
             }
@@ -122,9 +122,9 @@ namespace ROSBridgeLib
             public static string GetMessageType()
             {
                 return "gazebo_msgs/JointStates";
-            }*/
+            }
 
-            public string[] GetName()
+            /*public string[] GetName()
             {
                 return _name;
             }
@@ -182,9 +182,9 @@ namespace ROSBridgeLib
                 result += "]";
 
                 return result;
-            }
+            }*/
 
-            /*public List<gazebo_msgs.JointStateMsg> GetStates()
+            public List<gazebo_msgs.JointStateMsg> GetStates()
             {
                 return _states;
             }
@@ -210,20 +210,25 @@ namespace ROSBridgeLib
 
             public override string ToYAMLString()
             {
-                string result = "JointStates [";
+                /*string result = "{\"states\" : [";
                 for (int i = 0; i < _states.Count; i = i + 1)
                 {
                     if (i == _states.Count - 1)
                     {
-                        result += _states[i].ToString();
+                        result += _states[i].ToYAMLString();
                     }
                     else
                     {
-                        result += _states[i].ToString() + ", ";
+                        result += _states[i].ToYAMLString() + ", ";
                     }
                 }
-                result += "]";
-            }*/
+                result += "]}";
+
+                return result;*/
+
+                return "{\"name\" : [], \"position\" : [], \"rate\" : [], \"axes\" : [], \"body1Forces\" : [], \"body2Forces\" : [], \"body1Torques\" : []" +
+                    ", \"body2Torques\" : []}";
+            }
         }
     }
 }
