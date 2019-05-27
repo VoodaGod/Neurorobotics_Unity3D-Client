@@ -73,7 +73,8 @@ public class UserAvatarService : Singleton<UserAvatarService>
             {
                 this.PublishModelPose();  //TODO: move to physical movement
                 //this.PublishModelRotationTarget();
-                this.PublishJointPIDPositionTargets();
+                //this.PublishJointPIDPositionTargets();
+                this.PublishJointPIDPositionTargetsJointStatesTopic();
                 //this.PublishJointSetPosition();
                 t_last_publish = Time.time;
             }
@@ -352,6 +353,25 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 }
             }
         }
+    }
+
+    private void PublishJointPIDPositionTargetsJointStatesTopic()
+    {
+        string[] names = new string[joint_pid_position_targets_.Count];
+        double[] positions = new double[joint_pid_position_targets_.Count];
+
+        var enumerator = joint_pid_position_targets_.GetEnumerator();
+        for (int index = 0; index < joint_pid_position_targets_.Count; index++)
+        {
+            var item = enumerator.Current;
+            names[index] = item.Key;
+            positions[index] = item.Value.x;
+        }
+
+        string topic = "/" + this.avatar_name + "/set_joint_pid_pos_targets";
+        JointStatesMsg msg = new JointStatesMsg(names, positions, null, null, null, null, null, null);
+
+        ROSBridgeService.Instance.websocket.Publish(topic, msg);
     }
 
     private void PublishModelPose()

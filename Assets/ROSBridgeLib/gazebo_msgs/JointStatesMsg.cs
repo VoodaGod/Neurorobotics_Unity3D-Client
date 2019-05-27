@@ -28,6 +28,8 @@ namespace ROSBridgeLib
             private geometry_msgs.Vector3Msg[] _body1Torques;
             private geometry_msgs.Vector3Msg[] _body2Torques;
 
+            //private List<gazebo_msgs.JointStateMsg> _states;
+
             public JointStatesMsg(JSONNode msg)
             {
                 /*_name = new List<string>(msg["name"].ToList());
@@ -86,6 +88,13 @@ namespace ROSBridgeLib
                 {
                     _body2Torques[i] = new geometry_msgs.Vector3Msg(msg["body_2_torques"][i]);
                 }
+
+                /*_states = new List<JointStateMsg>();
+                JSONArray states = msg["states"].AsArray;
+                for (int i = 0; i < states.Count; i = i+1)
+                {
+                    _states.Add(new JointStateMsg(states[i]));
+                }*/
             }
 
             public JointStatesMsg(string[] name, double[] position, double[] rate, 
@@ -96,19 +105,24 @@ namespace ROSBridgeLib
                 geometry_msgs.Vector3Msg[] body2Torques)
             {
                 _name = name;
-                _position = position;
-                _rate = rate;
-                _axes = axes;
-                _body1Forces = body1Forces;
-                _body2Forces = body2Forces;
-                _body1Torques = body1Torques;
-                _body2Torques = body2Torques;
+                _position = (position != null) ? position : new double[0];
+                _rate = (rate != null) ? rate : new double[0];
+                _axes = (axes != null) ? axes : new geometry_msgs.Vector3Msg[0];
+                _body1Forces = (body1Forces != null) ? body1Forces : new geometry_msgs.Vector3Msg[0];
+                _body2Forces = (body2Forces != null) ? body2Forces : new geometry_msgs.Vector3Msg[0];
+                _body1Torques = (body1Torques != null) ? body1Torques : new geometry_msgs.Vector3Msg[0];
+                _body2Torques = (body2Torques != null) ? body2Torques : new geometry_msgs.Vector3Msg[0];
+            }
+
+            /*public JointStatesMsg(List<gazebo_msgs.JointStateMsg> states)
+            {
+                _states = states;
             }
 
             public static string GetMessageType()
             {
                 return "gazebo_msgs/JointStates";
-            }
+            }*/
 
             public string[] GetName()
             {
@@ -169,6 +183,47 @@ namespace ROSBridgeLib
 
                 return result;
             }
+
+            /*public List<gazebo_msgs.JointStateMsg> GetStates()
+            {
+                return _states;
+            }
+
+            public override string ToString()
+            {
+                string result = "JointStates [";
+                for (int i = 0; i < _states.Count; i = i+1)
+                {
+                    if (i == _states.Count - 1)
+                    {
+                        result += _states[i].ToString();
+                    }
+                    else
+                    {
+                        result += _states[i].ToString() + ", ";
+                    }
+                }
+                result += "]";
+
+                return result;
+            }
+
+            public override string ToYAMLString()
+            {
+                string result = "JointStates [";
+                for (int i = 0; i < _states.Count; i = i + 1)
+                {
+                    if (i == _states.Count - 1)
+                    {
+                        result += _states[i].ToString();
+                    }
+                    else
+                    {
+                        result += _states[i].ToString() + ", ";
+                    }
+                }
+                result += "]";
+            }*/
         }
     }
 }
