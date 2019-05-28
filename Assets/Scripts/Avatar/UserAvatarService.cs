@@ -41,6 +41,11 @@ public class UserAvatarService : Singleton<UserAvatarService>
     private Dictionary<string, Vector3> joint_pid_position_targets_ = new Dictionary<string, Vector3>();
     private Dictionary<string, Vector3> joint_pid_position_targets_last_published_ = new Dictionary<string, Vector3>();
 
+    public float model_position_publish_threshold = 0.1f;
+    public float model_rotation_publish_threshold = 0.1f;
+    private Vector3 model_position_last_published_ = new Vector3();
+    private Quaternion model_rotation_last_published_ = new Quaternion();
+
     void Awake()
     {
         GzBridgeService.Instance.AddCallbackModelInfoMsg(this.OnModelInfoMsg);
@@ -72,7 +77,8 @@ public class UserAvatarService : Singleton<UserAvatarService>
 
             if (Time.time - t_last_publish >= publish_frequency)
             {
-                this.PublishModelPose();  //TODO: move to physical movement
+                //PublishModelPose();  //TODO: move to physical movement
+                PublishModelPoseTarget();
                 //this.PublishModelRotationTarget();
 
                 //PublishJointPIDPositionTargets();
@@ -477,6 +483,26 @@ public class UserAvatarService : Singleton<UserAvatarService>
         ROSBridgeService.Instance.websocket.Publish(topic, model_state_msg);
     }
 
+    private void PublishModelPoseTarget()
+    {
+
+        if ((model_position_last_published_ - avatar_rig.transform.position).magnitude > model_position_publish_threshold ||
+            (model_rotation_last_published_.eulerAngles - avatar_rig.transform.rotation.eulerAngles).magnitude > model_rotation_publish_threshold)
+        {
+            string topic = "/" + this.avatar_name + "/set_pose_target";
+
+            Vector3 model_position = GazeboSceneManager.Unity2GzVec3(this.avatar_rig.transform.position + this.avatar_rig.transform.rotation * this.gazebo_model_pos_offset);
+            PointMsg position_msg = new PointMsg(model_position.x, model_position.y, model_position.z);
+            Quaternion model_rotation = GazeboSceneManager.Unity2GzQuaternion(avatar_rig.transform.rotation);
+            QuaternionMsg rotation_msg = new QuaternionMsg(model_rotation.x, model_rotation.y, model_rotation.z, model_rotation.w);
+            ROSBridgeService.Instance.websocket.Publish(topic, new PoseMsg(position_msg, rotation_msg));
+
+            model_position_last_published_ = avatar_rig.transform.position;
+            model_rotation_last_published_ = avatar_rig.transform.rotation;
+        }
+
+    }
+
     #region legacy code
 
     //private void InitializeLinkLinearVelocityControllers()
@@ -670,7 +696,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
     //    if (!visual_link) return;
 
     //    string topic = "~/" + this.avatar_name + "/avatar_ybot/" + visual_link.name + "/wrench";
-        
+
     //    Vector3Msg force_msg = new Vector3Msg(1000, 0, 0);
 
     //    Vector3 torque = new Vector3();  //GazeboSceneManager.Unity2GzQuaternion(link.transform.rotation);
