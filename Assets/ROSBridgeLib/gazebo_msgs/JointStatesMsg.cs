@@ -79,7 +79,7 @@ namespace ROSBridgeLib
                 //    ", \"body2Torques\" : []}";
 
                 string result = "{\"name\" : " + name + ", \"position\" : " + position + "}";
-                Debug.Log(result);
+                //Debug.Log(result);
                 return result;
             }
         }
