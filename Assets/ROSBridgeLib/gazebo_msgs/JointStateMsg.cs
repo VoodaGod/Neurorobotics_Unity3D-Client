@@ -60,6 +60,11 @@ namespace ROSBridgeLib
                 return _name;
             }
 
+            public double GetPosition()
+            {
+                return _position;
+            }
+
             public override string ToString()
             {
 
