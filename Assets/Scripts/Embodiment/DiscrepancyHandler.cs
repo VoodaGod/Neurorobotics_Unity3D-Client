@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -37,16 +37,17 @@ public class DiscrepancyHandler : MonoBehaviour {
 		}
 	}
 
-	public void StopHandlingDiscrepancyHand(DiscrepancyTracker.TrackedJoints joint){
-		if (!lineDict.ContainsKey(joint)){
-			Debug.LogError("cant stop handling discrepancy before handling it");
+	public void StopHandlingDiscrepancyHand(DiscrepancyTracker.TrackedJoints joint)
+	{
+		if (lineDict.ContainsKey(joint)){
+			lineDict[joint].StopDrawLine();
 		}
-		lineDict[joint].StopDrawLine();
 	}
 
 
 	// Use this for initialization
-	void Start () {
+	void Start () 
+	{
 		if (DiscrepancyLinePrefab == null){
 			Debug.LogError("DiscrepancyLinePrefab not set");
 		}
