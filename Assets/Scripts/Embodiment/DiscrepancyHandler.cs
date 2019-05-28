@@ -5,7 +5,7 @@ using UnityEngine;
 public class DiscrepancyHandler : MonoBehaviour {
 
 	[SerializeField]
-	GameObject DiscrepancyLinePrefab;
+	DiscrepancyLine DiscrepancyLinePrefab;
 
 	public bool lineEffectEnabled = true;
 	public bool lineEffectHands = true;
