@@ -52,7 +52,7 @@ public class DiscrepancyHandler : MonoBehaviour {
 		}
 	}
 
-	public void StopHandlingDiscrepancyHand(DiscrepancyTracker.TrackedJoints joint)
+	public void StopHandlingDiscrepancy(DiscrepancyTracker.TrackedJoints joint)
 	{
 		if (lineDict.ContainsKey(joint)){
 			lineDict[joint].StopDrawLine();

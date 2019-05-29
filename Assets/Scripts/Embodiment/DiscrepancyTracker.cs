@@ -92,18 +92,27 @@ public class DiscrepancyTracker : MonoBehaviour
 				if (dist > toleranceDistance)
 				{
 					timerDict[joint] += Time.fixedDeltaTime;
-					if (timerDict[joint] >= toleranceTime)
+                    //always handle discrepancy
+                    if (joint == TrackedJoints.Head)
+                    {
+                        discrepancyDict[joint] = true;
+                        //Debug.Log("Discrepancy at " + joint.ToString());
+                        discrepancyHandler.HandleDiscrepancy(joint, localPos, remotePos, dist);
+                    }
+                    //handle after toleranceTime reached
+                    else if (timerDict[joint] >= toleranceTime)
 					{
 						discrepancyDict[joint] = true;
 						//Debug.Log("Discrepancy at " + joint.ToString());
 						discrepancyHandler.HandleDiscrepancy(joint, localPos, remotePos, dist);
 					}
+                    
 				}
 				else if (dist <= toleranceDistance && discrepancyDict[joint])
 				{
 					discrepancyDict[joint]= false;
 					timerDict[joint] = 0;
-					discrepancyHandler.StopHandlingDiscrepancyHand(joint);
+					discrepancyHandler.StopHandlingDiscrepancy(joint);
 				}
 			}
 		}
