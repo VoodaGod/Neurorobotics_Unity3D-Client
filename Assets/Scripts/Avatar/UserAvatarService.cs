@@ -35,12 +35,12 @@ public class UserAvatarService : Singleton<UserAvatarService>
 
     private Vector3 gazebo_model_pos_offset = new Vector3();
 
-    public float publish_threshold = 10.0f;
-    public float publish_frequency = 0.5f;
-    private float t_last_publish = 0.0f;
+    public float publish_threshold_joints = 10.0f;
+    public float publish_frequency_joints = 0.5f;
+    private float t_last_publish_joints = 0.0f;
     private Dictionary<string, Vector3> joint_pid_position_targets_ = new Dictionary<string, Vector3>();
     private Dictionary<string, Vector3> joint_pid_position_targets_last_published_ = new Dictionary<string, Vector3>();
-
+    
     public float model_position_publish_threshold = 0.1f;
     public float model_rotation_publish_threshold = 0.1f;
     private Vector3 model_position_last_published_ = new Vector3();
@@ -75,7 +75,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
             //GetJointPIDPositionTargets();
             GetJointPIDPositionTargetsJointStatesMsg();
 
-            if (Time.time - t_last_publish >= publish_frequency)
+            if (Time.time - t_last_publish_joints >= publish_frequency_joints)
             {
                 //PublishModelPose();  //TODO: move to physical movement
                 PublishModelPoseTarget();
@@ -85,7 +85,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
                 PublishJointPIDPositionTargetsJointStatesTopic();
 
                 //this.PublishJointSetPosition();
-                t_last_publish = Time.time;
+                t_last_publish_joints = Time.time;
             }
         }
     }
@@ -430,7 +430,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
             {
                 var last_published = joint_pid_position_targets_last_published_[joint_name];
                 var difference = (cur_target - last_published).magnitude;
-                if (difference > publish_threshold)
+                if (difference > publish_threshold_joints)
                 {
                     joint_pid_position_targets_last_published_[joint_name] = cur_target;
                     ROSBridgeService.Instance.websocket.Publish(topic, new Vector3Msg(cur_target.x, cur_target.y, cur_target.z));
