@@ -24,7 +24,7 @@ public class DiscrepancyTracker : MonoBehaviour
 
 	[SerializeField]
 	[Range(0,1)]
-	float toleranceDistance = 0.1f;
+	float toleranceDistanceGlobal = 0.1f;
 
 	Dictionary<TrackedJoints, float> timerDict = new Dictionary<TrackedJoints, float>();
 
@@ -59,7 +59,7 @@ public class DiscrepancyTracker : MonoBehaviour
 		localPosDict[TrackedJoints.FootRight] = localFootPosRight;
 	}
 
-	void FixedUpdate()
+	void Update()
 	{
 		if (userAvatarService.avatar != null)
 		{
@@ -85,13 +85,13 @@ public class DiscrepancyTracker : MonoBehaviour
 				Transform localPos = entry.Value;
 				Transform remotePos = remotePosDict[joint];
 				float dist = (localPos.position - remotePos.position).magnitude;
-				if (dist > toleranceDistance)
+				if (dist > toleranceDistanceGlobal)
 				{
 					if (!timerDict.ContainsKey(joint)){
 						timerDict[joint] = 0;
 					}
-					timerDict[joint] += Time.fixedDeltaTime;
-					HandleDiscrepancy(joint, localPos, remotePos, dist, timerDict[joint]);
+					timerDict[joint] += Time.deltaTime;
+					HandleDiscrepancy(joint, localPos, remotePos, dist - toleranceDistanceGlobal, timerDict[joint]);
 				}
 				else{
 					timerDict[joint] = 0;

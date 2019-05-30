@@ -28,7 +28,7 @@ public class DiscrepancyLineHandler : MonoBehaviour
 		lineDict[joint].thickness = distance;
 	}
 
-	void FixedUpdate()
+	void Update()
 	{
 		foreach (KeyValuePair<DiscrepancyTracker.TrackedJoints, DiscrepancyLine> entry in lineDict)
 		{

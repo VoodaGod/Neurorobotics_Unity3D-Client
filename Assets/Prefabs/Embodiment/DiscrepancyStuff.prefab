@@ -58,9 +58,12 @@ MonoBehaviour:
   lineEffectEnabled: 1
   lineEffectHands: 1
   lineEffectFeet: 1
-  toleranceTime: 1
+  toleranceTimeHands: 1
+  toleranceTimeFeet: 1
+  toleranceTimeHead: 0.5
   discrepancyHeadEffects: {fileID: 0}
   fadeToBlackEffect: 1
+  blurEffect: 1
 --- !u!114 &114714794701735920
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -74,6 +77,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   steamvrCam: {fileID: 0}
   maxDistToBlack: 0.3
+  maxDistToFullBlur: 0.3
+  superBlurIterations: 5
+  superBlurKernelsize: 2
+  superBlurPostEffectMaterial: {fileID: 2100000, guid: 778a944b382f54ae79e5cb0dc9bd33cd,
+    type: 2}
+  superBlurUIMaterial: {fileID: 2100000, guid: bf55a4ceb811c49cbbf4b9385db69598, type: 2}
 --- !u!114 &114745131364326022
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -106,4 +115,4 @@ MonoBehaviour:
   localFootPosRight: {fileID: 0}
   userAvatarService: {fileID: 0}
   discrepancyHandler: {fileID: 114685663001576196}
-  toleranceDistance: 0.1
+  toleranceDistanceGlobal: 0.1
