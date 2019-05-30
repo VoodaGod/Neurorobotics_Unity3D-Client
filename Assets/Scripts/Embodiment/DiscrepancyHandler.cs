@@ -5,76 +5,61 @@ using UnityEngine;
 public class DiscrepancyHandler : MonoBehaviour {
 
 	[SerializeField]
-	DiscrepancyLine DiscrepancyLinePrefab;
+	[Tooltip("Set to instance in scene, not a prefab. If not set, will be searched in scene")]
+	DiscrepancyLineHandler discrepancyLineHandler;
 
 	public bool lineEffectEnabled = true;
 	public bool lineEffectHands = true;
 	public bool lineEffectFeet = true;
 
 	[SerializeField]
-	SteamVR_Camera steamvrCam;
-	public bool fadeToBlackEffect = true;
-	[SerializeField]
-	float headMaxDistance = 0.3f;
-	Dictionary<DiscrepancyTracker.TrackedJoints, DiscrepancyLine> lineDict = new Dictionary<DiscrepancyTracker.TrackedJoints, DiscrepancyLine>();
+	[Tooltip("seconds before discrepancy is handled")]
+	[Range(0,5)]
+	public float toleranceTime = 1;
 
-	public void HandleDiscrepancy(DiscrepancyTracker.TrackedJoints joint, Transform local, Transform remote, float distance)
+	[SerializeField]
+	[Tooltip("If not set, will be searched in scene")]
+	DiscrepancyHeadEffects discrepancyHeadEffects;
+	public bool fadeToBlackEffect = true;
+
+	public void HandleDiscrepancy(DiscrepancyTracker.TrackedJoints joint, Transform localPos, Transform remotePos, float distance, float time)
 	{
 		if (joint == DiscrepancyTracker.TrackedJoints.HandLeft || joint == DiscrepancyTracker.TrackedJoints.HandRight)
 		{
-			if (lineEffectEnabled && lineEffectHands)
-			{ 
-				if (!lineDict.ContainsKey(joint)){
-					lineDict[joint] = Instantiate(DiscrepancyLinePrefab).GetComponent<DiscrepancyLine>();
-				}
-				lineDict[joint].DrawLine(local, remote, distance);
+			if (lineEffectEnabled && lineEffectHands && (time > toleranceTime)){
+				discrepancyLineHandler.DrawLine(joint, localPos, remotePos, distance);
 			}
 		}
 
 		if (joint == DiscrepancyTracker.TrackedJoints.FootLeft || joint == DiscrepancyTracker.TrackedJoints.FootRight)
 		{
-			if (lineEffectEnabled && lineEffectFeet)
-			{
-				if (!lineDict.ContainsKey(joint)){
-					lineDict[joint] = Instantiate(DiscrepancyLinePrefab).GetComponent<DiscrepancyLine>();
-				}
-				lineDict[joint].DrawLine(local, remote, distance);
+			if (lineEffectEnabled && lineEffectFeet && (time > toleranceTime)){
+				discrepancyLineHandler.DrawLine(joint, localPos, remotePos, distance);
 			}
 		}
 
 		if (joint == DiscrepancyTracker.TrackedJoints.Head)
 		{
-			if (fadeToBlackEffect)
-			{
-				float alpha = Mathf.Lerp(0, 1, distance / headMaxDistance);
-				SteamVR_Fade.Start(new Color(0, 0, 0, alpha), 0);
+			if (fadeToBlackEffect){
+				discrepancyHeadEffects.FadeToBlack(distance);
 			}
 		}
 	}
-
-	public void StopHandlingDiscrepancy(DiscrepancyTracker.TrackedJoints joint)
-	{
-		if (lineDict.ContainsKey(joint)){
-			lineDict[joint].StopDrawLine();
-		}
-	}
-
 
 	// Use this for initialization
 	void Start () 
 	{
-		if (DiscrepancyLinePrefab == null){
-			Debug.LogError("DiscrepancyLinePrefab not set");
+		if (discrepancyLineHandler == null){
+			discrepancyLineHandler = GameObject.FindObjectOfType<DiscrepancyLineHandler>();
+			if (discrepancyLineHandler == null){
+				Debug.LogError("no DiscrepancyLineHandler found");
+			}
 		}
 
-		if (steamvrCam == null)
-		{
-			steamvrCam = GameObject.FindObjectOfType<SteamVR_Camera>();
-			if (steamvrCam == null){
-				Debug.LogError("no SteamVR_Camera found");
-			}
-			if (steamvrCam.gameObject.GetComponent<SteamVR_Fade>() == null){
-				steamvrCam.gameObject.AddComponent<SteamVR_Fade>();
+		if (discrepancyHeadEffects == null){
+			discrepancyHeadEffects = GameObject.FindObjectOfType<DiscrepancyHeadEffects>();
+			if (discrepancyHeadEffects == null){
+				Debug.LogError("no DiscrepancyHeadEffects found");
 			}
 		}
 	}

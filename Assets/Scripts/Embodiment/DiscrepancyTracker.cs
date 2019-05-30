@@ -5,8 +5,9 @@ using UnityEngine;
 [RequireComponent(typeof(DiscrepancyHandler))]
 public class DiscrepancyTracker : MonoBehaviour
 {
-	
+
 	[SerializeField]
+	[Tooltip("Set to tracked object of avatar")]
 	Transform localHeadPos, localHandPosLeft, localHandPosRight, localFootPosLeft, localFootPosRight;
 
 	Dictionary<TrackedJoints, Transform> localPosDict = new Dictionary<TrackedJoints, Transform>();
@@ -14,15 +15,17 @@ public class DiscrepancyTracker : MonoBehaviour
 	Dictionary<TrackedJoints, Transform> remotePosDict = new Dictionary<TrackedJoints, Transform>();
 
 	[SerializeField]
+	[Tooltip("If not set, will be searched in scene")]
 	UserAvatarService userAvatarService;
 
 	[SerializeField]
+	[Tooltip("If not set, will be searched in scene")]
 	DiscrepancyHandler discrepancyHandler;
 
-	public float toleranceDistance = 0.1f;
-	public float toleranceTime = 1f;
+	[SerializeField]
+	[Range(0,1)]
+	float toleranceDistance = 0.1f;
 
-	Dictionary<TrackedJoints, bool> discrepancyDict = new Dictionary<TrackedJoints, bool>();
 	Dictionary<TrackedJoints, float> timerDict = new Dictionary<TrackedJoints, float>();
 
 	public enum TrackedJoints{
@@ -31,58 +34,51 @@ public class DiscrepancyTracker : MonoBehaviour
 
 	void Start()
 	{
-		if (userAvatarService == null)
-		{
-			Debug.Log("userAvatarService not set, looking in scene...");
-			userAvatarService = Object.FindObjectOfType<UserAvatarService>();
+		if (userAvatarService == null){
+			userAvatarService = GameObject.FindObjectOfType<UserAvatarService>();
 			if (userAvatarService == null){
 				Debug.LogError("no UserAvatarService found");
 			}
 		}
+
+		if (discrepancyHandler == null){
+			discrepancyHandler = GameObject.FindObjectOfType<DiscrepancyHandler>();
+			if (discrepancyHandler == null){
+				Debug.LogError("no DiscrepancyHandler found");
+			}
+		}
+
 		if (localHeadPos == null || localHandPosLeft == null || localHandPosRight == null || localFootPosLeft == null || localFootPosRight == null){
 			Debug.LogError("local avatar joint(s) not set");
 		}
 
-		TrackedJoints joint = TrackedJoints.Head;
-		localPosDict[joint] = localHeadPos;
-		discrepancyDict[joint] = false;
-		timerDict[joint] = 0;
-		joint = TrackedJoints.HandLeft;
-		localPosDict[joint] = localHandPosLeft;
-		discrepancyDict[joint] = false;
-		timerDict[joint] = 0;
-		joint = TrackedJoints.HandRight;
-		localPosDict[joint] = localHandPosRight;
-		discrepancyDict[joint] = false;
-		timerDict[joint] = 0;
-		joint = TrackedJoints.FootLeft;
-		localPosDict[joint] = localFootPosLeft;
-		discrepancyDict[joint] = false;
-		timerDict[joint] = 0;
-		joint = TrackedJoints.FootRight;
-		localPosDict[joint] = localFootPosRight;
-		discrepancyDict[joint] = false;
-		timerDict[joint] = 0;
+		localPosDict[TrackedJoints.Head] = localHeadPos;
+		localPosDict[TrackedJoints.HandLeft] = localHandPosLeft;
+		localPosDict[TrackedJoints.HandRight] = localHandPosRight;
+		localPosDict[TrackedJoints.FootLeft] = localFootPosLeft;
+		localPosDict[TrackedJoints.FootRight] = localFootPosRight;
 	}
 
 	void FixedUpdate()
 	{
-		if (userAvatarService != null && userAvatarService.avatar != null)
+		if (userAvatarService.avatar != null)
 		{
 			//find remote joint objects
 			foreach (KeyValuePair<TrackedJoints, Transform> entry in localPosDict)
 			{
 				string name = userAvatarService.avatar.name + "::avatar_ybot::" + localPosDict[entry.Key].name;
 				TrackedJoints joint = entry.Key;
-				if (!remotePosDict.ContainsKey(joint)){
+				if (!remotePosDict.ContainsKey(joint))
+				{
 					remotePosDict[joint] = GameObject.Find(name).transform;
 				}
-				if (remotePosDict[joint] == null){
+				if (remotePosDict[joint] == null)
+				{
 					Debug.LogError("could not find " + name);
 				}
 			}
 
-			//check discrepancies
+			//check & handle discrepancies
 			foreach (KeyValuePair<TrackedJoints, Transform> entry in localPosDict)
 			{
 				TrackedJoints joint = entry.Key;
@@ -91,30 +87,20 @@ public class DiscrepancyTracker : MonoBehaviour
 				float dist = (localPos.position - remotePos.position).magnitude;
 				if (dist > toleranceDistance)
 				{
-					timerDict[joint] += Time.fixedDeltaTime;
-                    //always handle discrepancy
-                    if (joint == TrackedJoints.Head)
-                    {
-                        discrepancyDict[joint] = true;
-                        //Debug.Log("Discrepancy at " + joint.ToString());
-                        discrepancyHandler.HandleDiscrepancy(joint, localPos, remotePos, dist);
-                    }
-                    //handle after toleranceTime reached
-                    else if (timerDict[joint] >= toleranceTime)
-					{
-						discrepancyDict[joint] = true;
-						//Debug.Log("Discrepancy at " + joint.ToString());
-						discrepancyHandler.HandleDiscrepancy(joint, localPos, remotePos, dist);
+					if (!timerDict.ContainsKey(joint)){
+						timerDict[joint] = 0;
 					}
-                    
+					timerDict[joint] += Time.fixedDeltaTime;
+					HandleDiscrepancy(joint, localPos, remotePos, dist, timerDict[joint]);
 				}
-				else if (dist <= toleranceDistance && discrepancyDict[joint])
-				{
-					discrepancyDict[joint]= false;
+				else{
 					timerDict[joint] = 0;
-					discrepancyHandler.StopHandlingDiscrepancy(joint);
 				}
 			}
 		}
+	}
+
+	void HandleDiscrepancy(TrackedJoints joint, Transform localPos, Transform remotePos, float distance, float time){
+		discrepancyHandler.HandleDiscrepancy(joint, localPos, remotePos, distance, time);
 	}
 }

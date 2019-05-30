@@ -8,7 +8,8 @@ public class DiscrepancyLine : MonoBehaviour
 
 	[SerializeField]
 	LineRenderer lineRenderer;
-	Transform source, target;
+	public Transform source, target;
+	public float thickness;
 
 	// Use this for initialization
 	void Start()
@@ -29,6 +30,11 @@ public class DiscrepancyLine : MonoBehaviour
 		lineRenderer.SetPosition(1, target.position);
 		lineRenderer.widthMultiplier = thickness;
 		lineRenderer.enabled = true;
+	}
+
+	public void DrawLine()
+	{
+		DrawLine(source, target, thickness);
 	}
 
 	public void StopDrawLine(){

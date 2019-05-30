@@ -21,8 +21,10 @@ GameObject:
   - component: {fileID: 4083384070869056}
   - component: {fileID: 114849323811691562}
   - component: {fileID: 114685663001576196}
+  - component: {fileID: 114745131364326022}
+  - component: {fileID: 114714794701735920}
   m_Layer: 0
-  m_Name: DiscrepancyTracker
+  m_Name: DiscrepancyStuff
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -52,14 +54,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cea47fe214f884b38924af4366d93e2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DiscrepancyLinePrefab: {fileID: 114832101135904686, guid: e1922ea57bce64334a5e14be0fce2024,
-    type: 2}
+  discrepancyLineHandler: {fileID: 0}
   lineEffectEnabled: 1
   lineEffectHands: 1
   lineEffectFeet: 1
-  steamvrCam: {fileID: 0}
+  toleranceTime: 1
+  discrepancyHeadEffects: {fileID: 0}
   fadeToBlackEffect: 1
-  headMaxDistance: 0.3
+--- !u!114 &114714794701735920
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1532938323012370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd08cc51597a04b9aaf2cc6bf8ebe2e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  steamvrCam: {fileID: 0}
+  maxDistToBlack: 0.3
+--- !u!114 &114745131364326022
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1532938323012370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f275408c26504469c92ac58e28dc72bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DiscrepancyLinePrefab: {fileID: 114832101135904686, guid: e1922ea57bce64334a5e14be0fce2024,
+    type: 2}
+  thicknessMultiplier: 1
 --- !u!114 &114849323811691562
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -79,4 +107,3 @@ MonoBehaviour:
   userAvatarService: {fileID: 0}
   discrepancyHandler: {fileID: 114685663001576196}
   toleranceDistance: 0.1
-  toleranceTime: 1

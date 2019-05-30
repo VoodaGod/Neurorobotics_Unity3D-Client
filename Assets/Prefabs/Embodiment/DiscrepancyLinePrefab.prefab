@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 114832101135904686}
   - component: {fileID: 120341055980756180}
   m_Layer: 0
-  m_Name: DiscrepancyLine
+  m_Name: DiscrepancyLinePrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -53,6 +53,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lineRenderer: {fileID: 120341055980756180}
+  source: {fileID: 0}
+  target: {fileID: 0}
+  thickness: 0
 --- !u!120 &120341055980756180
 LineRenderer:
   m_ObjectHideFlags: 1
