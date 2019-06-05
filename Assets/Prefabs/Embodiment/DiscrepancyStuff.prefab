@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 114685663001576196}
   - component: {fileID: 114745131364326022}
   - component: {fileID: 114714794701735920}
+  - component: {fileID: 114605583038934692}
   m_Layer: 0
   m_Name: DiscrepancyStuff
   m_TagString: Untagged
@@ -43,6 +44,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114605583038934692
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1532938323012370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49d15dad9f29e4ab6bdd03450f6a8725, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gazeboScene: {fileID: 0}
+  interiorMaterial: {fileID: 2100000, guid: b5e6a1605b7ed43178287a8cb2a36a08, type: 2}
 --- !u!114 &114685663001576196
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -55,15 +69,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   discrepancyLineHandler: {fileID: 0}
+  discrepancyHeadEffects: {fileID: 0}
   lineEffectEnabled: 1
   lineEffectHands: 1
   lineEffectFeet: 1
+  fadeToBlackEffect: 1
+  blurEffect: 1
   toleranceTimeHands: 1
   toleranceTimeFeet: 1
   toleranceTimeHead: 0.5
-  discrepancyHeadEffects: {fileID: 0}
-  fadeToBlackEffect: 1
-  blurEffect: 1
 --- !u!114 &114714794701735920
 MonoBehaviour:
   m_ObjectHideFlags: 1
