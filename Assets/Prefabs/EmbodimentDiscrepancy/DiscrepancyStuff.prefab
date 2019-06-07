@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114685663001576196}
   - component: {fileID: 114745131364326022}
   - component: {fileID: 114714794701735920}
-  - component: {fileID: 114605583038934692}
+  - component: {fileID: 114769077413451680}
   m_Layer: 0
   m_Name: DiscrepancyStuff
   m_TagString: Untagged
@@ -44,19 +44,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114605583038934692
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1532938323012370}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49d15dad9f29e4ab6bdd03450f6a8725, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gazeboScene: {fileID: 0}
-  interiorMaterial: {fileID: 2100000, guid: b5e6a1605b7ed43178287a8cb2a36a08, type: 2}
 --- !u!114 &114685663001576196
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -111,6 +98,21 @@ MonoBehaviour:
   DiscrepancyLinePrefab: {fileID: 114832101135904686, guid: e1922ea57bce64334a5e14be0fce2024,
     type: 2}
   thicknessMultiplier: 1
+--- !u!114 &114769077413451680
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1532938323012370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 674faa5e5e14e4cc4b67a0fee9425524, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gazeboSceneManager: {fileID: 0}
+  ignoredModelSubstrings:
+  - user_avatar
+  interiorMaterial: {fileID: 2100000, guid: b5e6a1605b7ed43178287a8cb2a36a08, type: 2}
 --- !u!114 &114849323811691562
 MonoBehaviour:
   m_ObjectHideFlags: 1
