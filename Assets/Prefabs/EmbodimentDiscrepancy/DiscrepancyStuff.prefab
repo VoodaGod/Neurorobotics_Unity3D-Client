@@ -23,8 +23,9 @@ GameObject:
   - component: {fileID: 114685663001576196}
   - component: {fileID: 114745131364326022}
   - component: {fileID: 114714794701735920}
-  - component: {fileID: 114769077413451680}
   - component: {fileID: 114290883029553302}
+  - component: {fileID: 114044443808462562}
+  - component: {fileID: 114769077413451680}
   m_Layer: 0
   m_Name: DiscrepancyStuff
   m_TagString: Untagged
@@ -45,6 +46,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114044443808462562
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1532938323012370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f59330be95e544c81a32902daec00b98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  geigerClickClipsSingle:
+  - {fileID: 8300000, guid: ac52554a8ba664d3c95e47b1f64e8bdd, type: 3}
+  - {fileID: 8300000, guid: 10076f2e2644042a8b110542e53559fe, type: 3}
+  - {fileID: 8300000, guid: cb65a57f0fda94e94b2d836da4af81ac, type: 3}
+  - {fileID: 8300000, guid: f35300a12fc504a5c9190ed8a0b51bac, type: 3}
+  - {fileID: 8300000, guid: 92e482b22b0894683bb7c8e9c8dd62a7, type: 3}
+  - {fileID: 8300000, guid: 6d3a8c710ee3048b58d6b9370e75acd3, type: 3}
+  - {fileID: 8300000, guid: 01aec54af1b16486da66acc405a8fe74, type: 3}
+  geigerClickClipsMulti:
+  - {fileID: 8300000, guid: c939a8379cb1a46ad88a8e39b163fcea, type: 3}
+  - {fileID: 8300000, guid: 208097ba7513d486f9f84d7793ef7165, type: 3}
+  - {fileID: 8300000, guid: 9f90538105d0e4a0ab2d6909497f87f6, type: 3}
+  - {fileID: 8300000, guid: 88002e816eb8447cd86e39d4b8b2aa86, type: 3}
+  audioSourcePrefab: {fileID: 82331096165506654, guid: dd49137f88ef94651a161b5c2a5fe28f,
+    type: 2}
+  useMultiClicks: 1
+  distanceToMaxIntensity: 1
+  maxClicksPerMinute: 600
+  variance: 0.25
 --- !u!114 &114290883029553302
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -75,14 +106,18 @@ MonoBehaviour:
   discrepancyLineHandler: {fileID: 0}
   discrepancyHeadEffects: {fileID: 0}
   discrepancyHapticHandler: {fileID: 0}
+  discrepancySoundHandler: {fileID: 0}
   leftHandTrackedObject: {fileID: 0}
   rightHandTrackedObject: {fileID: 0}
+  leftFootTrackedObject: {fileID: 0}
+  rightFootTrackedObject: {fileID: 0}
   lineEffectEnabled: 1
   lineEffectHands: 1
   lineEffectFeet: 1
   fadeToBlackEffect: 1
   blurEffect: 1
   hapticEffectHands: 1
+  geigerSoundEffect: 1
   toleranceTimeHands: 1
   toleranceTimeFeet: 1
   toleranceTimeHead: 0.5

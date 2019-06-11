@@ -33,9 +33,12 @@ namespace EmbodimentDiscrepancy
 		[SerializeField]
 		[Tooltip("If not set, will be searched in scene")]
 		DiscrepancyHapticHandler discrepancyHapticHandler;
+		[SerializeField]
+		[Tooltip("If not set, will be searched in scene")]
+		DiscrepancySoundHandler discrepancySoundHandler;
 
 		[SerializeField]
-		SteamVR_TrackedObject leftHandTrackedObject, rightHandTrackedObject;
+		SteamVR_TrackedObject leftHandTrackedObject, rightHandTrackedObject, leftFootTrackedObject, rightFootTrackedObject;
 
 		public bool lineEffectEnabled = true;
 		public bool lineEffectHands = true;
@@ -43,6 +46,7 @@ namespace EmbodimentDiscrepancy
 		public bool fadeToBlackEffect = true;
 		public bool blurEffect = true;
 		public bool hapticEffectHands = true;
+		public bool geigerSoundEffect = true;
 
 		[SerializeField]
 		[Tooltip("seconds before discrepancy is handled")]
@@ -71,6 +75,10 @@ namespace EmbodimentDiscrepancy
 		{
 			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.HandLeft, leftHandTrackedObject);
 			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.HandRight, rightHandTrackedObject);
+			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.HandLeft, leftHandTrackedObject.gameObject);
+			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.HandRight, rightHandTrackedObject.gameObject);
+			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.FootLeft, leftFootTrackedObject.gameObject);
+			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.FootRight, rightFootTrackedObject.gameObject);
 
 			foreach (Discrepancy disc in discrepancyList)
 			{
@@ -79,8 +87,11 @@ namespace EmbodimentDiscrepancy
 					if (lineEffectEnabled && lineEffectHands && (disc.duration > toleranceTimeHands)){
 						discrepancyLineHandler.DrawLine(disc);
 					}
-					if(hapticEffectHands){
+					if (hapticEffectHands && (disc.duration > toleranceTimeHands)){
 						discrepancyHapticHandler.HandleRumble(disc);
+					}
+					if (geigerSoundEffect && (disc.duration > toleranceTimeHands)){
+						discrepancySoundHandler.HandleGeigerSounds(disc);
 					}
 				}
 
@@ -88,6 +99,9 @@ namespace EmbodimentDiscrepancy
 				{
 					if (lineEffectEnabled && lineEffectFeet && (disc.duration > toleranceTimeFeet)){
 						discrepancyLineHandler.DrawLine(disc);
+					}
+					if (geigerSoundEffect && (disc.duration > toleranceTimeFeet)){
+						discrepancySoundHandler.HandleGeigerSounds(disc);
 					}
 				}
 
@@ -137,8 +151,16 @@ namespace EmbodimentDiscrepancy
 					Debug.LogError("no DiscrepancyHapticHandler found");
 				}
 			}
+			
+			if (discrepancySoundHandler== null)
+			{
+				discrepancySoundHandler = GameObject.FindObjectOfType<DiscrepancySoundHandler>();
+				if (discrepancySoundHandler == null){
+					Debug.LogError("no DiscrepancySoundHandler found");
+				}
+			}
 
-			if (leftHandTrackedObject == null || rightHandTrackedObject == null){
+			if (leftHandTrackedObject == null || rightHandTrackedObject == null || leftFootTrackedObject == null || rightHandTrackedObject == null){
 				Debug.LogError("trackedObject(s) not set");
 			}
 		}
