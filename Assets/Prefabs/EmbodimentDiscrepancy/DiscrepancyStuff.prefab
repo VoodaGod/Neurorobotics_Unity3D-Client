@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 114745131364326022}
   - component: {fileID: 114714794701735920}
   - component: {fileID: 114769077413451680}
+  - component: {fileID: 114290883029553302}
   m_Layer: 0
   m_Name: DiscrepancyStuff
   m_TagString: Untagged
@@ -44,6 +45,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114290883029553302
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1532938323012370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4ff7d37cec5d429483f2e40467341f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxRumblesPerSecond: 10
+  maxRumblesTime: 5
+  maxRumblePulseDuration: 0.1
+  maxRumblePulseDistance: 1
+  pulseStrength: 1
 --- !u!114 &114685663001576196
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -57,11 +74,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   discrepancyLineHandler: {fileID: 0}
   discrepancyHeadEffects: {fileID: 0}
+  discrepancyHapticHandler: {fileID: 0}
+  leftHandTrackedObject: {fileID: 0}
+  rightHandTrackedObject: {fileID: 0}
   lineEffectEnabled: 1
   lineEffectHands: 1
   lineEffectFeet: 1
   fadeToBlackEffect: 1
   blurEffect: 1
+  hapticEffectHands: 1
   toleranceTimeHands: 1
   toleranceTimeFeet: 1
   toleranceTimeHead: 0.5

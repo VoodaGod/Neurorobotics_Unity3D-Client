@@ -16,7 +16,7 @@ namespace EmbodimentDiscrepancy
 		public Transform trackedPos;
 		public Transform simulatedPos;
 		public float distance;
-		public float time;
+		public float duration;
 	}
 
 	public class DiscrepancyHandler : MonoBehaviour
@@ -30,11 +30,19 @@ namespace EmbodimentDiscrepancy
 		[Tooltip("If not set, will be searched in scene")]
 		DiscrepancyHeadEffects discrepancyHeadEffects;
 
+		[SerializeField]
+		[Tooltip("If not set, will be searched in scene")]
+		DiscrepancyHapticHandler discrepancyHapticHandler;
+
+		[SerializeField]
+		SteamVR_TrackedObject leftHandTrackedObject, rightHandTrackedObject;
+
 		public bool lineEffectEnabled = true;
 		public bool lineEffectHands = true;
 		public bool lineEffectFeet = true;
 		public bool fadeToBlackEffect = true;
 		public bool blurEffect = true;
+		public bool hapticEffectHands = true;
 
 		[SerializeField]
 		[Tooltip("seconds before discrepancy is handled")]
@@ -61,32 +69,38 @@ namespace EmbodimentDiscrepancy
 
 		void Update()
 		{
+			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.HandLeft, leftHandTrackedObject);
+			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.HandRight, rightHandTrackedObject);
+
 			foreach (Discrepancy disc in discrepancyList)
 			{
 				if (disc.joint == TrackedJoint.HandLeft || disc.joint == TrackedJoint.HandRight)
 				{
-					if (lineEffectEnabled && lineEffectHands && (disc.time > toleranceTimeHands)){
+					if (lineEffectEnabled && lineEffectHands && (disc.duration > toleranceTimeHands)){
 						discrepancyLineHandler.DrawLine(disc);
+					}
+					if(hapticEffectHands){
+						discrepancyHapticHandler.HandleRumble(disc);
 					}
 				}
 
 				if (disc.joint == TrackedJoint.FootLeft || disc.joint == TrackedJoint.FootRight)
 				{
-					if (lineEffectEnabled && lineEffectFeet && (disc.time > toleranceTimeFeet)){
+					if (lineEffectEnabled && lineEffectFeet && (disc.duration > toleranceTimeFeet)){
 						discrepancyLineHandler.DrawLine(disc);
 					}
 				}
 
 				if (disc.joint == TrackedJoint.Head)
 				{
-					if (fadeToBlackEffect && disc.time > toleranceTimeHead){
+					if (fadeToBlackEffect && disc.duration > toleranceTimeHead){
 						discrepancyHeadEffects.FadeToBlack(disc);
 					}
 					else{
 						discrepancyHeadEffects.FadeToBlack(distance: 0);
 					}
 					
-					if (blurEffect && disc.time > toleranceTimeHead){
+					if (blurEffect && disc.duration > toleranceTimeHead){
 						discrepancyHeadEffects.Blur(disc);
 					}
 					else{
@@ -114,6 +128,18 @@ namespace EmbodimentDiscrepancy
 				if (discrepancyHeadEffects == null){
 					Debug.LogError("no DiscrepancyHeadEffects found");
 				}
+			}
+
+			if (discrepancyHapticHandler== null)
+			{
+				discrepancyHapticHandler = GameObject.FindObjectOfType<DiscrepancyHapticHandler>();
+				if (discrepancyHapticHandler == null){
+					Debug.LogError("no DiscrepancyHapticHandler found");
+				}
+			}
+
+			if (leftHandTrackedObject == null || rightHandTrackedObject == null){
+				Debug.LogError("trackedObject(s) not set");
 			}
 		}
 	}

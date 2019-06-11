@@ -106,7 +106,7 @@ namespace EmbodimentDiscrepancy
 			disc.trackedPos = localPos;
 			disc.simulatedPos = remotePos;
 			disc.distance = distance;
-			disc.time = time;
+			disc.duration = time;
 			discrepancyHandler.HandleDiscrepancy(disc);
 		}
 	}
