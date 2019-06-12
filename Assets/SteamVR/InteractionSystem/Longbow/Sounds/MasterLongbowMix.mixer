@@ -19,7 +19,6 @@ AudioMixerController:
   - guids:
     - bafe2d6747865c54b8a0c62da02e2217
     - 6f79fc83b45f10e41800e2bdafb3c08b
-    - 69018782d16df45e58cee349e13f35af
     name: View
   m_CurrentViewIndex: 0
   m_TargetSnapshot: {fileID: 24500003}
@@ -33,7 +32,6 @@ AudioMixerGroupController:
   m_GroupID: bafe2d6747865c54b8a0c62da02e2217
   m_Children:
   - {fileID: 24348630}
-  - {fileID: 243308433910378786}
   m_Volume: dad7df571cc403d49bf049fed9dd841a
   m_Pitch: e8d3cb8bb01da5e41860e41a6e45d3a9
   m_Effects:
@@ -98,33 +96,3 @@ AudioMixerSnapshotController:
     dad7df571cc403d49bf049fed9dd841a: -0.002441872
     9fe04fa72d240804da9bfecea38d7ec7: -16.035946
   m_TransitionOverrides: {}
---- !u!243 &243308433910378786
-AudioMixerGroupController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: GeigerClicks
-  m_AudioMixer: {fileID: 24100000}
-  m_GroupID: 69018782d16df45e58cee349e13f35af
-  m_Children: []
-  m_Volume: 581196e6611104a38808511e21454608
-  m_Pitch: 0b57aeff8b3544d84b6172c88bec2fb1
-  m_Effects:
-  - {fileID: 244444392123481086}
-  m_UserColorIndex: 0
-  m_Mute: 0
-  m_Solo: 0
-  m_BypassEffects: 0
---- !u!244 &244444392123481086
-AudioMixerEffectController:
-  m_ObjectHideFlags: 3
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: 
-  m_EffectID: 86eda91f6edb94e91bbbe51aebbbb627
-  m_EffectName: Attenuation
-  m_MixLevel: 2db894f3631ed4eeb89ed29462b59e5f
-  m_Parameters: []
-  m_SendTarget: {fileID: 0}
-  m_EnableWetMix: 0
-  m_Bypass: 0
