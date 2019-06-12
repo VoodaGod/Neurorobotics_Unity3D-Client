@@ -83,7 +83,6 @@ namespace EmbodimentDiscrepancy
 		//length is how long the vibration should go for
 		//strength is vibration strength from 0-1
 		IEnumerator LongVibration(float length, float strength, int trackedObjectIndex) {
-			Debug.Log("pulseLength " + length);
 			for(float i = 0; i < length; i += Time.deltaTime) {
 				SteamVR_Controller.Input((int)trackedObjectIndex).TriggerHapticPulse((ushort)Mathf.Lerp(0, 3999, strength));
 				yield return null;

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -46,6 +46,7 @@ namespace EmbodimentDiscrepancy
 		public bool fadeToBlackEffect = true;
 		public bool blurEffect = true;
 		public bool hapticEffectHands = true;
+		public bool hapticEffectFeet = true;
 		public bool geigerSoundEffect = true;
 
 		[SerializeField]
@@ -75,6 +76,9 @@ namespace EmbodimentDiscrepancy
 		{
 			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.HandLeft, leftHandTrackedObject);
 			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.HandRight, rightHandTrackedObject);
+			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.FootLeft, leftFootTrackedObject);
+			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.FootRight, rightFootTrackedObject);
+
 			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.HandLeft, leftHandTrackedObject.gameObject);
 			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.HandRight, rightHandTrackedObject.gameObject);
 			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.FootLeft, leftFootTrackedObject.gameObject);
@@ -99,6 +103,9 @@ namespace EmbodimentDiscrepancy
 				{
 					if (lineEffectEnabled && lineEffectFeet && (disc.duration > toleranceTimeFeet)){
 						discrepancyLineHandler.DrawLine(disc);
+					}
+					if (hapticEffectFeet && (disc.duration > toleranceTimeFeet)){
+						discrepancyHapticHandler.HandleRumble(disc);
 					}
 					if (geigerSoundEffect && (disc.duration > toleranceTimeFeet)){
 						discrepancySoundHandler.HandleGeigerSounds(disc);
