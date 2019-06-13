@@ -48,6 +48,7 @@ namespace EmbodimentDiscrepancy
 		public bool hapticEffectHands = true;
 		public bool hapticEffectFeet = true;
 		public bool geigerSoundEffect = true;
+		public bool noiseSoundEffect = true;
 
 		[SerializeField]
 		[Tooltip("seconds before discrepancy is handled")]
@@ -79,11 +80,6 @@ namespace EmbodimentDiscrepancy
 			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.FootLeft, leftFootTrackedObject);
 			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.FootRight, rightFootTrackedObject);
 
-			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.HandLeft, leftHandTrackedObject.gameObject);
-			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.HandRight, rightHandTrackedObject.gameObject);
-			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.FootLeft, leftFootTrackedObject.gameObject);
-			discrepancySoundHandler.SetTransformParentForJoint(TrackedJoint.FootRight, rightFootTrackedObject.gameObject);
-
 			foreach (Discrepancy disc in discrepancyList)
 			{
 				if (disc.joint == TrackedJoint.HandLeft || disc.joint == TrackedJoint.HandRight)
@@ -97,6 +93,9 @@ namespace EmbodimentDiscrepancy
 					if (geigerSoundEffect && (disc.duration > toleranceTimeHands)){
 						discrepancySoundHandler.HandleGeigerSounds(disc);
 					}
+					if (noiseSoundEffect){
+						discrepancySoundHandler.HandleNoise(disc);
+					}
 				}
 
 				if (disc.joint == TrackedJoint.FootLeft || disc.joint == TrackedJoint.FootRight)
@@ -109,6 +108,9 @@ namespace EmbodimentDiscrepancy
 					}
 					if (geigerSoundEffect && (disc.duration > toleranceTimeFeet)){
 						discrepancySoundHandler.HandleGeigerSounds(disc);
+					}
+					if (noiseSoundEffect){
+						discrepancySoundHandler.HandleNoise(disc);
 					}
 				}
 

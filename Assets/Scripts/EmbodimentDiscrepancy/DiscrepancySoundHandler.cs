@@ -1,19 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace EmbodimentDiscrepancy
 {
 	public class DiscrepancySoundHandler : MonoBehaviour
 	{
+		enum SoundOrigin {
+			trackedPos, simulatedPos
+		}
+
+		[SerializeField]
+		SoundOrigin SoundComesFrom = SoundOrigin.simulatedPos;
+
+
+		//GeigerClicks
+
 		class GeigerClicker 
 		{
-			public AudioSource audioSource;
-			public List<AudioClip> geigerClickClips;
+			public GeigerClicker(TrackedJoint joint){
+				this.joint = joint;
+			}
+
+			public TrackedJoint joint;
 			public float intensity = 0;
 			float timer = 0;
 			int prevAudioClipIndex = 0;
-			public void DoClick(float deltaTime, int maxClicksPerMinute, float variance)
+
+			public void DoClick(AudioSource audioSource, List<AudioClip> geigerClickClips, float deltaTime, int maxClicksPerMinute, float variance, float intensity)
 			{
 				timer += Time.deltaTime;
 				if (intensity > 0)
@@ -34,10 +49,8 @@ namespace EmbodimentDiscrepancy
 						prevAudioClipIndex = audioClipIndex;
 					}
 				}
-				intensity = 0;
 			}
 		}
-
 
 		[SerializeField]
 		List<AudioClip> geigerClickClipsSingle = new List<AudioClip>();
@@ -54,7 +67,6 @@ namespace EmbodimentDiscrepancy
 		[SerializeField]
 		[Tooltip("only applies on Start(), set via property UseMultiClicks at runtime")]
 		bool geigerUseMultiClicks = true;
-
 		public bool GeigerUseMultiClicks
 		{
 			get{
@@ -85,26 +97,93 @@ namespace EmbodimentDiscrepancy
 		float geigerVariance = 0.5f;
 
 		Dictionary<TrackedJoint, AudioSource> geigerAudioSourceDict = new Dictionary<TrackedJoint, AudioSource>();
-		Dictionary<TrackedJoint, GeigerClicker> geigerClickerDict = new Dictionary<TrackedJoint, GeigerClicker>();
+		List<GeigerClicker> geigerClickerList = new List<GeigerClicker>();
 
-		//where the audiosources for each joint should be
-		public void SetTransformParentForJoint(TrackedJoint joint, GameObject obj)
+		//!GeigerClicks
+
+		//Noise
+
+		[SerializeField]
+		[Tooltip("will be applied to all NoiseAudioSources")]
+		AudioClip noiseClipInspector;
+
+		AudioClip noiseClip;
+		public AudioClip NoiseClip 
 		{
-			if (!geigerAudioSourceDict.ContainsKey(joint)){
-				geigerAudioSourceDict[joint] = Instantiate(original: geigerAudioSourcePrefab, parent: obj.transform);
+			get {
+				return noiseClip;
+			}
+			set {
+				foreach (AudioSource audioSource in noiseAudioSourceDict.Values){
+					audioSource.clip = value;
+				}
+				noiseClip = value;
+			}
+
+		}
+
+		[SerializeField]
+		[Tooltip("set to Prefabs/EmbodimentDiscrepancy/NoiseAudioSourcePrefab")]
+		AudioSource noiseAudioSourcePrefab;
+
+		Dictionary<TrackedJoint, AudioSource> noiseAudioSourceDict = new Dictionary<TrackedJoint, AudioSource>();
+
+		[SerializeField]
+		float noiseDistanceToMaxVolume = 1;
+
+		//!Noise
+
+
+		public void HandleNoise(Discrepancy disc)
+		{
+			//update AudioSources
+			if (!noiseAudioSourceDict.ContainsKey(disc.joint)){
+				AudioSource newAudioSource = Instantiate(original: noiseAudioSourcePrefab, parent: this.transform);
+				newAudioSource.clip = NoiseClip;
+				newAudioSource.loop = true;
+				newAudioSource.Play();
+				noiseAudioSourceDict[disc.joint] = newAudioSource;
 			}
 			else {
-				geigerAudioSourceDict[joint].transform.position = obj.transform.position;
-				geigerAudioSourceDict[joint].transform.SetParent(obj.transform);
+				if (SoundComesFrom == SoundOrigin.simulatedPos){
+					noiseAudioSourceDict[disc.joint].transform.position = disc.simulatedPos.transform.position;
+				}
+				else if (SoundComesFrom == SoundOrigin.trackedPos){
+					noiseAudioSourceDict[disc.joint].transform.position = disc.trackedPos.transform.position;
+				}
 			}
+			noiseAudioSourceDict[disc.joint].volume = Mathf.Lerp(0, 1, disc.distance / noiseDistanceToMaxVolume);
 		}
 
 		public void HandleGeigerSounds(Discrepancy disc)
 		{
-			if (!geigerClickerDict.ContainsKey(disc.joint)){
-				geigerClickerDict[disc.joint] = new GeigerClicker { audioSource = geigerAudioSourceDict[disc.joint], geigerClickClips = this.geigerClickClips };
+			//update AudioSources
+			if (!geigerAudioSourceDict.ContainsKey(disc.joint)){
+				geigerAudioSourceDict[disc.joint] = Instantiate(original: geigerAudioSourcePrefab, parent: this.transform);
 			}
-			geigerClickerDict[disc.joint].intensity = Mathf.Lerp(0, 1, disc.distance / geigerDistanceToMaxIntensity);
+			else {
+				if (SoundComesFrom == SoundOrigin.simulatedPos){
+					geigerAudioSourceDict[disc.joint].transform.position = disc.simulatedPos.transform.position;
+				}
+				else if (SoundComesFrom == SoundOrigin.trackedPos){
+					geigerAudioSourceDict[disc.joint].transform.position = disc.trackedPos.transform.position;
+				}
+			}
+
+			//update GeigerClickers
+			GeigerClicker geigerClicker = null;
+			foreach (GeigerClicker entry in geigerClickerList)
+			{
+				if (entry.joint == disc.joint){
+					geigerClicker = entry;
+				}
+			}
+			if (geigerClicker == null)
+			{
+				geigerClicker = new GeigerClicker(disc.joint);
+				geigerClickerList.Add(geigerClicker);
+			}
+			geigerClicker.intensity = Mathf.Lerp(0, 1, disc.distance / geigerDistanceToMaxIntensity);
 		}
 
 		void Start()
@@ -113,12 +192,21 @@ namespace EmbodimentDiscrepancy
 			if (geigerClickClips.Count < 1){
 				Debug.LogError("no Geiger Click sounds set");
 			}
+
+			NoiseClip = noiseClipInspector;
 		}
 
 		void Update()
 		{
-			foreach (GeigerClicker geigerClicker in geigerClickerDict.Values){
-				geigerClicker.DoClick(Time.deltaTime, geigerMaxClicksPerMinute, geigerVariance);
+			foreach (GeigerClicker geigerClicker in geigerClickerList)
+			{
+				AudioSource audioSource = geigerAudioSourceDict[geigerClicker.joint];
+				geigerClicker.DoClick(audioSource, geigerClickClips, Time.deltaTime, geigerMaxClicksPerMinute, geigerVariance, geigerClicker.intensity);
+				geigerClicker.intensity = 0; //reset intensity until next HandleGeigerSounds()
+			}
+
+			if (NoiseClip != noiseClipInspector){
+				NoiseClip = noiseClipInspector;
 			}
 		}
 	}

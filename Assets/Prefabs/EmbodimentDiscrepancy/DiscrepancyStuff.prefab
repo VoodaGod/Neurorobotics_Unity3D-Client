@@ -57,6 +57,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f59330be95e544c81a32902daec00b98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  SoundComesFrom: 1
   geigerClickClipsSingle:
   - {fileID: 8300000, guid: ac52554a8ba664d3c95e47b1f64e8bdd, type: 3}
   - {fileID: 8300000, guid: 10076f2e2644042a8b110542e53559fe, type: 3}
@@ -70,12 +71,16 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 208097ba7513d486f9f84d7793ef7165, type: 3}
   - {fileID: 8300000, guid: 9f90538105d0e4a0ab2d6909497f87f6, type: 3}
   - {fileID: 8300000, guid: 88002e816eb8447cd86e39d4b8b2aa86, type: 3}
-  audioSourcePrefab: {fileID: 82331096165506654, guid: dd49137f88ef94651a161b5c2a5fe28f,
+  geigerAudioSourcePrefab: {fileID: 82331096165506654, guid: dd49137f88ef94651a161b5c2a5fe28f,
     type: 2}
-  useMultiClicks: 1
-  distanceToMaxIntensity: 1
-  maxClicksPerMinute: 600
-  variance: 0.25
+  geigerUseMultiClicks: 1
+  geigerDistanceToMaxIntensity: 1
+  geigerMaxClicksPerMinute: 600
+  geigerVariance: 0.5
+  noiseClipInspector: {fileID: 8300000, guid: 69da226f0e17740ba8fa7c996320f1d3, type: 3}
+  noiseAudioSourcePrefab: {fileID: 82922678399478566, guid: 5d84d8afbf5dc4abbb497e1bd00ad17d,
+    type: 2}
+  noiseDistanceToMaxVolume: 1
 --- !u!114 &114290883029553302
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -117,7 +122,9 @@ MonoBehaviour:
   fadeToBlackEffect: 1
   blurEffect: 1
   hapticEffectHands: 1
+  hapticEffectFeet: 1
   geigerSoundEffect: 1
+  noiseSoundEffect: 1
   toleranceTimeHands: 1
   toleranceTimeFeet: 1
   toleranceTimeHead: 0.5
