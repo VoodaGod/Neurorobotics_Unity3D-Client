@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4260808973347434}
   - component: {fileID: 82331096165506654}
   m_Layer: 0
-  m_Name: AudioSourcePrefab
+  m_Name: GeigerAudioSourcePrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
