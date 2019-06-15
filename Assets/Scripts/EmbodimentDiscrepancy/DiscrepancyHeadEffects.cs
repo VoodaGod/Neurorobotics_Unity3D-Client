@@ -72,6 +72,14 @@ namespace EmbodimentDiscrepancy
 		{
 			superBlur.iterations = superBlurIterations;
 			superBlur.kernelSize = superBlurKernelsize;
+
+			StartCoroutine(ResetEffects()); //reset after each frame
+		}
+
+		IEnumerator ResetEffects(){
+			yield return new WaitForEndOfFrame();
+			FadeToBlack(0);
+			Blur(0);
 		}
 
 		public void FadeToBlack(Discrepancy disc)

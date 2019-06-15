@@ -119,15 +119,9 @@ namespace EmbodimentDiscrepancy
 					if (fadeToBlackEffect && disc.duration > toleranceTimeHead){
 						discrepancyHeadEffects.FadeToBlack(disc);
 					}
-					else{
-						discrepancyHeadEffects.FadeToBlack(distance: 0);
-					}
 					
 					if (blurEffect && disc.duration > toleranceTimeHead){
 						discrepancyHeadEffects.Blur(disc);
-					}
-					else{
-						discrepancyHeadEffects.Blur(distance: 0);
 					}
 				}
 			}
