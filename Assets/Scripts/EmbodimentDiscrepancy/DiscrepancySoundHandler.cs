@@ -208,6 +208,14 @@ namespace EmbodimentDiscrepancy
 			if (NoiseClip != noiseClipInspector){
 				NoiseClip = noiseClipInspector;
 			}
+			StartCoroutine(noiseResetVolume()); //reset noise volume to 0 after each frame
+		}
+
+		IEnumerator noiseResetVolume(){
+			yield return new WaitForEndOfFrame();
+			foreach (AudioSource audioSource in noiseAudioSourceDict.Values){
+				audioSource.volume = 0;	
+			}
 		}
 	}
 }
