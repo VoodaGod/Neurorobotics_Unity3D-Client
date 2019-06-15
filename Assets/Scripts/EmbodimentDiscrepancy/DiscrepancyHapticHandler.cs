@@ -41,6 +41,7 @@ namespace EmbodimentDiscrepancy
 			public bool sentOut;
 		}
 
+		//needs to be called every frame it should apply
 		public void HandleRumble(Discrepancy disc)
 		{
 			SteamVR_TrackedObject trackedObject;

@@ -19,10 +19,11 @@ namespace EmbodimentDiscrepancy
 		float thicknessMultiplier = 1;
 
 
+		//needs to be called every frame it should apply
 		public void DrawLine(Discrepancy disc){
 			DrawLine(joint: disc.joint, source: disc.simulatedPos, target: disc.trackedPos, distance: disc.distance);
 		}
-		public void DrawLine(TrackedJoint joint, Transform source, Transform target, float distance)
+		void DrawLine(TrackedJoint joint, Transform source, Transform target, float distance)
 		{
 			if (!lineDict.ContainsKey(joint))
 			{

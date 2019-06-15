@@ -134,6 +134,7 @@ namespace EmbodimentDiscrepancy
 		//!Noise
 
 
+		//needs to be called every frame it should apply
 		public void HandleNoise(Discrepancy disc)
 		{
 			//update AudioSources
@@ -155,6 +156,7 @@ namespace EmbodimentDiscrepancy
 			noiseAudioSourceDict[disc.joint].volume = Mathf.Lerp(0, 1, disc.distance / noiseDistanceToMaxVolume);
 		}
 
+		//needs to be called every frame it should apply
 		public void HandleGeigerSounds(Discrepancy disc)
 		{
 			//update AudioSources

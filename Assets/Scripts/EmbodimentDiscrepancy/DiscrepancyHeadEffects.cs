@@ -82,21 +82,23 @@ namespace EmbodimentDiscrepancy
 			Blur(0);
 		}
 
+		//needs to be called every frame it should apply
 		public void FadeToBlack(Discrepancy disc)
 		{
 			FadeToBlack(disc.distance);
 		}
-		public void FadeToBlack(float distance)
+		void FadeToBlack(float distance)
 		{
 			float alpha = distance / maxDistToBlack;
 			SteamVR_Fade.Start(newColor: new Color(0, 0, 0, alpha), duration: 0);
 		}
 
+		//needs to be called every frame it should apply
 		public void Blur(Discrepancy disc)
 		{
 			Blur(disc.distance);
 		}
-		public void Blur(float distance)
+		void Blur(float distance)
 		{
 			float strength = distance / maxDistToFullBlur;
 			superBlur.interpolation = strength;
