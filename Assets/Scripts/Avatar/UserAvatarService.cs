@@ -115,7 +115,7 @@ public class UserAvatarService : Singleton<UserAvatarService>
     {
         JSONNode json_model_info = model_info_msg.MsgJSON;
         string model_name = json_model_info["name"];
-        if (model_name.Contains(this.avatar_name))
+        if (this.avatar_name != null && model_name.Contains(this.avatar_name))
         {
             StartCoroutine(this.WaitForAvatarCreation());
         }
