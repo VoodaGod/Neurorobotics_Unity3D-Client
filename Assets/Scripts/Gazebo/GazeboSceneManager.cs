@@ -139,7 +139,7 @@ public class GazeboSceneManager : Singleton<GazeboSceneManager> {
 
     public void OnModelInfoMsg(GzModelInfoMsg model_info_msg)
     {
-        Debug.Log("GazeboSceneManager.OnModelInfoMsg: " + model_info_msg.ToString());
+        //Debug.Log("GazeboSceneManager.OnModelInfoMsg: " + model_info_msg.ToString());
 
         JSONNode json_model_info = model_info_msg.MsgJSON;
         this.SetModelFromJSON(json_model_info, this.models_parent.transform);
