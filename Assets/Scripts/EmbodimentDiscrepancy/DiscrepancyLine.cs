@@ -22,14 +22,14 @@ namespace EmbodimentDiscrepancy
 		// Update is called once per frame
 		void Update()
 		{
-
+			DrawLine();
 		}
 
 		public void DrawLine(Transform source, Transform target, float thickness)
 		{
 			lineRenderer.SetPosition(0, source.position);
 			lineRenderer.SetPosition(1, target.position);
-			lineRenderer.widthMultiplier = thickness;
+			lineRenderer.widthMultiplier = thickness; 
 			lineRenderer.enabled = true;
 		}
 
