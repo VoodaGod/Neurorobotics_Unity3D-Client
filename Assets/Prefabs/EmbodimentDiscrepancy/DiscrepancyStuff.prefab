@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 114290883029553302}
   - component: {fileID: 114044443808462562}
   - component: {fileID: 114769077413451680}
+  - component: {fileID: 114791900309768642}
   m_Layer: 0
   m_Name: DiscrepancyStuff
   m_TagString: Untagged
@@ -176,6 +177,26 @@ MonoBehaviour:
   ignoredModelSubstrings:
   - user_avatar
   interiorMaterial: {fileID: 2100000, guid: b5e6a1605b7ed43178287a8cb2a36a08, type: 2}
+--- !u!114 &114791900309768642
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1532938323012370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cc3c7b422b7f49bb9f2a7d4015b12bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gazeboSceneManager: {fileID: 0}
+  remoteUserAvatarSubstring: user_avatar
+  mat_maskOneZLess: {fileID: 2100000, guid: 5b5b8e502f52e444da472a3b1228fc4b, type: 2}
+  localUserAvatarMeshRenderers:
+  - {fileID: 0}
+  - {fileID: 0}
+  silhouetteColor: {r: 1, g: 0, b: 0, a: 1}
+  mat_silhouetteAlwaysVisible: {fileID: 2100000, guid: 74c3bea518fd44e0f91de5ccaceb3349,
+    type: 2}
 --- !u!114 &114849323811691562
 MonoBehaviour:
   m_ObjectHideFlags: 1
