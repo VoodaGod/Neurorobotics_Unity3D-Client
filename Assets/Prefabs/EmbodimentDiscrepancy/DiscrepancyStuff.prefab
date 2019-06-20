@@ -27,6 +27,7 @@ GameObject:
   - component: {fileID: 114044443808462562}
   - component: {fileID: 114769077413451680}
   - component: {fileID: 114791900309768642}
+  - component: {fileID: 114189237125418326}
   m_Layer: 0
   m_Name: DiscrepancyStuff
   m_TagString: Untagged
@@ -82,6 +83,23 @@ MonoBehaviour:
   noiseAudioSourcePrefab: {fileID: 82922678399478566, guid: 5d84d8afbf5dc4abbb497e1bd00ad17d,
     type: 2}
   noiseDistanceToMaxVolume: 1
+--- !u!114 &114189237125418326
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1532938323012370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1345efce8f6d43b5a1ced31d6b961c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  discrepancyIndicatorPrefab: {fileID: 114875802185532956, guid: 026aeb12a643a4cf88c5bfb073c36f65,
+    type: 2}
+  discrepancyIndicatorCanvasPrefab: {fileID: 223526190350274204, guid: 622f7f0b9e7a14f2386db4ea063a806c,
+    type: 2}
+  mainCamera: {fileID: 0}
+  pointsAt: 1
 --- !u!114 &114290883029553302
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -113,6 +131,7 @@ MonoBehaviour:
   discrepancyHeadEffects: {fileID: 0}
   discrepancyHapticHandler: {fileID: 0}
   discrepancySoundHandler: {fileID: 0}
+  discrepancyIndicatorHandler: {fileID: 0}
   leftHandTrackedObject: {fileID: 0}
   rightHandTrackedObject: {fileID: 0}
   leftFootTrackedObject: {fileID: 0}
@@ -126,6 +145,7 @@ MonoBehaviour:
   hapticEffectFeet: 1
   geigerSoundEffect: 1
   noiseSoundEffect: 1
+  discrepancyIndicatorEffect: 1
   toleranceTimeHands: 1
   toleranceTimeFeet: 1
   toleranceTimeHead: 0.5

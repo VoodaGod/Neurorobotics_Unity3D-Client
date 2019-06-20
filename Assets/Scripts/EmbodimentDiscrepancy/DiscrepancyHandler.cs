@@ -33,9 +33,14 @@ namespace EmbodimentDiscrepancy
 		[SerializeField]
 		[Tooltip("If not set, will be searched in scene")]
 		DiscrepancyHapticHandler discrepancyHapticHandler;
+
 		[SerializeField]
 		[Tooltip("If not set, will be searched in scene")]
 		DiscrepancySoundHandler discrepancySoundHandler;
+	
+		[SerializeField]
+		[Tooltip("If not set, will be searched in scene")]
+		DiscrepancyIndicatorHandler discrepancyIndicatorHandler;
 
 		[SerializeField]
 		SteamVR_TrackedObject leftHandTrackedObject, rightHandTrackedObject, leftFootTrackedObject, rightFootTrackedObject;
@@ -49,6 +54,7 @@ namespace EmbodimentDiscrepancy
 		public bool hapticEffectFeet = true;
 		public bool geigerSoundEffect = true;
 		public bool noiseSoundEffect = true;
+		public bool discrepancyIndicatorEffect = true;
 
 		[SerializeField]
 		[Tooltip("seconds before discrepancy is handled")]
@@ -96,6 +102,9 @@ namespace EmbodimentDiscrepancy
 					if (noiseSoundEffect){
 						discrepancySoundHandler.HandleNoise(disc);
 					}
+					if (discrepancyIndicatorEffect){
+						discrepancyIndicatorHandler.HandleDiscrepancy(disc);
+					}
 				}
 
 				if (disc.joint == TrackedJoint.FootLeft || disc.joint == TrackedJoint.FootRight)
@@ -112,6 +121,9 @@ namespace EmbodimentDiscrepancy
 					if (noiseSoundEffect){
 						discrepancySoundHandler.HandleNoise(disc);
 					}
+					if (discrepancyIndicatorEffect){
+						discrepancyIndicatorHandler.HandleDiscrepancy(disc);
+					}
 				}
 
 				if (disc.joint == TrackedJoint.Head)
@@ -125,7 +137,7 @@ namespace EmbodimentDiscrepancy
 					}
 				}
 			}
-			discrepancyList.Clear();
+			discrepancyList.Clear(); //all discrepancies handled, clear for next frame
 		}
 
 		// Use this for initialization
@@ -160,6 +172,14 @@ namespace EmbodimentDiscrepancy
 				discrepancySoundHandler = GameObject.FindObjectOfType<DiscrepancySoundHandler>();
 				if (discrepancySoundHandler == null){
 					Debug.LogError("no DiscrepancySoundHandler found");
+				}
+			}
+
+			if (discrepancyIndicatorHandler== null)
+			{
+				discrepancyIndicatorHandler = GameObject.FindObjectOfType<DiscrepancyIndicatorHandler>();
+				if (discrepancyIndicatorHandler == null){
+					Debug.LogError("no DiscrepancyIndicatorHandler found");
 				}
 			}
 
