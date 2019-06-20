@@ -1,6 +1,6 @@
 ﻿// adapted from https://www.youtube.com/watch?v=EthjeNeNTsM
 
-Shader "Embodiment/SilhouetteAlwaysVisible"
+Shader "Embodiment/SilhouetteBehindObjects"
 {
 	Properties
 	{

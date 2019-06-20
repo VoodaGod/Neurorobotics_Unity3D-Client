@@ -7,6 +7,9 @@ public class InteriorRenderingHandler : MonoBehaviour {
 	[SerializeField]
 	[Tooltip("If not set, will be searched in scene")]
 	GazeboSceneManager gazeboSceneManager;
+	
+	[SerializeField]
+	[Tooltip("if gazeboSceneManager's models_parent object changes, this needs to be updated by setting ModelsParent property")]
 	private Transform modelsParent;
 	public Transform ModelsParent
 	{

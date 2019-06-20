@@ -13,7 +13,7 @@ public class UserAvatarSilhouetteHandler : MonoBehaviour {
 	string remoteUserAvatarSubstring = "user_avatar";
 
 	[SerializeField]
-	[Tooltip("set to Materials/Embodiment/MaskOneZLess")]
+	[Tooltip("set to Materials&Shaders/MaskOneZLess")]
 	Material mat_maskOneZLess; //sets stencil buffer to 1 behind object
 
 
@@ -25,8 +25,8 @@ public class UserAvatarSilhouetteHandler : MonoBehaviour {
 	Color silhouetteColor = Color.red;
 	
 	[SerializeField]
-	[Tooltip("set to Materials/Embodiment/SilhouetteAlwaysVisible")]
-	Material mat_silhouetteAlwaysVisible; //always renders silhouetteColor when behind any object unless an object set the stencilbuffer to 1
+	[Tooltip("set to Materials&Shaders/SilhouetteBehindObjects")]
+	Material mat_silhouette; //always renders silhouetteColor when behind any object unless an object set the stencilbuffer to 1
 
 	List<Material> materialInstances = new List<Material>();
 
@@ -45,7 +45,7 @@ public class UserAvatarSilhouetteHandler : MonoBehaviour {
 			Debug.LogError("not all localUserAvatarMeshRenderers set");
 		}
 
-		if (mat_silhouetteAlwaysVisible == null){
+		if (mat_silhouette == null){
 			Debug.LogError("silhouetteAlwaysVisible Material not set");
 		}
 
@@ -57,7 +57,7 @@ public class UserAvatarSilhouetteHandler : MonoBehaviour {
 		foreach (SkinnedMeshRenderer renderer in localUserAvatarMeshRenderers)
 		{
 			var materials = new List<Material>(renderer.materials);
-			Material newMat = Instantiate(mat_silhouetteAlwaysVisible);
+			Material newMat = Instantiate(mat_silhouette);
 			materials.Add(newMat);
 			renderer.materials = materials.ToArray();
 			//get reference to material instance
@@ -74,7 +74,7 @@ public class UserAvatarSilhouetteHandler : MonoBehaviour {
 			mat.color = silhouetteColor;
 		}
 
-		//set masking material to all meshRenderers of remoteUserAvatar object so that localUserAvatar doesn't shine through it
+		//set masking material to all meshRenderers of remote userAvatar object so that local userAvatar doesn't shine through it
 		if (!addedMaskToRemoteUserAvatar && gazeboSceneManager.Models_parent != null)
 		{
 			foreach (Transform child in gazeboSceneManager.Models_parent.transform)

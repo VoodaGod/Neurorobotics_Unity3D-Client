@@ -61,7 +61,7 @@ namespace EmbodimentDiscrepancy
 		List<AudioClip> geigerClickClips = new List<AudioClip>();
 
 		[SerializeField]
-		[Tooltip("set to Prefabs/EmbodimentDiscrepancy/GeigerAudioSourcePrefab")]
+		[Tooltip("set to Prefabs/GeigerAudioSourcePrefab")]
 		AudioSource geigerAudioSourcePrefab;
 
 		[SerializeField]
@@ -123,7 +123,7 @@ namespace EmbodimentDiscrepancy
 		}
 
 		[SerializeField]
-		[Tooltip("set to Prefabs/EmbodimentDiscrepancy/NoiseAudioSourcePrefab")]
+		[Tooltip("set to Prefabs/NoiseAudioSourcePrefab")]
 		AudioSource noiseAudioSourcePrefab;
 
 		Dictionary<TrackedJoint, AudioSource> noiseAudioSourceDict = new Dictionary<TrackedJoint, AudioSource>();

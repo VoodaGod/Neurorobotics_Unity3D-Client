@@ -8,7 +8,7 @@ namespace EmbodimentDiscrepancy
 	{
 
 		[SerializeField]
-		[Tooltip("set to Prefabs/Embodiment/DiscrepancyLine prefab")]
+		[Tooltip("set to Prefabs/DiscrepancyLinePrefab")]
 		DiscrepancyLine DiscrepancyLinePrefab;
 
 		Dictionary<TrackedJoint, DiscrepancyLine> lineDict = new Dictionary<TrackedJoint, DiscrepancyLine>();

@@ -6,26 +6,27 @@ namespace EmbodimentDiscrepancy
 {
 	public class DiscrepancyIndicatorHandler : MonoBehaviour
 	{
-		public enum PointsAt
+		enum PointsAt
 		{
 			trackedPos,
 			simulatedPos
 		}
 
 		[SerializeField]
-		[Tooltip("set to Prefabs/EmbodimentDiscrepancy/DiscrepancyIndicatorPrefab")]
+		[Tooltip("where the indicators should point to")]
+		PointsAt pointsAt = PointsAt.simulatedPos;
+
+		[SerializeField]
+		[Tooltip("set to Prefabs/DiscrepancyIndicatorPrefab")]
 		DiscrepancyIndicator discrepancyIndicatorPrefab;
 
 		[SerializeField]
-		[Tooltip("set to Prefabs/EmbodimentDiscrepancy/DiscrepancyIndicatorCanvasPrefab")]
+		[Tooltip("set to Prefabs/DiscrepancyIndicatorCanvasPrefab")]
 		Canvas discrepancyIndicatorCanvasPrefab;
 
 		[SerializeField]
-		[Tooltip("set to Camera (eye) (or the SteamVR_Cam)")]
+		[Tooltip("set to main Camera (probably Camera (eye)), indicator canvas will be added as child to this")]
 		GameObject mainCamera;
-
-		[SerializeField]
-		PointsAt pointsAt = PointsAt.simulatedPos;
 
 		Canvas discrepancyIndicatorCanvas;
 		Dictionary<TrackedJoint, DiscrepancyIndicator> discrepancyIndicatorDict = new Dictionary<TrackedJoint, DiscrepancyIndicator>();
