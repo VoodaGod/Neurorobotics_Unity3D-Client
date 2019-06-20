@@ -13,10 +13,14 @@ public class UserAvatarSilhouetteHandler : MonoBehaviour {
 	string remoteUserAvatarSubstring = "user_avatar";
 
 	[SerializeField]
-	[Tooltip("set to Materials&Shaders/MaskOneZLess")]
-	Material mat_maskOneZLess; //sets stencil buffer to 1 behind object
+	[Tooltip("set to Materials&Shaders/SetStencilZLess, stencil should be same as in mat_silhouette")]
+	Material mat_setStencil; //sets stencil buffer behind object
 
 
+	[SerializeField]
+	[Tooltip("set to Materials&Shaders/SilhouetteBehindObjects, stencil should be same as in mat_setStencil")]
+	Material mat_silhouette; //always renders silhouetteColor when behind any object unless an object set the stencilbuffer
+	
 	[SerializeField]
 	[Tooltip("set to MeshRenderers (surface & joints) of local user avatar")]
 	List<SkinnedMeshRenderer> localUserAvatarMeshRenderers;
@@ -24,9 +28,6 @@ public class UserAvatarSilhouetteHandler : MonoBehaviour {
 	[SerializeField]
 	Color silhouetteColor = Color.red;
 	
-	[SerializeField]
-	[Tooltip("set to Materials&Shaders/SilhouetteBehindObjects")]
-	Material mat_silhouette; //always renders silhouetteColor when behind any object unless an object set the stencilbuffer to 1
 
 	List<Material> materialInstances = new List<Material>();
 
@@ -49,7 +50,7 @@ public class UserAvatarSilhouetteHandler : MonoBehaviour {
 			Debug.LogError("silhouetteAlwaysVisible Material not set");
 		}
 
-		if (mat_maskOneZLess == null){
+		if (mat_setStencil == null){
 			Debug.LogError("maskOneZLess material not set");
 		}
 
@@ -84,7 +85,7 @@ public class UserAvatarSilhouetteHandler : MonoBehaviour {
 					foreach (MeshRenderer entry in meshRenderers)
 					{
 						var materials = new List<Material>(entry.materials);
-						materials.Add(mat_maskOneZLess);
+						materials.Add(mat_setStencil);
 						entry.materials = materials.ToArray();
 					}
 					addedMaskToRemoteUserAvatar = true;

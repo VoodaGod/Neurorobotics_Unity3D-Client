@@ -211,12 +211,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gazeboSceneManager: {fileID: 0}
   remoteUserAvatarSubstring: user_avatar
-  mat_maskOneZLess: {fileID: 2100000, guid: 5b5b8e502f52e444da472a3b1228fc4b, type: 2}
+  mat_setStencil: {fileID: 2100000, guid: 5b5b8e502f52e444da472a3b1228fc4b, type: 2}
+  mat_silhouette: {fileID: 2100000, guid: 74c3bea518fd44e0f91de5ccaceb3349, type: 2}
   localUserAvatarMeshRenderers:
   - {fileID: 0}
   - {fileID: 0}
   silhouetteColor: {r: 1, g: 0, b: 0, a: 1}
-  mat_silhouette: {fileID: 2100000, guid: 74c3bea518fd44e0f91de5ccaceb3349, type: 2}
 --- !u!114 &114849323811691562
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -5,15 +5,16 @@ Shader "Embodiment/SilhouetteBehindObjects"
 	Properties
 	{
 		_Color ("Silhouette color", Color) = (0,0,0,0)
+         _Stencil ("if this stencil set, don't draw", Float) = 0	
 	}
 	SubShader
 	{
 		Tags { "RenderType"="Transparent" }
 		LOD 100
 
-		Stencil //if stencil is 1, don't do anything
+		Stencil //if stencil is _Stencil, don't do anything
 		{
-			Ref 1
+			Ref [_Stencil]
 			Comp notequal
 			Pass keep
 		}

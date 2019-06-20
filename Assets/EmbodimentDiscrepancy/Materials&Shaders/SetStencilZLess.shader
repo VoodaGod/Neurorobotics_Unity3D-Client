@@ -1,9 +1,14 @@
-﻿//from: https://github.com/PushyPixels/BreakfastWithUnity/blob/master/Assets/54StencilBufferShader/Shaders/MaskOneZLess.shader
+﻿//adapted from: https://github.com/PushyPixels/BreakfastWithUnity/blob/master/Assets/54StencilBufferShader/Shaders/MaskOneZLess.shader
 
 // Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Embodiment/Stencil/Mask OneZLess"
+Shader "Embodiment/Stencil/SetStencilZLess"
 {
+	Properties
+	{
+        _Stencil ("Stencil ID", Float) = 1
+	}
+
     SubShader
     {
         Tags { "RenderType"="Opaque" "Queue"="Geometry-1" }
