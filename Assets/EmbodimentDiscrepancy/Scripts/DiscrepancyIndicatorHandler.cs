@@ -35,8 +35,10 @@ namespace EmbodimentDiscrepancy
 		public void HandleDiscrepancy(Discrepancy disc)
 		{
 			if (!discrepancyIndicatorDict.ContainsKey(disc.joint)){
-				discrepancyIndicatorDict[disc.joint] = Instantiate(discrepancyIndicatorPrefab);
-				discrepancyIndicatorDict[disc.joint].transform.SetParent(discrepancyIndicatorCanvas.transform, false);
+				DiscrepancyIndicator discrepancyIndicator = Instantiate(discrepancyIndicatorPrefab);
+				discrepancyIndicator.transform.SetParent(discrepancyIndicatorCanvas.transform, false);
+				discrepancyIndicator.cam = mainCamera.transform;
+				discrepancyIndicatorDict[disc.joint] = discrepancyIndicator;
 			}
 
 			if (pointsAt == PointsAt.simulatedPos){
