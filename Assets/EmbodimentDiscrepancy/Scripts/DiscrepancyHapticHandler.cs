@@ -8,23 +8,27 @@ namespace EmbodimentDiscrepancy
 	{
 		[SerializeField]
 		[Tooltip("how many rumble pulses can be sent out per second")]
+        [Range(1,20)]
 		int maxRumblesPerSecond = 10;
 		
 		[SerializeField]
 		[Tooltip("seconds after which maxRumblesPerSecond is reached")]
+        [Range(0.1f, 10)]
 		float maxRumblesTime = 5;
 
 		[SerializeField]
 		[Tooltip("maximum pulse length in seconds")]
+        [Range(0, 1)]
 		float maxRumblePulseDuration = 0.1f;
 
 		[SerializeField]
 		[Tooltip("distance at which maxRumblePulseDuration is reached")]
+        [Range(0.1f, 2)]
 		float maxRumblePulseDistance = 1;
 
 		[SerializeField]
 		[Tooltip("strength of each pulse")]
-		[Range(0,1)]
+		[Range(0, 1)]
 		float pulseStrength = 1;
 
 		Dictionary<TrackedJoint, SteamVR_TrackedObject> trackedObjectDict = new Dictionary<TrackedJoint, SteamVR_TrackedObject>();
@@ -38,7 +42,7 @@ namespace EmbodimentDiscrepancy
 			public int trackedObjectIndex;
 			public float timeTillNextPulse;
 			public float pulseLength;
-			public bool sentOut;
+			public bool sentOut = true;
 		}
 
 		//needs to be called every frame it should apply
@@ -75,7 +79,7 @@ namespace EmbodimentDiscrepancy
 				rumble.pulseLength = (Mathf.Lerp(0, 1, disc.distance / maxRumblePulseDistance) * (maxRumblePulseDuration));
 				//frequency of pulses dependant on duration of discrepancy
 				//longer discrepancy -> more frequent pulses
-				rumble.timeTillNextPulse = Mathf.Lerp(0, 1, disc.duration / maxRumblesTime) * (1 / maxRumblesPerSecond);
+				rumble.timeTillNextPulse = (1.0f / Mathf.Lerp(0, 1, disc.duration / maxRumblesTime)) * (1.0f / maxRumblesPerSecond);
 				rumble.sentOut = false;
 			}
 		}
@@ -83,11 +87,14 @@ namespace EmbodimentDiscrepancy
 		//adapted from https://steamcommunity.com/app/358720/discussions/0/405693392914144440/#c357284767229628161
 		//length is how long the vibration should go for
 		//strength is vibration strength from 0-1
-		IEnumerator LongVibration(float length, float strength, int trackedObjectIndex) {
-			for(float i = 0; i < length; i += Time.deltaTime) {
-				SteamVR_Controller.Input((int)trackedObjectIndex).TriggerHapticPulse((ushort)Mathf.Lerp(0, 3999, strength));
+        IEnumerator LongVibration(Rumble rumble)
+        {
+			for(float i = 0; i < rumble.pulseLength; i += Time.deltaTime)
+            {
+				SteamVR_Controller.Input((int)rumble.trackedObjectIndex).TriggerHapticPulse((ushort)Mathf.Lerp(0, 3999, pulseStrength));
 				yield return null;
 			}
+            rumble.sentOut = true;
 		}
 
 		public void SetTrackedObjectForJoint(TrackedJoint joint, SteamVR_TrackedObject trackedObject){
@@ -101,8 +108,7 @@ namespace EmbodimentDiscrepancy
 				//send out pulse
 				if (!rumble.sentOut){
 					//SteamVR_Controller.Input(rumble.trackedObjectIndex).TriggerHapticPulse((ushort)rumble.pulseLength);
-					StartCoroutine(LongVibration(rumble.pulseLength, pulseStrength, rumble.trackedObjectIndex));
-					rumble.sentOut = true;
+					StartCoroutine(LongVibration(rumble));
 				}
 				//update timer
 				rumble.timeTillNextPulse -= Time.deltaTime;

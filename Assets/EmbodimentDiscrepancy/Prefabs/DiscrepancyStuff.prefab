@@ -113,9 +113,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxRumblesPerSecond: 10
   maxRumblesTime: 5
-  maxRumblePulseDuration: 0.1
+  maxRumblePulseDuration: 0.03
   maxRumblePulseDistance: 1
-  pulseStrength: 1
+  pulseStrength: 0.25
 --- !u!114 &114685663001576196
 MonoBehaviour:
   m_ObjectHideFlags: 1
