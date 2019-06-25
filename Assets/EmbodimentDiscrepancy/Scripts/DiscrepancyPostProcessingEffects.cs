@@ -40,10 +40,14 @@ namespace EmbodimentDiscrepancy
 		[Tooltip("time over which to smooth sudden jump from 0 after tolerance time is reached")]
 		float smoothingTime = 1;
 
+
 		PostProcessVolume postProcessVolume;
 
 		ColorGrading colorGradingSetting;
 		float curMaxDiscrepancyDistance = 0; //store the highest distance of all discrepancies, reset after frame
+		float prevMaxDiscrepancyDistance = 0;
+		bool isSmoothing = false;
+
 
 		public void HandleColorShift(Discrepancy disc)
 		{
@@ -75,7 +79,7 @@ namespace EmbodimentDiscrepancy
 			if (!gotSetting){
 				Debug.LogError("no colorgrading setting found");
 			}
-			setColorShift(0);
+			SetColorShift(0);
 		}
 
 		IEnumerator ResetAfterFrame(){
@@ -84,7 +88,7 @@ namespace EmbodimentDiscrepancy
 		}
 
 
-		void setColorShift(float distance)
+		void SetColorShift(float distance)
 		{
 			//hueshift goes from -180 to 180, 0 is neutral, 180 wraps to -180.
 			float newShift = Mathf.Lerp(0, maxShiftDegrees, distance / distToFullColorShift);
@@ -95,20 +99,19 @@ namespace EmbodimentDiscrepancy
 			colorGradingSetting.hueShift.value = newShift;
 		}
 
-		bool isSmoothing = false;
 		IEnumerator SmoothAdjust(float time)
 		{
 			isSmoothing = true;
 			while (time > 0)
 			{
 				float smoothedDistance = Mathf.Lerp(curMaxDiscrepancyDistance, 0, time -= Time.deltaTime);
-				setColorShift(smoothedDistance);
+				SetColorShift(smoothedDistance);
 				yield return null;
 			}
 			isSmoothing = false;
 		}
 
-		float prevMaxDiscrepancyDistance = 0;
+		//handle everything after all Updates done, to make sure Handle*() functions called before
 		void LateUpdate()
 		{
 			if (curMaxDiscrepancyDistance > 0)
@@ -118,11 +121,12 @@ namespace EmbodimentDiscrepancy
 					StartCoroutine(SmoothAdjust(smoothingTime));
 				}
 				if (!isSmoothing){ //after smoothing set directly
-					setColorShift(curMaxDiscrepancyDistance);
+					SetColorShift(curMaxDiscrepancyDistance);
 				}
-				StartCoroutine(ResetAfterFrame());
 			}
 			prevMaxDiscrepancyDistance = curMaxDiscrepancyDistance;
+			
+			StartCoroutine(ResetAfterFrame());
 		}
 	}
 }

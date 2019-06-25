@@ -40,6 +40,15 @@ namespace EmbodimentDiscrepancy
 		[Tooltip("set to SuperBlur/Material/SuperBlurUI material")]
 		Material superBlurUIMaterial;
 
+
+		float curFadeToBlackDist = 0;
+		float curBlurDist = 0;
+		float prevBlurDist = 0;
+		float prevFadeToBlackDist = 0;
+		bool isSmoothingFade = false;
+		bool isSmoothingBlur = false;
+
+
 		void Start()
 		{
 			if (steamvrCam == null)
@@ -68,40 +77,95 @@ namespace EmbodimentDiscrepancy
 			superBlur.UIMaterial = superBlurUIMaterial;
 		}
 
-		void Update()
+		
+		//handle everything after all Updates done, to make sure Handle*() functions called before
+		void LateUpdate()
 		{
 			superBlur.iterations = superBlurIterations;
 			superBlur.kernelSize = superBlurKernelsize;
 
-			StartCoroutine(ResetEffects()); //reset after each frame
+			if (curFadeToBlackDist > 0)
+			{
+				//smooth out initial distance jump after tolerance timer reached
+				if (prevFadeToBlackDist == 0 && !isSmoothingFade){
+					StartCoroutine(FadeSmoothing(1f));
+				}
+				if (!isSmoothingFade){
+					SetFade(curFadeToBlackDist); //after smoothing set directly
+				}
+			}	
+			prevFadeToBlackDist = curFadeToBlackDist;
+
+			if (curBlurDist > 0)
+			{
+				//smooth out initial distance jump after tolerance timer reached
+				if (prevBlurDist == 0 && !isSmoothingBlur){
+					StartCoroutine(BlurSmoothing(1f));
+				}
+				if (!isSmoothingBlur){
+					SetBlur(curBlurDist); //after smoothing set directly
+				}
+			}
+			prevBlurDist = curBlurDist;
+
+			StartCoroutine(ResetAfterFrame()); //reset after each frame
 		}
 
-		IEnumerator ResetEffects(){
+		IEnumerator ResetAfterFrame(){
 			yield return new WaitForEndOfFrame();
-			FadeToBlack(0);
-			Blur(0);
+			curFadeToBlackDist = 0;
+			SetFade(0);
+			curBlurDist = 0;
+			SetBlur(0);
+		}
+		
+		
+		//needs to be called every frame it should apply
+		public void HandleFade(Discrepancy disc)
+		{
+			curFadeToBlackDist = disc.distance;
 		}
 
-		//needs to be called every frame it should apply
-		public void FadeToBlack(Discrepancy disc)
-		{
-			FadeToBlack(disc.distance);
-		}
-		void FadeToBlack(float distance)
+		void SetFade(float distance)
 		{
 			float alpha = distance / maxDistToBlack;
 			SteamVR_Fade.Start(newColor: new Color(0, 0, 0, alpha), duration: 0);
 		}
 
-		//needs to be called every frame it should apply
-		public void Blur(Discrepancy disc)
+		IEnumerator FadeSmoothing(float time)
 		{
-			Blur(disc.distance);
+			isSmoothingFade = true;
+			while (time > 0)
+			{
+				float smoothedDistance = Mathf.Lerp(curFadeToBlackDist, 0, time -= Time.deltaTime);
+				SetFade(smoothedDistance);
+				yield return null;
+			}
+			isSmoothingFade = false;
 		}
-		void Blur(float distance)
+
+
+		//needs to be called every frame it should apply
+		public void HandleBlur(Discrepancy disc)
+		{
+			curBlurDist = disc.distance;
+		}
+		void SetBlur(float distance)
 		{
 			float strength = distance / maxDistToFullBlur;
 			superBlur.interpolation = strength;
+		}
+
+		IEnumerator BlurSmoothing(float time)
+		{
+			isSmoothingBlur = true;
+			while (time > 0)
+			{
+				float smoothedDistance = Mathf.Lerp(curBlurDist, 0, time -= Time.deltaTime);
+				SetBlur(smoothedDistance);
+				yield return null;
+			}
+			isSmoothingBlur = false;
 		}
 	}
 }

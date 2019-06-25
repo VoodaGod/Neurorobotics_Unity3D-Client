@@ -143,11 +143,11 @@ namespace EmbodimentDiscrepancy
 				if (disc.joint == TrackedJoint.Head)
 				{
 					if (fadeToBlackEffect && disc.duration > toleranceTimeHead){
-						discrepancyHeadEffects.FadeToBlack(disc);
+						discrepancyHeadEffects.HandleFade(disc);
 					}
 					
 					if (blurEffect && disc.duration > toleranceTimeHead){
-						discrepancyHeadEffects.Blur(disc);
+						discrepancyHeadEffects.HandleBlur(disc);
 					}
 				}
 			}
