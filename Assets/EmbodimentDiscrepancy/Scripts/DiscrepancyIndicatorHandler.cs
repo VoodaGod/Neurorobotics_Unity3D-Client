@@ -28,24 +28,49 @@ namespace EmbodimentDiscrepancy
 		[Tooltip("set to main Camera (probably Camera (eye)), indicator canvas will be added as child to this")]
 		GameObject mainCamera;
 
+		[SerializeField]
+		[Tooltip("only show indicators if pointed at position is visible to camera")]
+		bool hideIndicatorsWhenTargetInView = true;
+
+		[SerializeField]
+		[Tooltip("how far into view target must be to hide indicator, 0 is outer edge, 0.5 is center of view")]
+		[Range(0, 0.5f)]
+		float inViewPortOffset = 0.2f;
+
 		Canvas discrepancyIndicatorCanvas;
 		Dictionary<TrackedJoint, DiscrepancyIndicator> discrepancyIndicatorDict = new Dictionary<TrackedJoint, DiscrepancyIndicator>();
 
 
+		//called every frame when discrepancy should be handled
 		public void HandleDiscrepancy(Discrepancy disc)
 		{
 			if (!discrepancyIndicatorDict.ContainsKey(disc.joint)){
 				DiscrepancyIndicator discrepancyIndicator = Instantiate(discrepancyIndicatorPrefab);
 				discrepancyIndicator.transform.SetParent(discrepancyIndicatorCanvas.transform, false);
-				discrepancyIndicator.cam = mainCamera.transform;
+				discrepancyIndicator.cam = mainCamera.transform;		
 				discrepancyIndicatorDict[disc.joint] = discrepancyIndicator;
 			}
 
+			Transform target = null;
 			if (pointsAt == PointsAt.simulatedPos){
-				discrepancyIndicatorDict[disc.joint].PointAtTarget(disc.simulatedPos);
+				target = disc.simulatedPos;
 			}
 			else if (pointsAt == PointsAt.trackedPos){
-				discrepancyIndicatorDict[disc.joint].PointAtTarget(disc.trackedPos);
+				target = disc.trackedPos;
+			}
+
+			bool targetInView = false;
+			if (hideIndicatorsWhenTargetInView)
+			{
+				Vector3 viewPortPos = mainCamera.GetComponent<Camera>().WorldToViewportPoint(target.position);
+				float upperInViewPortBound = 1 - inViewPortOffset;
+				float lowerInViewPortBound = 0 + inViewPortOffset;
+				if (viewPortPos.x >= lowerInViewPortBound && viewPortPos.x <= upperInViewPortBound && viewPortPos.y >= lowerInViewPortBound && viewPortPos.y <= upperInViewPortBound && viewPortPos.z > 0){
+					targetInView = true;
+				}
+			}
+			if (!targetInView || !hideIndicatorsWhenTargetInView){
+				discrepancyIndicatorDict[disc.joint].PointAtTarget(disc.simulatedPos);
 			}
 		}
 

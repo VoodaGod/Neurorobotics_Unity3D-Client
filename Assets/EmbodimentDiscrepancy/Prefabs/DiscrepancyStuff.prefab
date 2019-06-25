@@ -25,9 +25,9 @@ GameObject:
   - component: {fileID: 114714794701735920}
   - component: {fileID: 114290883029553302}
   - component: {fileID: 114044443808462562}
+  - component: {fileID: 114189237125418326}
   - component: {fileID: 114769077413451680}
   - component: {fileID: 114791900309768642}
-  - component: {fileID: 114189237125418326}
   m_Layer: 0
   m_Name: DiscrepancyStuff
   m_TagString: Untagged
