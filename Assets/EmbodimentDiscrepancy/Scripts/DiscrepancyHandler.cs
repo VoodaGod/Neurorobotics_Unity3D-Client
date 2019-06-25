@@ -61,6 +61,10 @@ namespace EmbodimentDiscrepancy
 		public bool discrepancyIndicatorEffectFeet = true;
 		public bool colorShiftEffectHands = true;
 		public bool colorShiftEffectFeet = true;
+		public bool colorShiftEffectHead = true;
+		public bool desaturationEffectHands = true;
+		public bool desaturationEffectFeet = true;
+		public bool desaturationEffectHead = true;
 		public bool blurEffect = true;
 		public bool fadeToBlackEffect = true;
 
@@ -116,6 +120,9 @@ namespace EmbodimentDiscrepancy
 					if (colorShiftEffectHands && (disc.duration > toleranceTimeHands)){
 						discrepancyPostProcessingEffects.HandleColorShift(disc);
 					}
+					if (desaturationEffectHands && (disc.duration > toleranceTimeHands)){
+						discrepancyPostProcessingEffects.HanldeDesaturation(disc);
+					}
 				}
 
 				if (disc.joint == TrackedJoint.FootLeft || disc.joint == TrackedJoint.FootRight)
@@ -132,22 +139,30 @@ namespace EmbodimentDiscrepancy
 					if (noiseSoundEffectFeet){
 						discrepancySoundHandler.HandleNoise(disc);
 					}
-					if (discrepancyIndicatorEffectFeet && disc.duration > toleranceTimeFeet){
+					if (discrepancyIndicatorEffectFeet && (disc.duration > toleranceTimeFeet)){
 						discrepancyIndicatorHandler.HandleIndicator(disc);
 					}
-					if (colorShiftEffectFeet && disc.duration > toleranceTimeFeet){
+					if (colorShiftEffectFeet && (disc.duration > toleranceTimeFeet)){
 						discrepancyPostProcessingEffects.HandleColorShift(disc);
+					}
+					if (desaturationEffectFeet && (disc.duration > toleranceTimeFeet)){
+						discrepancyPostProcessingEffects.HanldeDesaturation(disc);
 					}
 				}
 
 				if (disc.joint == TrackedJoint.Head)
 				{
-					if (fadeToBlackEffect && disc.duration > toleranceTimeHead){
+					if (fadeToBlackEffect && (disc.duration > toleranceTimeHead)){
 						discrepancyHeadEffects.HandleFade(disc);
 					}
-					
-					if (blurEffect && disc.duration > toleranceTimeHead){
+					if (blurEffect && (disc.duration > toleranceTimeHead)){
 						discrepancyHeadEffects.HandleBlur(disc);
+					}
+					if (colorShiftEffectHead && (disc.duration > toleranceTimeHead)){
+						discrepancyPostProcessingEffects.HandleColorShift(disc);
+					}
+					if (desaturationEffectHead && (disc.duration > toleranceTimeHead)){
+						discrepancyPostProcessingEffects.HanldeDesaturation(disc);
 					}
 				}
 			}

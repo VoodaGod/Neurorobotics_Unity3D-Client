@@ -139,6 +139,8 @@ MonoBehaviour:
   postProcessLayerName: PostProcessing
   distToFullColorShift: 2
   maxShiftDegrees: 300
+  distToFullDesaturation: 2
+  maxDesaturation: -100
   smoothingTime: 1
 --- !u!114 &114685663001576196
 MonoBehaviour:
@@ -173,6 +175,10 @@ MonoBehaviour:
   discrepancyIndicatorEffectFeet: 1
   colorShiftEffectHands: 1
   colorShiftEffectFeet: 0
+  colorShiftEffectHead: 0
+  desaturationEffectHands: 1
+  desaturationEffectFeet: 0
+  desaturationEffectHead: 0
   blurEffect: 1
   fadeToBlackEffect: 1
   toleranceTimeHands: 1

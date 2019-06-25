@@ -37,6 +37,15 @@ namespace EmbodimentDiscrepancy
 		int maxShiftDegrees = 300;
 
 		[SerializeField]
+		[Tooltip("distance at which full desaturation is reached")]
+		float distToFullDesaturation = 2;
+
+		[SerializeField]
+		[Range(0, -100)]
+		[Tooltip("maximum desaturation amount")]
+		float maxDesaturation = -100;
+
+		[SerializeField]
 		[Tooltip("time over which to smooth sudden jump from 0 after tolerance time is reached")]
 		float smoothingTime = 1;
 
@@ -44,18 +53,31 @@ namespace EmbodimentDiscrepancy
 		PostProcessVolume postProcessVolume;
 
 		ColorGrading colorGradingSetting;
-		float curMaxDiscrepancyDistance = 0; //store the highest distance of all discrepancies, reset after frame
-		float prevMaxDiscrepancyDistance = 0;
-		bool isSmoothing = false;
+		
+		float curMaxDiscrepancyDistanceColorShift = 0; //store the highest distance of all discrepancies, reset after frame
+		float prevMaxDiscrepancyDistanceColorShift = 0;
+		bool isSmoothingColorShift = false;
+		float curMaxDiscrepancyDistanceDesaturation = 0;
+		float prevMaxDiscrepancyDistanceDesaturation = 0;
+		bool isSmoothingDesaturation = false;
 
 
 		public void HandleColorShift(Discrepancy disc)
 		{
 			//effect will be based on largest discrepancy -> store the highest distance
-			if (disc.distance > curMaxDiscrepancyDistance){
-				curMaxDiscrepancyDistance = disc.distance;
+			if (disc.distance > curMaxDiscrepancyDistanceColorShift){
+				curMaxDiscrepancyDistanceColorShift = disc.distance;
 			}
 		}
+
+		public void HanldeDesaturation(Discrepancy disc)
+		{
+			//effect will be based on largest discrepancy -> store the highest distance
+			if (disc.distance > curMaxDiscrepancyDistanceDesaturation){
+				curMaxDiscrepancyDistanceDesaturation = disc.distance;
+			}
+		}
+
 
 		void Start()
 		{
@@ -74,8 +96,7 @@ namespace EmbodimentDiscrepancy
 			postProcessVolume.gameObject.layer = LayerMask.NameToLayer(postProcessLayerName);
 			postProcessVolume.profile = postProcessProfileAsset;
 
-			bool gotSetting = false;
-			gotSetting = postProcessVolume.profile.TryGetSettings<ColorGrading>(out colorGradingSetting);
+			bool gotSetting = postProcessVolume.profile.TryGetSettings<ColorGrading>(out colorGradingSetting);
 			if (!gotSetting){
 				Debug.LogError("no colorgrading setting found");
 			}
@@ -84,7 +105,28 @@ namespace EmbodimentDiscrepancy
 
 		IEnumerator ResetAfterFrame(){
 			yield return new WaitForEndOfFrame();
-			curMaxDiscrepancyDistance = 0;
+			curMaxDiscrepancyDistanceColorShift = 0;
+			curMaxDiscrepancyDistanceDesaturation = 0;
+		}
+
+
+		void SetDesaturation(float distance)
+		{
+			float newSat = Mathf.Lerp(0, -100, distance / distToFullDesaturation);
+			colorGradingSetting.saturation.overrideState = true;
+			colorGradingSetting.saturation.value = newSat;
+		}
+
+		IEnumerator SmoothAdjustDesaturation(float time)
+		{
+			isSmoothingDesaturation = true;
+			while (time > 0)
+			{
+				float smoothedDistance = Mathf.Lerp(curMaxDiscrepancyDistanceDesaturation, 0, time -= Time.deltaTime);
+				SetDesaturation(smoothedDistance);
+				yield return null;
+			}
+			isSmoothingDesaturation = false;
 		}
 
 
@@ -99,32 +141,45 @@ namespace EmbodimentDiscrepancy
 			colorGradingSetting.hueShift.value = newShift;
 		}
 
-		IEnumerator SmoothAdjust(float time)
+		IEnumerator SmoothAdjustColorShift(float time)
 		{
-			isSmoothing = true;
+			isSmoothingColorShift = true;
 			while (time > 0)
 			{
-				float smoothedDistance = Mathf.Lerp(curMaxDiscrepancyDistance, 0, time -= Time.deltaTime);
+				float smoothedDistance = Mathf.Lerp(curMaxDiscrepancyDistanceColorShift, 0, time -= Time.deltaTime);
 				SetColorShift(smoothedDistance);
 				yield return null;
 			}
-			isSmoothing = false;
+			isSmoothingColorShift = false;
 		}
 
 		//handle everything after all Updates done, to make sure Handle*() functions called before
 		void LateUpdate()
 		{
-			if (curMaxDiscrepancyDistance > 0)
+			if (curMaxDiscrepancyDistanceColorShift > 0)
 			{	
 				//smooth out initial distance jump after tolerance timer reached
-				if (prevMaxDiscrepancyDistance == 0	 && !isSmoothing){
-					StartCoroutine(SmoothAdjust(smoothingTime));
+				if (prevMaxDiscrepancyDistanceColorShift == 0	 && !isSmoothingColorShift){
+					StartCoroutine(SmoothAdjustColorShift(smoothingTime));
 				}
-				if (!isSmoothing){ //after smoothing set directly
-					SetColorShift(curMaxDiscrepancyDistance);
+				if (!isSmoothingColorShift){ //after smoothing set directly
+					SetColorShift(curMaxDiscrepancyDistanceColorShift);
 				}
 			}
-			prevMaxDiscrepancyDistance = curMaxDiscrepancyDistance;
+			prevMaxDiscrepancyDistanceColorShift = curMaxDiscrepancyDistanceColorShift;
+			
+			if (curMaxDiscrepancyDistanceDesaturation > 0)
+			{	
+				//smooth out initial distance jump after tolerance timer reached
+				if (prevMaxDiscrepancyDistanceDesaturation == 0	 && !isSmoothingDesaturation){
+					StartCoroutine(SmoothAdjustDesaturation(smoothingTime));
+				}
+				if (!isSmoothingDesaturation){ //after smoothing set directly
+					SetDesaturation(curMaxDiscrepancyDistanceDesaturation);
+				}
+			}
+			prevMaxDiscrepancyDistanceDesaturation = curMaxDiscrepancyDistanceDesaturation;
+			
 			
 			StartCoroutine(ResetAfterFrame());
 		}
