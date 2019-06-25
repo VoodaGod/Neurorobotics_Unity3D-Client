@@ -43,6 +43,10 @@ namespace EmbodimentDiscrepancy
 		DiscrepancyIndicatorHandler discrepancyIndicatorHandler;
 
 		[SerializeField]
+		[Tooltip("If not set, will be searched in scene")]
+		DiscrepancyPostProcessingEffects discrepancyPostProcessingEffects;
+
+		[SerializeField]
 		SteamVR_TrackedObject leftHandTrackedObject, rightHandTrackedObject, leftFootTrackedObject, rightFootTrackedObject;
 
 		public bool lineEffectHands = true;
@@ -53,7 +57,10 @@ namespace EmbodimentDiscrepancy
 		public bool geigerSoundEffectFeet = true;
 		public bool noiseSoundEffectHands = true;
 		public bool noiseSoundEffectFeet = true;
-		public bool discrepancyIndicatorEffect = true;
+		public bool discrepancyIndicatorEffectHands = true;
+		public bool discrepancyIndicatorEffectFeet = true;
+		public bool colorShiftEffectHands = true;
+		public bool colorShiftEffectFeet = true;
 		public bool blurEffect = true;
 		public bool fadeToBlackEffect = true;
 
@@ -103,8 +110,11 @@ namespace EmbodimentDiscrepancy
 					if (noiseSoundEffectHands){
 						discrepancySoundHandler.HandleNoise(disc);
 					}
-					if (discrepancyIndicatorEffect){
+					if (discrepancyIndicatorEffectHands && (disc.duration > toleranceTimeHands)){
 						discrepancyIndicatorHandler.HandleIndicator(disc);
+					}
+					if (colorShiftEffectHands && (disc.duration > toleranceTimeHands)){
+						discrepancyPostProcessingEffects.HandleColorShift(disc);
 					}
 				}
 
@@ -122,8 +132,11 @@ namespace EmbodimentDiscrepancy
 					if (noiseSoundEffectFeet){
 						discrepancySoundHandler.HandleNoise(disc);
 					}
-					if (discrepancyIndicatorEffect){
+					if (discrepancyIndicatorEffectFeet && disc.duration > toleranceTimeFeet){
 						discrepancyIndicatorHandler.HandleIndicator(disc);
+					}
+					if (colorShiftEffectFeet && disc.duration > toleranceTimeFeet){
+						discrepancyPostProcessingEffects.HandleColorShift(disc);
 					}
 				}
 
@@ -181,6 +194,14 @@ namespace EmbodimentDiscrepancy
 				discrepancyIndicatorHandler = GameObject.FindObjectOfType<DiscrepancyIndicatorHandler>();
 				if (discrepancyIndicatorHandler == null){
 					Debug.LogError("no DiscrepancyIndicatorHandler found");
+				}
+			}
+
+			if (discrepancyPostProcessingEffects== null)
+			{
+				discrepancyPostProcessingEffects = GameObject.FindObjectOfType<DiscrepancyPostProcessingEffects>();
+				if (discrepancyPostProcessingEffects == null){
+					Debug.LogError("no DiscrepancyPostProcessingEffects found");
 				}
 			}
 

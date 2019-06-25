@@ -26,6 +26,7 @@ GameObject:
   - component: {fileID: 114290883029553302}
   - component: {fileID: 114044443808462562}
   - component: {fileID: 114189237125418326}
+  - component: {fileID: 114484889335576528}
   - component: {fileID: 114769077413451680}
   - component: {fileID: 114791900309768642}
   m_Layer: 0
@@ -100,6 +101,8 @@ MonoBehaviour:
   discrepancyIndicatorCanvasPrefab: {fileID: 223526190350274204, guid: 622f7f0b9e7a14f2386db4ea063a806c,
     type: 2}
   mainCamera: {fileID: 0}
+  hideIndicatorsWhenTargetInView: 1
+  inViewPortOffset: 0.2
 --- !u!114 &114290883029553302
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -116,6 +119,27 @@ MonoBehaviour:
   maxRumblePulseDuration: 0.03
   maxRumblePulseDistance: 1
   pulseStrength: 0.25
+--- !u!114 &114484889335576528
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1532938323012370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 426f93138faa1460aaa87df3d89db76f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  postProcessResources: {fileID: 11400000, guid: d82512f9c8e5d4a4d938b575d47f88d4,
+    type: 2}
+  postProcessProfileAsset: {fileID: 0}
+  postProcessVolumePrefab: {fileID: 114965472024242000, guid: f504c77bd88a74f8daf313b8718297ae,
+    type: 2}
+  mainCam: {fileID: 0}
+  postProcessLayerName: PostProcessing
+  distToFullColorShift: 2
+  maxShiftDegrees: 300
+  smoothingTime: 1
 --- !u!114 &114685663001576196
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -132,20 +156,25 @@ MonoBehaviour:
   discrepancyHapticHandler: {fileID: 0}
   discrepancySoundHandler: {fileID: 0}
   discrepancyIndicatorHandler: {fileID: 0}
+  discrepancyPostProcessingEffects: {fileID: 0}
   leftHandTrackedObject: {fileID: 0}
   rightHandTrackedObject: {fileID: 0}
   leftFootTrackedObject: {fileID: 0}
   rightFootTrackedObject: {fileID: 0}
-  lineEffectEnabled: 1
   lineEffectHands: 1
   lineEffectFeet: 1
-  fadeToBlackEffect: 1
-  blurEffect: 1
   hapticEffectHands: 1
   hapticEffectFeet: 1
-  geigerSoundEffect: 1
-  noiseSoundEffect: 1
-  discrepancyIndicatorEffect: 1
+  geigerSoundEffectHands: 1
+  geigerSoundEffectFeet: 1
+  noiseSoundEffectHands: 1
+  noiseSoundEffectFeet: 1
+  discrepancyIndicatorEffectHands: 1
+  discrepancyIndicatorEffectFeet: 1
+  colorShiftEffectHands: 1
+  colorShiftEffectFeet: 0
+  blurEffect: 1
+  fadeToBlackEffect: 1
   toleranceTimeHands: 1
   toleranceTimeFeet: 1
   toleranceTimeHead: 0.5
