@@ -45,29 +45,30 @@ namespace EmbodimentDiscrepancy
 		[SerializeField]
 		SteamVR_TrackedObject leftHandTrackedObject, rightHandTrackedObject, leftFootTrackedObject, rightFootTrackedObject;
 
-		public bool lineEffectEnabled = true;
 		public bool lineEffectHands = true;
 		public bool lineEffectFeet = true;
-		public bool fadeToBlackEffect = true;
-		public bool blurEffect = true;
 		public bool hapticEffectHands = true;
 		public bool hapticEffectFeet = true;
-		public bool geigerSoundEffect = true;
-		public bool noiseSoundEffect = true;
+		public bool geigerSoundEffectHands = true;
+		public bool geigerSoundEffectFeet = true;
+		public bool noiseSoundEffectHands = true;
+		public bool noiseSoundEffectFeet = true;
 		public bool discrepancyIndicatorEffect = true;
+		public bool blurEffect = true;
+		public bool fadeToBlackEffect = true;
 
 		[SerializeField]
-		[Tooltip("seconds before discrepancy is handled")]
+		[Tooltip("seconds before discrepancy is handled at Hands")]
 		[Range(0, 3)]
 		public float toleranceTimeHands = 1;
 
 		[SerializeField]
-		[Tooltip("seconds before discrepancy is handled")]
+		[Tooltip("seconds before discrepancy is handled at Feet")]
 		[Range(0, 3)]
 		public float toleranceTimeFeet = 1;
 
 		[SerializeField]
-		[Tooltip("seconds before discrepancy is handled")]
+		[Tooltip("seconds before discrepancy is handled at Head")]
 		[Range(0, 1)]
 		public float toleranceTimeHead = 0.5f;
 
@@ -90,39 +91,39 @@ namespace EmbodimentDiscrepancy
 			{
 				if (disc.joint == TrackedJoint.HandLeft || disc.joint == TrackedJoint.HandRight)
 				{
-					if (lineEffectEnabled && lineEffectHands && (disc.duration > toleranceTimeHands)){
+					if (lineEffectHands && (disc.duration > toleranceTimeHands)){
 						discrepancyLineHandler.DrawLine(disc);
 					}
 					if (hapticEffectHands && (disc.duration > toleranceTimeHands)){
 						discrepancyHapticHandler.HandleRumble(disc);
 					}
-					if (geigerSoundEffect && (disc.duration > toleranceTimeHands)){
+					if (geigerSoundEffectHands && (disc.duration > toleranceTimeHands)){
 						discrepancySoundHandler.HandleGeigerSounds(disc);
 					}
-					if (noiseSoundEffect){
+					if (noiseSoundEffectHands){
 						discrepancySoundHandler.HandleNoise(disc);
 					}
 					if (discrepancyIndicatorEffect){
-						discrepancyIndicatorHandler.HandleDiscrepancy(disc);
+						discrepancyIndicatorHandler.HandleIndicator(disc);
 					}
 				}
 
 				if (disc.joint == TrackedJoint.FootLeft || disc.joint == TrackedJoint.FootRight)
 				{
-					if (lineEffectEnabled && lineEffectFeet && (disc.duration > toleranceTimeFeet)){
+					if (lineEffectFeet && (disc.duration > toleranceTimeFeet)){
 						discrepancyLineHandler.DrawLine(disc);
 					}
 					if (hapticEffectFeet && (disc.duration > toleranceTimeFeet)){
 						discrepancyHapticHandler.HandleRumble(disc);
 					}
-					if (geigerSoundEffect && (disc.duration > toleranceTimeFeet)){
+					if (geigerSoundEffectFeet && (disc.duration > toleranceTimeFeet)){
 						discrepancySoundHandler.HandleGeigerSounds(disc);
 					}
-					if (noiseSoundEffect){
+					if (noiseSoundEffectFeet){
 						discrepancySoundHandler.HandleNoise(disc);
 					}
 					if (discrepancyIndicatorEffect){
-						discrepancyIndicatorHandler.HandleDiscrepancy(disc);
+						discrepancyIndicatorHandler.HandleIndicator(disc);
 					}
 				}
 

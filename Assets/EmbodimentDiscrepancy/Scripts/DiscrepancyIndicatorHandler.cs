@@ -42,7 +42,7 @@ namespace EmbodimentDiscrepancy
 
 
 		//called every frame when discrepancy should be handled
-		public void HandleDiscrepancy(Discrepancy disc)
+		public void HandleIndicator(Discrepancy disc)
 		{
 			if (!discrepancyIndicatorDict.ContainsKey(disc.joint)){
 				DiscrepancyIndicator discrepancyIndicator = Instantiate(discrepancyIndicatorPrefab);
