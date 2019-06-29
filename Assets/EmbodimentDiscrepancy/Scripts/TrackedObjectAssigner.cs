@@ -13,7 +13,11 @@ public class TrackedObjectAssigner : MonoBehaviour {
 	public Transform avatarBodyTransform;
 
 	public List<SteamVR_TrackedObject> trackedObjects = new List<SteamVR_TrackedObject>();
-	public Transform[] IKTargets;
+	public Transform leftHandIKTargetPrefab;
+	public Transform rightHandIKTargetPrefab;
+	public Transform leftFootIKTargetPrefab;
+	public Transform rightFootIKTargetPrefab;
+	public Transform bodyIKTargetPrefab;
 
 
 	SteamVR_TrackedObject GetClosestTrackedObject(Transform origin)
@@ -34,16 +38,27 @@ public class TrackedObjectAssigner : MonoBehaviour {
 	void AssignTrackersToRoles()
 	{
 		SteamVR_TrackedObject closest;
+		Transform IKTarget;
+
 		closest = GetClosestTrackedObject(avatarLeftHandTransform);
-		userAvatarVisualsIKControl.leftHandTarget = IKTargets[trackedObjects.IndexOf(closest)];
+		IKTarget = Instantiate(leftHandIKTargetPrefab, closest.transform);
+		userAvatarVisualsIKControl.leftHandTarget = IKTarget;
+
 		closest = GetClosestTrackedObject(avatarRightHandTransform);
-		userAvatarVisualsIKControl.rightHandTarget = IKTargets[trackedObjects.IndexOf(closest)];
+		IKTarget = Instantiate(rightHandIKTargetPrefab, closest.transform);
+		userAvatarVisualsIKControl.rightHandTarget = IKTarget;
+
 		closest = GetClosestTrackedObject(avatarLeftFootTransform);
-		userAvatarVisualsIKControl.leftFootTarget = IKTargets[trackedObjects.IndexOf(closest)];
+		IKTarget = Instantiate(leftFootIKTargetPrefab, closest.transform);
+		userAvatarVisualsIKControl.leftFootTarget = IKTarget;
+
 		closest = GetClosestTrackedObject(avatarRightFootTransform);
-		userAvatarVisualsIKControl.rightFootTarget = IKTargets[trackedObjects.IndexOf(closest)];
+		IKTarget = Instantiate(rightFootIKTargetPrefab, closest.transform);
+		userAvatarVisualsIKControl.rightFootTarget = IKTarget;
+
 		closest = GetClosestTrackedObject(avatarBodyTransform);
-		userAvatarVisualsIKControl.bodyTarget = IKTargets[trackedObjects.IndexOf(closest)];
+		IKTarget = Instantiate(bodyIKTargetPrefab, closest.transform);
+		userAvatarVisualsIKControl.bodyTarget = IKTarget;
 	}
 
 
