@@ -25,6 +25,8 @@ public class TrackedObjectAssigner : MonoBehaviour {
 	public Transform bodyIKTargetPrefab;
 	public Transform lookAtIKTargetPrefab;
 
+	public GameObject[] objectsToDisableAfterAssignment;
+
 
 	SteamVR_TrackedObject GetClosestTrackedObject(Transform origin)
 	{
@@ -88,6 +90,10 @@ public class TrackedObjectAssigner : MonoBehaviour {
 		{
 			AssignTrackersToRoles();
 			userAvatarVisualsIKControl.GetComponent<Animator>().enabled = true;
+
+			foreach (GameObject obj in objectsToDisableAfterAssignment){
+				obj.SetActive(false);
+			}
 		}
 	}
 }

@@ -78,3 +78,5 @@ MonoBehaviour:
     type: 2}
   lookAtIKTargetPrefab: {fileID: 4635651609098940, guid: aee2a38f7d4cdf047a026a12277d0581,
     type: 2}
+  objectsToDisableAfterAssignment:
+  - {fileID: 0}
