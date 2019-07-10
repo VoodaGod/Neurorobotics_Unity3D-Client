@@ -46,9 +46,6 @@ namespace EmbodimentDiscrepancy
 		[Tooltip("If not set, will be searched in scene")]
 		DiscrepancyPostProcessingEffects discrepancyPostProcessingEffects;
 
-		[SerializeField]
-		SteamVR_TrackedObject leftHandTrackedObject, rightHandTrackedObject, leftFootTrackedObject, rightFootTrackedObject;
-
 		public bool lineEffectHands = true;
 		public bool lineEffectFeet = true;
 		public bool hapticEffectHands = true;
@@ -93,11 +90,6 @@ namespace EmbodimentDiscrepancy
 
 		void Update()
 		{
-			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.HandLeft, leftHandTrackedObject);
-			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.HandRight, rightHandTrackedObject);
-			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.FootLeft, leftFootTrackedObject);
-			discrepancyHapticHandler.SetTrackedObjectForJoint(TrackedJoint.FootRight, rightFootTrackedObject);
-
 			foreach (Discrepancy disc in discrepancyList)
 			{
 				if (disc.joint == TrackedJoint.HandLeft || disc.joint == TrackedJoint.HandRight)
@@ -218,10 +210,6 @@ namespace EmbodimentDiscrepancy
 				if (discrepancyPostProcessingEffects == null){
 					Debug.LogError("no DiscrepancyPostProcessingEffects found");
 				}
-			}
-
-			if (leftHandTrackedObject == null || rightHandTrackedObject == null || leftFootTrackedObject == null || rightHandTrackedObject == null){
-				Debug.LogError("trackedObject(s) not set");
 			}
 		}
 	}

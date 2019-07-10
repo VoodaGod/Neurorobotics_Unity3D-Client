@@ -35,7 +35,7 @@ namespace EmbodimentDiscrepancy
 		[SerializeField]
 		[Tooltip("how far into view target must be to hide indicator, 0 is outer edge, 0.5 is center of view")]
 		[Range(0, 0.5f)]
-		float inViewPortOffset = 0.2f;
+		float inViewportOffset = 0.2f;
 
 		Canvas discrepancyIndicatorCanvas;
 		Dictionary<TrackedJoint, DiscrepancyIndicator> discrepancyIndicatorDict = new Dictionary<TrackedJoint, DiscrepancyIndicator>();
@@ -62,10 +62,10 @@ namespace EmbodimentDiscrepancy
 			bool targetInView = false;
 			if (hideIndicatorsWhenTargetInView)
 			{
-				Vector3 viewPortPos = mainCamera.GetComponent<Camera>().WorldToViewportPoint(target.position);
-				float upperInViewPortBound = 1 - inViewPortOffset;
-				float lowerInViewPortBound = 0 + inViewPortOffset;
-				if (viewPortPos.x >= lowerInViewPortBound && viewPortPos.x <= upperInViewPortBound && viewPortPos.y >= lowerInViewPortBound && viewPortPos.y <= upperInViewPortBound && viewPortPos.z > 0){
+				Vector3 viewportPos = mainCamera.GetComponent<Camera>().WorldToViewportPoint(target.position);
+				float upperInViewportBound = 1 - inViewportOffset;
+				float lowerInViewportBound = 0 + inViewportOffset;
+				if (viewportPos.x >= lowerInViewportBound && viewportPos.x <= upperInViewportBound && viewportPos.y >= lowerInViewportBound && viewportPos.y <= upperInViewportBound && viewportPos.z > 0){
 					targetInView = true;
 				}
 			}
