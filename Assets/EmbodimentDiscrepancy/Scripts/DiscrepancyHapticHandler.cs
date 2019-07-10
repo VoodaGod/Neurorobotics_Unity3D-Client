@@ -31,9 +31,11 @@ namespace EmbodimentDiscrepancy
 		[Range(0, 1)]
 		float pulseStrength = 1;
 
-		Dictionary<TrackedJoint, SteamVR_TrackedObject> trackedObjectDict = new Dictionary<TrackedJoint, SteamVR_TrackedObject>();
-		//Dictionary<TrackedJoint, Rumble> rumbleDict = new Dictionary<TrackedJoint, Rumble>();
 		[SerializeField]
+		[Tooltip("need to be set correctly at runtime")]
+		public SteamVR_TrackedObject handLeftTrackedObject, handRightTrackedObject, footLeftTrackedObject, footRightTrackedObject;
+
+		Dictionary<TrackedJoint, SteamVR_TrackedObject> trackedObjectDict = new Dictionary<TrackedJoint, SteamVR_TrackedObject>();
 		List<Rumble> rumbleList = new List<Rumble>();
 
 
@@ -54,7 +56,7 @@ namespace EmbodimentDiscrepancy
 			}
 			else
 			{
-				Debug.Log("haptic not set up for " + disc.joint.ToString());
+				Debug.Log("haptic not set up for " + disc.joint.ToString() + " (no SteamVR_TrackedObject set)");
 				return;
 			}
 
@@ -97,12 +99,23 @@ namespace EmbodimentDiscrepancy
             rumble.sentOut = true;
 		}
 
-		public void SetTrackedObjectForJoint(TrackedJoint joint, SteamVR_TrackedObject trackedObject){
-			trackedObjectDict[joint] = trackedObject;
+		void SetTrackedObjectForJoint(TrackedJoint joint, SteamVR_TrackedObject trackedObject)
+		{
+			if (trackedObject == null){
+				return;
+			}
+			trackedObjectDict[joint] = trackedObject;	
 		}
 
 		void Update()
 		{
+			//update tracked objects in library in case they have changed
+			SetTrackedObjectForJoint(TrackedJoint.HandLeft, handLeftTrackedObject);
+			SetTrackedObjectForJoint(TrackedJoint.HandRight, handRightTrackedObject);
+			SetTrackedObjectForJoint(TrackedJoint.FootLeft, footLeftTrackedObject);
+			SetTrackedObjectForJoint(TrackedJoint.FootRight, footRightTrackedObject);
+
+
 			foreach (Rumble rumble in rumbleList)
 			{
 				//send out pulse

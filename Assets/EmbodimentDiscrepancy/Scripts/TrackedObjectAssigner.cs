@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class TrackedObjectAssigner : MonoBehaviour {
 
+	public KeyCode keyToAssignTrackers = KeyCode.A;
+
 	public UserAvatarVisualsIKControl userAvatarVisualsIKControl;
+	public EmbodimentDiscrepancy.DiscrepancyHapticHandler discrepancyHapticHandler;
+
+	public GameObject mainCam;
 
 	public Transform avatarLeftHandTransform;
 	public Transform avatarRightHandTransform;
@@ -18,6 +23,7 @@ public class TrackedObjectAssigner : MonoBehaviour {
 	public Transform leftFootIKTargetPrefab;
 	public Transform rightFootIKTargetPrefab;
 	public Transform bodyIKTargetPrefab;
+	public Transform lookAtIKTargetPrefab;
 
 
 	SteamVR_TrackedObject GetClosestTrackedObject(Transform origin)
@@ -43,22 +49,29 @@ public class TrackedObjectAssigner : MonoBehaviour {
 		closest = GetClosestTrackedObject(avatarLeftHandTransform);
 		IKTarget = Instantiate(leftHandIKTargetPrefab, closest.transform);
 		userAvatarVisualsIKControl.leftHandTarget = IKTarget;
+		discrepancyHapticHandler.handLeftTrackedObject = closest;
 
 		closest = GetClosestTrackedObject(avatarRightHandTransform);
 		IKTarget = Instantiate(rightHandIKTargetPrefab, closest.transform);
 		userAvatarVisualsIKControl.rightHandTarget = IKTarget;
+		discrepancyHapticHandler.handRightTrackedObject = closest;
 
 		closest = GetClosestTrackedObject(avatarLeftFootTransform);
 		IKTarget = Instantiate(leftFootIKTargetPrefab, closest.transform);
 		userAvatarVisualsIKControl.leftFootTarget = IKTarget;
+		discrepancyHapticHandler.footLeftTrackedObject = closest;
 
 		closest = GetClosestTrackedObject(avatarRightFootTransform);
 		IKTarget = Instantiate(rightFootIKTargetPrefab, closest.transform);
 		userAvatarVisualsIKControl.rightFootTarget = IKTarget;
+		discrepancyHapticHandler.footRightTrackedObject = closest;
 
 		closest = GetClosestTrackedObject(avatarBodyTransform);
 		IKTarget = Instantiate(bodyIKTargetPrefab, closest.transform);
 		userAvatarVisualsIKControl.bodyTarget = IKTarget;
+		
+		IKTarget = Instantiate(lookAtIKTargetPrefab, mainCam.transform);
+		userAvatarVisualsIKControl.lookAtObj = IKTarget;
 	}
 
 
@@ -71,7 +84,7 @@ public class TrackedObjectAssigner : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetKeyUp(KeyCode.A))
+		if (Input.GetKeyUp(keyToAssignTrackers))
 		{
 			AssignTrackersToRoles();
 			userAvatarVisualsIKControl.GetComponent<Animator>().enabled = true;

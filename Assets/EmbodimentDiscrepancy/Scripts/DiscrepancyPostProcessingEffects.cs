@@ -21,7 +21,7 @@ namespace EmbodimentDiscrepancy
 
 		[SerializeField]
 		[Tooltip("set to Camera (eye) in scene")]
-		Camera mainCam;
+		GameObject mainCam;
 
 		[SerializeField]
 		[Tooltip("layer for postprocessing objects, must exist")]

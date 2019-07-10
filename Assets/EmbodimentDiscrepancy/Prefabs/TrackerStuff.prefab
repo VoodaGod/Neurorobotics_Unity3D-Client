@@ -51,7 +51,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dccfb8db89de64d9084a007558d54a42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  keyToAssignTrackers: 97
   userAvatarVisualsIKControl: {fileID: 0}
+  discrepancyHapticHandler: {fileID: 0}
+  mainCam: {fileID: 0}
   avatarLeftHandTransform: {fileID: 0}
   avatarRightHandTransform: {fileID: 0}
   avatarLeftFootTransform: {fileID: 0}
@@ -72,4 +75,6 @@ MonoBehaviour:
   rightFootIKTargetPrefab: {fileID: 4130560527749424, guid: d96a60a116d6344b4a55dc5d6594b7a2,
     type: 2}
   bodyIKTargetPrefab: {fileID: 4100691950281346, guid: 80b22dfa4a9cd42c2afa67da28636997,
+    type: 2}
+  lookAtIKTargetPrefab: {fileID: 4635651609098940, guid: aee2a38f7d4cdf047a026a12277d0581,
     type: 2}
