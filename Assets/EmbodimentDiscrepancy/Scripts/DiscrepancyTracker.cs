@@ -30,6 +30,10 @@ namespace EmbodimentDiscrepancy
 
 		Dictionary<TrackedJoint, float> timerDict = new Dictionary<TrackedJoint, float>();
 
+		[SerializeField]
+		[Tooltip("Set to tracked object of avatar with colliders")]
+		Transform remoteHeadPos, remoteHandPosLeft, remoteHandPosRight, remoteFootPosLeft, remoteFootPosRight;
+
 
 		void Start()
 		{
@@ -58,12 +62,19 @@ namespace EmbodimentDiscrepancy
 			localPosDict[TrackedJoint.HandRight] = localHandPosRight;
 			localPosDict[TrackedJoint.FootLeft] = localFootPosLeft;
 			localPosDict[TrackedJoint.FootRight] = localFootPosRight;
+
+			remotePosDict[TrackedJoint.Head] = remoteHeadPos;
+			remotePosDict[TrackedJoint.HandLeft] = remoteHandPosLeft;
+			remotePosDict[TrackedJoint.HandRight] = remoteHandPosRight;
+			remotePosDict[TrackedJoint.FootLeft] = remoteFootPosLeft;
+			remotePosDict[TrackedJoint.FootRight] = remoteFootPosRight;
 		}
 
 		void Update()
 		{
-			if (userAvatarService.avatar != null)
+			//if (userAvatarService.avatar != null)
 			{
+				/*
 				//find remote joint objects
 				foreach (KeyValuePair<TrackedJoint, Transform> entry in localPosDict)
 				{
@@ -76,6 +87,7 @@ namespace EmbodimentDiscrepancy
 						Debug.LogError("could not find " + name);
 					}
 				}
+				*/
 
 				//check & handle discrepancies
 				foreach (KeyValuePair<TrackedJoint, Transform> entry in localPosDict)

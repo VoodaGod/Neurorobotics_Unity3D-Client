@@ -14,11 +14,11 @@ TagManager:
   - 
   - 
   - PostProcessing
-  - 
-  - 
-  - 
-  - 
-  - 
+  - avatarCollider
+  - IKTargetsCollider
+  - IKTargets
+  - Environment
+  - Environment2
   - 
   - 
   - 
