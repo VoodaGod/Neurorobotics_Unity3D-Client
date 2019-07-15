@@ -89,5 +89,6 @@ public class InteriorRenderingHandler : MonoBehaviour {
 			}
 			AddInteriorMaterialToGazeboObjects();
 		}
-	}
+        AddInteriorMaterialToGazeboObjects();
+    }
 }

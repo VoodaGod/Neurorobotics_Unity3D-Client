@@ -82,7 +82,13 @@ public class TrackedObjectAssigner : MonoBehaviour {
 		IKTarget = Instantiate(lookAtIKTargetPrefab, mainCam.transform);
 		userAvatarVisualsIKControl.lookAtObj = IKTarget;
         colliderUAVIKC.lookAtObj = IKTarget;
-	}
+
+
+        foreach (GameObject obj in objectsToDisableAfterAssignment)
+        {
+            obj.SetActive(false);
+        }
+    }
 
 
 	// Use this for initialization
@@ -97,11 +103,7 @@ public class TrackedObjectAssigner : MonoBehaviour {
 		if (Input.GetKeyUp(keyToAssignTrackers))
 		{
 			AssignTrackersToRoles();
-			userAvatarVisualsIKControl.GetComponent<Animator>().enabled = true;
-
-			foreach (GameObject obj in objectsToDisableAfterAssignment){
-				obj.SetActive(false);
-			}
+            userAvatarVisualsIKControl.GetComponent<Animator>().enabled = true;
 		}
 	}
 }
