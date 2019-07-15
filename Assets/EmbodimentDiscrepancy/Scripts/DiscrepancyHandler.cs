@@ -88,6 +88,7 @@ namespace EmbodimentDiscrepancy
 			discrepancyList.Add(disc);
 		}
 
+        public PlankTest plankTest;
 		void Update()
 		{
 			foreach (Discrepancy disc in discrepancyList)
@@ -119,6 +120,7 @@ namespace EmbodimentDiscrepancy
 
 				if (disc.joint == TrackedJoint.FootLeft || disc.joint == TrackedJoint.FootRight)
 				{
+                    plankTest.AddTime(Time.deltaTime);
 					if (lineEffectFeet && (disc.duration > toleranceTimeFeet)){
 						discrepancyLineHandler.DrawLine(disc);
 					}

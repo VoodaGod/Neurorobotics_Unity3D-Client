@@ -1,0 +1,6 @@
+watermelon: https://www.flaticon.com/free-icon/watermelon_874997
+cherries: https://www.flaticon.com/free-icon/cherries_874983
+cocktail: https://www.flaticon.com/free-icon/cocktail_875005
+flamingo: https://www.flaticon.com/free-icon/flamingo_874975
+pineapple: https://www.flaticon.com/free-icon/pineapple_874995
+idea: https://www.flaticon.com/free-icon/idea_1903525

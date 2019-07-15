@@ -27,6 +27,10 @@ public class TrackedObjectAssigner : MonoBehaviour {
 
 	public GameObject[] objectsToDisableAfterAssignment;
 
+    public SteamVR_TrackedObject leftHandTrackedObject, righthandTrackedObject;
+
+    public UserAvatarVisualsIKControl colliderUAVIKC;
+
 
 	SteamVR_TrackedObject GetClosestTrackedObject(Transform origin)
 	{
@@ -43,7 +47,7 @@ public class TrackedObjectAssigner : MonoBehaviour {
 		return closest;
 	}
 
-	void AssignTrackersToRoles()
+	public void AssignTrackersToRoles()
 	{
 		SteamVR_TrackedObject closest;
 		Transform IKTarget;
@@ -52,11 +56,13 @@ public class TrackedObjectAssigner : MonoBehaviour {
 		IKTarget = Instantiate(leftHandIKTargetPrefab, closest.transform);
 		userAvatarVisualsIKControl.leftHandTarget = IKTarget;
 		discrepancyHapticHandler.handLeftTrackedObject = closest;
+        leftHandTrackedObject = closest;
 
 		closest = GetClosestTrackedObject(avatarRightHandTransform);
 		IKTarget = Instantiate(rightHandIKTargetPrefab, closest.transform);
 		userAvatarVisualsIKControl.rightHandTarget = IKTarget;
 		discrepancyHapticHandler.handRightTrackedObject = closest;
+        righthandTrackedObject = closest;
 
 		closest = GetClosestTrackedObject(avatarLeftFootTransform);
 		IKTarget = Instantiate(leftFootIKTargetPrefab, closest.transform);
@@ -71,9 +77,11 @@ public class TrackedObjectAssigner : MonoBehaviour {
 		closest = GetClosestTrackedObject(avatarBodyTransform);
 		IKTarget = Instantiate(bodyIKTargetPrefab, closest.transform);
 		userAvatarVisualsIKControl.bodyTarget = IKTarget;
+        colliderUAVIKC.bodyTarget = IKTarget;
 		
 		IKTarget = Instantiate(lookAtIKTargetPrefab, mainCam.transform);
 		userAvatarVisualsIKControl.lookAtObj = IKTarget;
+        colliderUAVIKC.lookAtObj = IKTarget;
 	}
 
 
